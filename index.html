@@ -1,0 +1,1775 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Simulador Predictivo ML — World</title>
+  <meta name="description"
+    content="Simulador predictivo de fútbol con modelos ML, handicaps, mercados asiáticos y combinadas basadas en matriz de Poisson.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap"
+    rel="stylesheet">
+  <style>
+    :root {
+      --bg-body: #08081a;
+      --bg-card: rgba(22, 22, 60, 0.55);
+      --bg-input: rgba(30, 30, 70, 0.5);
+      --glass-border: rgba(99, 102, 241, 0.18);
+      --accent: #6366f1;
+      --accent2: #8b5cf6;
+      --accent3: #a78bfa;
+      --success: #34d399;
+      --warning: #fbbf24;
+      --danger: #f87171;
+      --text: #e2e8f0;
+      --text2: #94a3b8;
+      --text3: #64748b;
+      --radius: 14px;
+      --shadow: 0 8px 32px rgba(0, 0, 0, .35)
+    }
+
+    *,
+    *::before,
+    *::after {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0
+    }
+
+    html {
+      scroll-behavior: smooth
+    }
+
+    body {
+      font-family: 'Inter', system-ui, sans-serif;
+      background: var(--bg-body);
+      color: var(--text);
+      min-height: 100vh;
+      line-height: 1.55;
+      padding-bottom: 100px
+    }
+
+    ::selection {
+      background: var(--accent);
+      color: #fff
+    }
+
+    input,
+    select,
+    button,
+    textarea {
+      font-family: inherit
+    }
+
+    .container {
+      max-width: 1100px;
+      margin: 0 auto;
+      padding: 0 20px
+    }
+
+    header {
+      padding: 40px 0 24px;
+      text-align: center
+    }
+
+    header h1 {
+      font-size: 2rem;
+      font-weight: 800;
+      background: linear-gradient(135deg, var(--accent), var(--accent2), var(--accent3));
+      background-clip: text;
+      -webkit-text-fill-color: transparent;
+      letter-spacing: -.5px
+    }
+
+    header p {
+      color: var(--text2);
+      margin-top: 6px;
+      font-size: .92rem
+    }
+
+    .section {
+      margin-bottom: 28px
+    }
+
+    .section-title {
+      font-size: 1.05rem;
+      font-weight: 700;
+      color: var(--accent3);
+      margin-bottom: 14px;
+      display: flex;
+      align-items: center;
+      gap: 8px
+    }
+
+    .section-title span {
+      font-size: 1.2rem
+    }
+
+    .card {
+      background: var(--bg-card);
+      border: 1px solid var(--glass-border);
+      border-radius: var(--radius);
+      padding: 22px;
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      box-shadow: var(--shadow);
+      transition: transform .2s, box-shadow .2s;
+      overflow-x: auto
+    }
+
+    .card:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 12px 40px rgba(0, 0, 0, .45)
+    }
+
+    .card-title {
+      font-size: .88rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: .8px;
+      color: var(--accent3);
+      margin-bottom: 14px;
+      padding-bottom: 8px;
+      border-bottom: 1px solid var(--glass-border)
+    }
+
+    #drop-zone {
+      border: 2px dashed var(--glass-border);
+      border-radius: var(--radius);
+      padding: 36px 20px;
+      text-align: center;
+      cursor: pointer;
+      transition: border-color .3s, background .3s;
+      background: var(--bg-card)
+    }
+
+    #drop-zone:hover,
+    #drop-zone.dragover {
+      border-color: var(--accent);
+      background: rgba(99, 102, 241, .08)
+    }
+
+    #drop-zone .icon {
+      font-size: 2.5rem;
+      margin-bottom: 8px
+    }
+
+    #drop-zone p {
+      color: var(--text2);
+      font-size: .9rem
+    }
+
+    #drop-zone .highlight {
+      color: var(--accent);
+      font-weight: 600;
+      text-decoration: underline;
+      cursor: pointer
+    }
+
+    #file-input {
+      display: none
+    }
+
+    #data-status {
+      margin-top: 10px;
+      font-size: .85rem;
+      color: var(--text3);
+      text-align: center
+    }
+
+    #data-status.loaded {
+      color: var(--success)
+    }
+
+    .config-bar {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      flex-wrap: wrap;
+      margin-bottom: 12px
+    }
+
+    .config-bar label {
+      font-size: .82rem;
+      color: var(--text2);
+      font-weight: 500
+    }
+
+    .config-bar input[type="date"] {
+      background: var(--bg-input);
+      border: 1px solid var(--glass-border);
+      color: var(--text);
+      padding: 7px 12px;
+      border-radius: 8px;
+      font-size: .85rem
+    }
+
+    details.cfg {
+      background: var(--bg-card);
+      border: 1px solid var(--glass-border);
+      border-radius: var(--radius);
+      padding: 16px;
+      backdrop-filter: blur(10px)
+    }
+
+    details.cfg summary {
+      cursor: pointer;
+      font-size: .88rem;
+      font-weight: 600;
+      color: var(--accent3);
+      list-style: none
+    }
+
+    details.cfg summary::before {
+      content: '⚙️ '
+    }
+
+    .cfg-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+      gap: 10px;
+      margin-top: 14px
+    }
+
+    .cfg-item {
+      display: flex;
+      flex-direction: column;
+      gap: 3px
+    }
+
+    .cfg-item label {
+      font-size: .75rem;
+      color: var(--text3);
+      font-weight: 500
+    }
+
+    .cfg-item input {
+      background: var(--bg-input);
+      border: 1px solid var(--glass-border);
+      color: var(--text);
+      padding: 6px 10px;
+      border-radius: 7px;
+      font-size: .82rem;
+      width: 100%
+    }
+
+    .match-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 14px
+    }
+
+    .form-group {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+      position: relative
+    }
+
+    .form-group label {
+      font-size: .78rem;
+      color: var(--text2);
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: .5px
+    }
+
+    .form-group input {
+      background: var(--bg-input);
+      border: 1px solid var(--glass-border);
+      color: var(--text);
+      padding: 10px 14px;
+      border-radius: 9px;
+      font-size: .9rem;
+      transition: border-color .2s
+    }
+
+    .form-group input:focus {
+      outline: none;
+      border-color: var(--accent)
+    }
+
+    .form-group.full {
+      grid-column: 1/-1
+    }
+
+    #predict-btn {
+      grid-column: 1/-1;
+      padding: 14px;
+      border: none;
+      border-radius: 10px;
+      font-size: 1rem;
+      font-weight: 700;
+      cursor: pointer;
+      background: linear-gradient(135deg, var(--accent), var(--accent2));
+      color: #fff;
+      letter-spacing: .3px;
+      transition: transform .15s, box-shadow .2s;
+      box-shadow: 0 4px 20px rgba(99, 102, 241, .35)
+    }
+
+    #predict-btn:hover:not(:disabled) {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 28px rgba(99, 102, 241, .5)
+    }
+
+    #predict-btn:disabled {
+      opacity: .45;
+      cursor: not-allowed
+    }
+
+    .ac-list {
+      position: absolute;
+      top: 100%;
+      left: 0;
+      right: 0;
+      background: #1a1a3e;
+      border: 1px solid var(--glass-border);
+      border-radius: 0 0 9px 9px;
+      max-height: 180px;
+      overflow-y: auto;
+      z-index: 100;
+      display: none
+    }
+
+    .ac-list.visible {
+      display: block
+    }
+
+    .ac-item {
+      padding: 8px 14px;
+      font-size: .85rem;
+      cursor: pointer;
+      display: flex;
+      justify-content: space-between;
+      color: var(--text);
+      transition: background .1s
+    }
+
+    .ac-item:hover {
+      background: rgba(99, 102, 241, .15)
+    }
+
+    .ac-item .ac-elo {
+      color: var(--accent3);
+      font-weight: 600;
+      font-size: .8rem
+    }
+
+    #results-section {
+      display: none;
+      animation: fadeUp .5s ease
+    }
+
+    @keyframes fadeUp {
+      from {
+        opacity: 0;
+        transform: translateY(20px)
+      }
+
+      to {
+        opacity: 1;
+        transform: none
+      }
+    }
+
+    .results-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
+      gap: 18px
+    }
+
+    .results-grid .card.full-width {
+      grid-column: 1/-1
+    }
+
+    .mkt-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: .82rem;
+      min-width: 320px
+    }
+
+    .mkt-table th {
+      text-align: left;
+      color: var(--text3);
+      font-weight: 600;
+      padding: 6px 8px;
+      border-bottom: 1px solid var(--glass-border);
+      font-size: .72rem;
+      text-transform: uppercase;
+      letter-spacing: .5px;
+      white-space: nowrap
+    }
+
+    .mkt-table td {
+      padding: 7px 8px;
+      border-bottom: 1px solid rgba(255, 255, 255, .04);
+      white-space: nowrap
+    }
+
+    .mkt-table tr:last-child td {
+      border-bottom: none
+    }
+
+    .mkt-table tr {
+      transition: background .15s;
+      cursor: default
+    }
+
+    .mkt-table tr.clickable:hover {
+      background: rgba(99, 102, 241, .1);
+      border-radius: 6px
+    }
+
+    .prob {
+      font-weight: 600;
+      color: var(--accent3)
+    }
+
+    .odds {
+      color: var(--text2);
+      font-weight: 500
+    }
+
+    .add-btn {
+      background: none;
+      border: 1px solid var(--glass-border);
+      color: var(--accent3);
+      width: 26px;
+      height: 26px;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: .85rem;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      transition: all .15s;
+      flex-shrink: 0
+    }
+
+    .add-btn:hover {
+      background: var(--accent);
+      color: #fff;
+      border-color: var(--accent)
+    }
+
+    .add-btn.added {
+      background: var(--success);
+      border-color: var(--success);
+      color: #fff
+    }
+
+    .xg-hero {
+      display: flex;
+      justify-content: space-around;
+      align-items: center;
+      text-align: center;
+      padding: 12px 0
+    }
+
+    .xg-team {
+      flex: 1
+    }
+
+    .xg-team .name {
+      font-size: .82rem;
+      color: var(--text2);
+      font-weight: 600;
+      margin-bottom: 4px
+    }
+
+    .xg-team .val {
+      font-size: 2rem;
+      font-weight: 800;
+      background: linear-gradient(135deg, var(--accent), var(--accent2));
+      background-clip: text;
+      -webkit-text-fill-color: transparent
+    }
+
+    .xg-vs {
+      font-size: .85rem;
+      color: var(--text3);
+      padding: 0 16px;
+      font-weight: 700
+    }
+
+    .xg-total {
+      text-align: center;
+      margin-top: 10px;
+      font-size: .82rem;
+      color: var(--text2)
+    }
+
+    .xg-total strong {
+      color: var(--warning);
+      font-size: 1.1rem
+    }
+
+    #log-section {
+      margin-top: 14px
+    }
+
+    #log {
+      background: var(--bg-card);
+      border: 1px solid var(--glass-border);
+      border-radius: var(--radius);
+      padding: 14px;
+      font-family: 'Courier New', monospace;
+      font-size: .78rem;
+      color: var(--text3);
+      max-height: 200px;
+      overflow-y: auto;
+      white-space: pre-wrap;
+      display: none
+    }
+
+    /* Score Grid */
+    .score-group-title {
+      font-size: .95rem;
+      font-weight: 700;
+      color: var(--accent3);
+      margin: 18px 0 10px;
+      padding-bottom: 6px;
+      border-bottom: 1px solid var(--glass-border);
+    }
+
+    .score-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
+      gap: 6px;
+      margin-bottom: 10px;
+    }
+
+    .score-cell {
+      background: var(--bg-input);
+      border: 1px solid var(--glass-border);
+      border-radius: 8px;
+      padding: 8px 6px;
+      text-align: center;
+      cursor: pointer;
+      transition: all .15s;
+      user-select: none;
+    }
+
+    .score-cell:hover {
+      border-color: var(--accent);
+      background: rgba(99, 102, 241, .1);
+    }
+
+    .score-cell.selected {
+      background: rgba(99, 102, 241, .22);
+      border-color: var(--accent);
+      box-shadow: 0 0 12px rgba(99, 102, 241, .25);
+    }
+
+    .score-cell .sc-score {
+      font-size: 1rem;
+      font-weight: 700;
+      color: var(--text);
+    }
+
+    .score-cell .sc-prob {
+      font-size: .72rem;
+      color: var(--accent3);
+      margin-top: 2px;
+    }
+
+    .score-cell .sc-odds {
+      font-size: .68rem;
+      color: var(--text3);
+    }
+
+    /* Score Sum Panel (sticky footer) */
+    #score-sum-panel {
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      background: rgba(15, 15, 45, .95);
+      backdrop-filter: blur(18px);
+      -webkit-backdrop-filter: blur(18px);
+      border-top: 1px solid var(--glass-border);
+      padding: 12px 20px;
+      transform: translateY(100%);
+      transition: transform .3s ease;
+      z-index: 1000;
+      box-shadow: 0 -8px 40px rgba(0, 0, 0, .5);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 12px;
+    }
+
+    #score-sum-panel.visible {
+      transform: translateY(0);
+    }
+
+    .sum-info {
+      display: flex;
+      gap: 20px;
+      align-items: center;
+      flex-wrap: wrap;
+    }
+
+    .sum-info .si-label {
+      font-size: .82rem;
+      color: var(--text2);
+    }
+
+    .sum-info .si-value {
+      font-weight: 800;
+      color: var(--warning);
+      font-size: 1.15rem;
+    }
+
+    .sum-clear {
+      background: none;
+      border: 1px solid var(--danger);
+      color: var(--danger);
+      padding: 5px 14px;
+      border-radius: 6px;
+      font-size: .78rem;
+      cursor: pointer;
+      font-weight: 600;
+      transition: all .15s;
+    }
+
+    .sum-clear:hover {
+      background: var(--danger);
+      color: #fff;
+    }
+
+    .accordion-item {
+      margin-bottom: 4px;
+      border-radius: 4px;
+      background: var(--bg-card);
+      border: 1px solid var(--glass-border);
+      overflow: hidden;
+    }
+
+    .accordion-header {
+      padding: 12px 16px;
+      background: #e2e2e2;
+      color: #222;
+      font-weight: 600;
+      font-size: 0.88rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      cursor: pointer;
+      user-select: none;
+      transition: background 0.2s;
+    }
+
+    .accordion-header:hover {
+      background: #d4d4d4;
+    }
+
+    .accordion-header .title-left {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .accordion-header .title-left svg {
+      width: 14px;
+      height: 14px;
+      fill: #555;
+    }
+
+    .accordion-content {
+      display: none;
+      padding: 16px;
+      background: var(--bg-card);
+    }
+
+    .accordion-item.active .accordion-content {
+      display: block;
+    }
+
+    .accordion-item.active .accordion-header .chevron {
+      transform: rotate(180deg);
+    }
+
+    .accordion-header .chevron {
+      transition: transform 0.3s;
+      font-size: 0.8rem;
+      color: #666;
+    }
+
+    @media(max-width:700px) {
+      .match-grid {
+        grid-template-columns: 1fr
+      }
+
+      .results-grid {
+        grid-template-columns: 1fr
+      }
+
+      header h1 {
+        font-size: 1.5rem
+      }
+
+      .xg-team .val {
+        font-size: 1.5rem
+      }
+
+      .score-grid {
+        grid-template-columns: repeat(auto-fill, minmax(80px, 1fr));
+      }
+    }
+
+    ::-webkit-scrollbar {
+      width: 6px;
+      height: 6px
+    }
+
+    ::-webkit-scrollbar-track {
+      background: transparent
+    }
+
+    ::-webkit-scrollbar-thumb {
+      background: var(--accent);
+      border-radius: 3px
+    }
+  </style>
+</head>
+
+<body>
+  <div class="container">
+    <header>
+      <h1>⚽ Simulador Predictivo ML — World</h1>
+      <p>Predicciones con regresión ponderada, Poisson y mercados avanzados</p>
+    </header>
+    <div class="section">
+      <div class="section-title"><span>📁</span> Cargar Datos</div>
+      <div id="drop-zone" onclick="document.getElementById('file-input').click()">
+        <div class="icon">📂</div>
+        <p>Arrastra <strong>world.csv</strong> aquí o <span class="highlight">haz clic para seleccionar</span></p>
+      </div>
+      <input type="file" id="file-input" accept=".csv">
+      <div id="data-status">Sin datos cargados</div>
+    </div>
+    <div class="section">
+      <div class="config-bar">
+        <label>📅 Fecha límite:</label><input type="date" id="start-date" title="Solo partidos ANTES de esta fecha">
+        <span style="font-size:.78rem;color:var(--text3)">(solo partidos anteriores — vacío = todos)</span>
+      </div>
+      <details class="cfg">
+        <summary>Coeficientes y configuración avanzada</summary>
+        <div class="cfg-grid" id="cfg-grid"></div>
+      </details>
+    </div>
+    <div class="section">
+      <div class="section-title"><span>🏟️</span> Datos del Partido</div>
+      <div class="card">
+        <div class="match-grid" id="match-form">
+          <div class="form-group"><label>Equipo Local</label><input type="text" id="home-team" placeholder="Ej: México"
+              autocomplete="off">
+            <div class="ac-list" id="ac-home"></div>
+          </div>
+          <div class="form-group"><label>Equipo Visitante</label><input type="text" id="away-team"
+              placeholder="Ej: Sudáfrica" autocomplete="off">
+            <div class="ac-list" id="ac-away"></div>
+          </div>
+          <div class="form-group"><label>ELO Local</label><input type="number" id="home-elo" placeholder="1860"></div>
+          <div class="form-group"><label>ELO Visitante</label><input type="number" id="away-elo" placeholder="1524">
+          </div>
+          <div class="form-group"><label>Torneo (opcional)</label><input type="text" id="tournament"
+              placeholder="Ej: World Cup" autocomplete="off">
+            <div class="ac-list" id="ac-tournament"></div>
+          </div>
+          <div class="form-group"><label>Etapa/Ronda (opcional)</label><input type="text" id="round"
+              placeholder="Ej: Group Stage" autocomplete="off">
+            <div class="ac-list" id="ac-round"></div>
+          </div>
+          <div class="form-group full"><label>Árbitro (opcional)</label><input type="text" id="referee"
+              placeholder="Ej: Rubiel Vázquez" autocomplete="off">
+            <div class="ac-list" id="ac-referee"></div>
+          </div>
+          <div class="form-group" style="flex-direction: row; align-items: center; gap: 8px;">
+            <input type="checkbox" id="apply-home" checked style="width: 18px; height: 18px; cursor: pointer;">
+            <label for="apply-home" style="cursor: pointer; margin-bottom: 0;">Incluir Localía</label>
+          </div>
+          <button id="predict-btn" disabled>🔮 Predecir</button>
+        </div>
+      </div>
+    </div>
+    <div id="log-section">
+      <div id="log"></div>
+    </div>
+    <section id="results-section">
+      <div class="section-title"><span>📊</span> Resultados</div>
+      <div id="evaluator-container"></div>
+      <div id="parlay-container" style="display:none; margin-top: 20px;"></div>
+      <div class="results-grid" id="results-grid"></div>
+    </section>
+  </div>
+  <!-- Score Sum Panel -->
+  <div id="score-sum-panel">
+    <div class="sum-info">
+      <span><span class="si-label">Marcadores: </span><span class="si-value" id="sum-count">0</span></span>
+      <span><span class="si-label">Prob. Acumulada: </span><span class="si-value" id="sum-prob">—</span></span>
+      <span><span class="si-label">Cuota Justa: </span><span class="si-value" id="sum-odds">—</span></span>
+    </div>
+    <button class="sum-clear" onclick="clearScoreSelection()">Limpiar</button>
+  </div>
+
+  <script>
+    // ######################################################################
+    // #          VARIABLES EDITABLES — Modifica libremente                 #
+    // ######################################################################
+
+    // ====== TABLA DE ELO POR SELECCIÓN ======
+    const ELO_TABLE = {
+      'España': 2155,
+      'Argentina': 2113,
+      'Francia': 2062,
+      'Inglaterra': 2020,
+      'Brasil': 1988,
+      'México': 1875,
+      'Sudáfrica': 1517,
+    };
+
+    // ====== PESOS POR TORNEO ======
+    const PESOS_TORNEO = {
+      'World Cup': 5,
+      'Euro': 4.35,
+      'UEFA Nations League Final Four': 4.20,
+      'Copa America': 4.15,
+      'WC Qualifiers CONMEBOL': 3.80,
+      'Finalissima': 3.60,
+      'CONCACAF Nations League Final Four': 3.50,
+      'WC Qualifiers UEFA': 3.20,
+      'Africa Cup of Nations': 3.10,
+      'UEFA Nations League AB': 2.80,
+      'WC Qualifiers CAF': 2.60,
+      'Asian Cup': 2.50,
+      'WC Qualifiers CONCACAF': 2.15,
+      'WC Qualifiers AFC': 2.05,
+      'Gold Cup': 2.00,
+      'UEFA Nations League C': 1.90,
+      'CONCACAF Nations League A': 1.80,
+      'UEFA Nations League D': 1.40,
+      'CONCACAF Nations League B': 1.35,
+      'CONCACAF Nations League C': 1.15,
+      'WC Qualifiers OFC': 0.80,
+      'OFC Cup of Nations': 0.75,
+    };
+    const PESO_DEFAULT_TORNEO = 1.0;
+
+    // ====== PESOS POR ETAPA ======
+    const PESOS_ETAPA = {
+      'Final': 5.00,
+      '3rd Place': 4.50,
+      'Semifinal': 4.00,
+      'Final Four': 3.5,
+      'Ro8': 3.00,
+      'Ro16': 2.25,
+      'Ro32': 1.75,
+      'Group Stage': 1.25
+    };
+    const PESO_DEFAULT_ETAPA = 1.0;
+
+    // ====== LÍNEAS DE MERCADO ======
+    const LINEAS_GOLES = [0.5, 1.5, 2.5, 3.5, 4.5];
+    const LINEAS_EQUIPO = [0.5, 1.5, 2.5];
+    const LINEAS_CORNERS = [6.5, 7.5, 8.5, 9.5, 10.5, 11.5];
+    const LINEAS_FOULS = [18.5, 20.5, 22.5, 24.5, 26.5];
+    const LINEAS_YELLOWS = [2.5, 3.5, 4.5, 5.5, 6.5];
+    const LINEAS_CARDS = [2.5, 3.5, 4.5, 5.5, 6.5, 7.5];
+    const LINEAS_SHOTS = [16.5, 18.5, 20.5, 22.5, 24.5, 26.5];
+    const LINEAS_TARGET = [6.5, 7.5, 8.5, 9.5, 10.5, 11.5];
+    const LINEAS_HC_EUR = [-3, -2, -1, 0, 1, 2, 3];
+    const LINEAS_HC_ASIA = [-2.5, -2.25, -2, -1.75, -1.5, -1.25, -1, -0.75, -0.5, -0.25, 0, 0.25, 0.5, 0.75, 1, 1.25, 1.5, 1.75, 2, 2.25, 2.5];
+
+    // ====== COEFICIENTES DEL MODELO ======
+    const CFG = {
+      FACTOR_LOCAL: 1.00, FACTOR_VISITA: 1.00,
+      AJUSTE_EQUIPO: 0.6,
+      AJUSTE_ARBITRO_FALTAS: 0.6, AJUSTE_ARBITRO_TARJETAS: 0.7, AJUSTE_ARBITRO_ROJAS: 0.5,
+      FACTOR_CORNERS: 1.0, FACTOR_FOULS: 1.0, FACTOR_YELLOWS: 1.0,
+      MAX_GOLES_POISSON: 10, XG_MINIMO: 0, DECAIMIENTO_HALFLIFE_DIAS: 730,
+      AJUSTE_TORNEO_GOLES: 0.5, AJUSTE_TORNEO_FALTAS: 0.7, AJUSTE_TORNEO_TARJETAS: 0.7, AJUSTE_TORNEO_CORNERS: 0.5,
+      AJUSTE_ETAPA_GOLES: 0.3, AJUSTE_ETAPA_FALTAS: 0.5, AJUSTE_ETAPA_TARJETAS: 0.5, AJUSTE_ETAPA_CORNERS: 0.3,
+      TOP_MARCADORES: 10,
+    };
+    const CFG_LABELS = {
+      FACTOR_LOCAL: 'Factor Local (xG)', FACTOR_VISITA: 'Factor Visita (xG)',
+      AJUSTE_EQUIPO: 'Ajuste Historial Equipo',
+      AJUSTE_ARBITRO_FALTAS: 'Árbitro Faltas', AJUSTE_ARBITRO_TARJETAS: 'Árbitro Tarjetas', AJUSTE_ARBITRO_ROJAS: 'Árbitro Rojas',
+      FACTOR_CORNERS: 'Factor Corners', FACTOR_FOULS: 'Factor Faltas', FACTOR_YELLOWS: 'Factor Amarillas',
+      MAX_GOLES_POISSON: 'Max Goles Poisson', XG_MINIMO: 'xG Mínimo', DECAIMIENTO_HALFLIFE_DIAS: 'Half-life (días)',
+      AJUSTE_TORNEO_GOLES: 'Torneo→Goles', AJUSTE_TORNEO_FALTAS: 'Torneo→Faltas', AJUSTE_TORNEO_TARJETAS: 'Torneo→Tarjetas', AJUSTE_TORNEO_CORNERS: 'Torneo→Corners',
+      AJUSTE_ETAPA_GOLES: 'Etapa→Goles', AJUSTE_ETAPA_FALTAS: 'Etapa→Faltas', AJUSTE_ETAPA_TARJETAS: 'Etapa→Tarjetas', AJUSTE_ETAPA_CORNERS: 'Etapa→Corners',
+      TOP_MARCADORES: 'Top Marcadores',
+    };
+
+    // ######################################################################
+    // #              FIN DE VARIABLES EDITABLES                            #
+    // ######################################################################
+
+    let RAW_DATA = [];
+    let CURRENT_MATRIX = null;
+    let SELECTED_SCORES = new Set(); // selected score keys for summing
+
+    // ======================================================================
+    //                       MATH UTILITIES
+    // ======================================================================
+    function logFactorial(n) { let s = 0; for (let i = 2; i <= n; i++)s += Math.log(i); return s }
+    function poissonPMF(k, lam) { if (lam <= 0) return k === 0 ? 1 : 0; return Math.exp(-lam + k * Math.log(lam) - logFactorial(k)) }
+    function normalCDF(x) { const a1 = .254829592, a2 = -.284496736, a3 = 1.421413741, a4 = -1.453152027, a5 = 1.061405429, p = .3275911; const sign = x < 0 ? -1 : 1; const ax = Math.abs(x) / Math.SQRT2; const t = 1 / (1 + p * ax); const y = 1 - (((((a5 * t + a4) * t) + a3) * t + a2) * t + a1) * t * Math.exp(-ax * ax); return .5 * (1 + sign * y) }
+
+    function matInvert(m) { const n = m.length; const aug = m.map((row, i) => [...row, ...Array.from({ length: n }, (_, j) => i === j ? 1 : 0)]); for (let i = 0; i < n; i++) { let mx = i; for (let k = i + 1; k < n; k++)if (Math.abs(aug[k][i]) > Math.abs(aug[mx][i])) mx = k;[aug[i], aug[mx]] = [aug[mx], aug[i]]; const piv = aug[i][i]; if (Math.abs(piv) < 1e-14) return null; for (let j = 0; j < 2 * n; j++)aug[i][j] /= piv; for (let k = 0; k < n; k++) { if (k === i) continue; const f = aug[k][i]; for (let j = 0; j < 2 * n; j++)aug[k][j] -= f * aug[i][j] } } return aug.map(row => row.slice(n)) }
+
+    function fitWLS(Xd, yd, w) { const m = Xd.length; if (m < 2) return null; const nf = Xd[0].length, nc = nf + 1; const XtWX = Array.from({ length: nc }, () => new Float64Array(nc)); const XtWy = new Float64Array(nc); for (let s = 0; s < m; s++) { const wi = w[s]; const xi = [1, ...Xd[s]]; const y = yd[s]; for (let i = 0; i < nc; i++) { for (let j = 0; j < nc; j++)XtWX[i][j] += xi[i] * wi * xi[j]; XtWy[i] += xi[i] * wi * y } } const inv = matInvert(XtWX.map(r => Array.from(r))); if (!inv) return null; const beta = new Float64Array(nc); for (let i = 0; i < nc; i++)for (let j = 0; j < nc; j++)beta[i] += inv[i][j] * XtWy[j]; return Array.from(beta) }
+    function predictWLS(c, f) { if (!c) return null; let r = c[0]; for (let i = 0; i < f.length; i++)r += c[i + 1] * f[i]; return r }
+
+    // ======================================================================
+    //                  CSV PARSER & DATA PROCESSING
+    // ======================================================================
+    function parseCSVLine(line) { const fields = []; let cur = '', inQ = false; for (let i = 0; i < line.length; i++) { const c = line[i]; if (c === '"') inQ = !inQ; else if (c === ',' && !inQ) { fields.push(cur.trim()); cur = '' } else cur += c } fields.push(cur.trim()); return fields.map(f => { f = f.trim(); if (f.startsWith('"') && f.endsWith('"')) f = f.slice(1, -1); return f.trim() }) }
+    function parseCSV(text) { const lines = text.split(/\r?\n/).filter(l => l.trim()); if (lines.length < 2) return []; const hdr = parseCSVLine(lines[0]); const data = []; for (let i = 1; i < lines.length; i++) { const v = parseCSVLine(lines[i]); if (v.length < 5) continue; const row = {}; hdr.forEach((h, idx) => { row[h.trim()] = (v[idx] || '').trim() }); data.push(row) } return data }
+    function toNum(v) { const n = parseFloat(v); return isNaN(n) ? null : n }
+    function processData(raw) { return raw.map(r => ({ Date: r.Date ? new Date(r.Date) : null, Tournament: r.Tournament || '', Round: r.Round || '', HomeTeam: r.HomeTeam || '', AwayTeam: r.AwayTeam || '', Referee: r.Referee || '', HomeGoals: toNum(r.HomeGoals), AwayGoals: toNum(r.AwayGoals), HomeShots: toNum(r.HomeShots), AwayShots: toNum(r.AwayShots), HomeTarget: toNum(r.HomeTarget), AwayTarget: toNum(r.AwayTarget), HomeCorners: toNum(r.HomeCorners), AwayCorners: toNum(r.AwayCorners), HomeFouls: toNum(r.HomeFouls), AwayFouls: toNum(r.AwayFouls), HomeYellows: toNum(r.HomeYellows), AwayYellows: toNum(r.AwayYellows), HomeReds: toNum(r.HomeReds), AwayReds: toNum(r.AwayReds), HomexG: toNum(r.HomexG), AwayxG: toNum(r.AwayxG), HomeElo: toNum(r.HomeElo), AwayElo: toNum(r.AwayElo), LineCorners: toNum(r.LineCorners), OverCorners: toNum(r.OverCorners), UnderCorners: toNum(r.UnderCorners), LineCards: toNum(r.LineCards), OverCards: toNum(r.OverCards), UnderCards: toNum(r.UnderCards), LineShots: toNum(r.LineShots), OverShots: toNum(r.OverShots), UnderShots: toNum(r.UnderShots), LineTarget: toNum(r.LineTarget), OverTarget: toNum(r.OverTarget), UnderTarget: toNum(r.UnderTarget), ApplyHome: r.ApplyHome && r.ApplyHome.trim().toLowerCase() === 'true' })).filter(r => r.HomeGoals !== null && r.AwayGoals !== null && r.HomeElo !== null && r.AwayElo !== null) }
+    function norm(t) { return (t || '').normalize('NFD').replace(/[\u0300-\u036f]/g, '').trim().toLowerCase() }
+
+    // ======================================================================
+    //         TEAM ANALYSIS & MULTIPLIERS
+    // ======================================================================
+    function analyzeTeam(data, teamName, isHome) {
+      if (!teamName) return null;
+      const tn = norm(teamName);
+      const m = { games: 0, w: 0, gf: 0, ga: 0, sf: 0, sa: 0, stf: 0, sta: 0, cf: 0, ca: 0, ff: 0, fa: 0, yf: 0, ya: 0 };
+      data.forEach(r => {
+        const isH = norm(r.HomeTeam) === tn; const isA = norm(r.AwayTeam) === tn;
+        if (!isH && !isA) return;
+        m.games++; m.w += 1; // Unweighted for now, but counts games
+        if (isH) {
+          m.gf += r.HomeGoals; m.ga += r.AwayGoals; m.sf += r.HomeShots; m.sa += r.AwayShots;
+          m.stf += r.HomeTarget; m.sta += r.AwayTarget; m.cf += r.HomeCorners; m.ca += r.AwayCorners;
+          m.ff += r.HomeFouls; m.fa += r.AwayFouls; m.yf += r.HomeYellows; m.ya += r.AwayYellows;
+        } else {
+          m.gf += r.AwayGoals; m.ga += r.HomeGoals; m.sf += r.AwayShots; m.sa += r.HomeShots;
+          m.stf += r.AwayTarget; m.sta += r.HomeTarget; m.cf += r.AwayCorners; m.ca += r.HomeCorners;
+          m.ff += r.AwayFouls; m.fa += r.HomeFouls; m.yf += r.AwayYellows; m.ya += r.HomeYellows;
+        }
+      });
+      if (m.games === 0) return null;
+      const calcMult = (teamSum, globalMean) => globalMean > 0 ? (teamSum / m.games) / globalMean : 1;
+
+      // Calculate global means across all data
+      const gm = { gf: 0, ga: 0, sf: 0, sa: 0, stf: 0, sta: 0, cf: 0, ca: 0, ff: 0, fa: 0, yf: 0, ya: 0 };
+      let gCount = 0;
+      data.forEach(r => {
+        gCount++;
+        gm.gf += r.HomeGoals + r.AwayGoals; gm.sf += (r.HomeShots || 0) + (r.AwayShots || 0);
+        gm.stf += (r.HomeTarget || 0) + (r.AwayTarget || 0); gm.cf += (r.HomeCorners || 0) + (r.AwayCorners || 0);
+        gm.ff += (r.HomeFouls || 0) + (r.AwayFouls || 0); gm.yf += (r.HomeYellows || 0) + (r.AwayYellows || 0);
+      });
+      if (gCount === 0) return null;
+
+      // Normalize global means per team per game
+      for (let k in gm) gm[k] /= (gCount * 2);
+
+      return {
+        name: teamName, games: m.games,
+        mult_gf: calcMult(m.gf, gm.gf), mult_ga: calcMult(m.ga, gm.gf),
+        mult_sf: calcMult(m.sf, gm.sf), mult_sa: calcMult(m.sa, gm.sf),
+        mult_stf: calcMult(m.stf, gm.stf), mult_sta: calcMult(m.sta, gm.stf),
+        mult_cf: calcMult(m.cf, gm.cf), mult_ca: calcMult(m.ca, gm.cf),
+        mult_ff: calcMult(m.ff, gm.ff), mult_fa: calcMult(m.fa, gm.ff),
+        mult_yf: calcMult(m.yf, gm.yf), mult_ya: calcMult(m.ya, gm.yf)
+      };
+    }
+
+    // ======================================================================
+    //         FILTERING & WEIGHTS (EXPONENTIAL DECAY PER DAY)
+    // ======================================================================
+    function filterByDate(data, limitDateStr) {
+      if (!limitDateStr) return data;
+      const ld = new Date(limitDateStr);
+      return data.filter(r => r.Date && r.Date < ld);
+    }
+
+    function calcWeights(data) {
+      // Decaimiento exponencial: w(t) = 2^(-t/halflife)
+      // Cada día que pasa, el partido pierde un poco de importancia
+      const now = new Date();
+      const hl = CFG.DECAIMIENTO_HALFLIFE_DIAS;
+      const weights = data.map(r => {
+        const days = r.Date ? Math.max(0, (now - r.Date) / 86400000) : 365;
+        const wTemporal = Math.pow(2, -days / hl);
+        const tn = norm(r.Tournament);
+        const wTorneo = PESOS_TORNEO[tn] !== undefined ? PESOS_TORNEO[tn] : PESO_DEFAULT_TORNEO;
+        const en = norm(r.Round);
+        const wEtapa = (en && en !== 'nan' && en !== 'none' && en !== '') ? (PESOS_ETAPA[en] !== undefined ? PESOS_ETAPA[en] : PESO_DEFAULT_ETAPA) : PESO_DEFAULT_ETAPA;
+        return wTemporal * wTorneo * wEtapa;
+      });
+      const sum = weights.reduce((a, b) => a + b, 0);
+      const n = weights.length;
+      return weights.map(w => w * n / sum);
+    }
+
+    // ======================================================================
+    //                       MODEL TRAINING
+    // ======================================================================
+    function trainModels(data) {
+      const weights = calcWeights(data); const models = {};
+      function train1(col) { const X = [], Y = [], W = []; data.forEach((r, i) => { const v = r[col]; if (v === null) return; X.push([r.HomeElo - r.AwayElo, r.ApplyHome ? 1 : 0]); Y.push(v); W.push(weights[i]) }); return X.length < 2 ? null : fitWLS(X, Y, W) }
+      models.shots_home = train1('HomeShots'); models.shots_away = train1('AwayShots');
+      models.target_home = train1('HomeTarget'); models.target_away = train1('AwayTarget');
+      models.fouls_home = train1('HomeFouls'); models.fouls_away = train1('AwayFouls');
+      models.yellows_home = train1('HomeYellows'); models.yellows_away = train1('AwayYellows');
+      function trainCorners(cCol, sCol) { const X = [], Y = [], W = []; data.forEach((r, i) => { const c = r[cCol], s = r[sCol]; if (c === null || s === null) return; X.push([r.HomeElo - r.AwayElo, s, r.ApplyHome ? 1 : 0]); Y.push(c); W.push(weights[i]) }); return X.length < 3 ? null : fitWLS(X, Y, W) }
+      models.corners_home = trainCorners('HomeCorners', 'HomeShots'); models.corners_away = trainCorners('AwayCorners', 'AwayShots');
+      function calcStd(cH, cA) { const v = data.filter(r => r[cH] !== null && r[cA] !== null).map(r => r[cH] + r[cA]); if (v.length > 1) { const m = v.reduce((a, b) => a + b, 0) / v.length; return Math.sqrt(v.reduce((a, b) => a + (b - m) ** 2, 0) / (v.length - 1)) } return 5 }
+      models.corners_std = calcStd('HomeCorners', 'AwayCorners'); models.shots_std = calcStd('HomeShots', 'AwayShots'); models.target_std = calcStd('HomeTarget', 'AwayTarget');
+      models.xg_home = train1('HomexG'); models.xg_away = train1('AwayxG');
+      models.goals_home = train1('HomeGoals'); models.goals_away = train1('AwayGoals');
+      let totalFouls = 0, totalReds = 0, gamesWithRed = 0, totalGames = 0;
+      data.forEach(r => { totalGames++; const f = (r.HomeFouls || 0) + (r.AwayFouls || 0); const rd = (r.HomeReds || 0) + (r.AwayReds || 0); if (r.HomeFouls !== null && r.AwayFouls !== null) totalFouls += f; totalReds += rd; if (rd > 0) gamesWithRed++ });
+      models.red_base_rate = totalGames > 0 ? gamesWithRed / totalGames : .12; models.red_per_foul = totalFouls > 0 ? totalReds / totalFouls : .012;
+      function meanOf(col) { const v = data.map(r => r[col]).filter(v => v !== null); return v.length > 0 ? v.reduce((a, b) => a + b, 0) / v.length : 0 }
+      models.means = { HomeShots: meanOf('HomeShots'), AwayShots: meanOf('AwayShots'), HomeTarget: meanOf('HomeTarget'), AwayTarget: meanOf('AwayTarget'), HomeCorners: meanOf('HomeCorners'), AwayCorners: meanOf('AwayCorners'), HomeFouls: meanOf('HomeFouls'), AwayFouls: meanOf('AwayFouls'), HomeYellows: meanOf('HomeYellows'), AwayYellows: meanOf('AwayYellows'), HomeGoals: meanOf('HomeGoals'), AwayGoals: meanOf('AwayGoals') };
+      return models;
+    }
+
+    // ======================================================================
+    //                    REFEREE & CONTEXT
+    // ======================================================================
+    function analyzeReferee(data, refName) { if (!refName) return null; const rn = norm(refName); const mt = data.filter(r => norm(r.Referee) === rn); if (!mt.length) return null; const gF = data.filter(r => r.HomeFouls !== null && r.AwayFouls !== null).map(r => r.HomeFouls + r.AwayFouls); const gmF = gF.length ? gF.reduce((a, b) => a + b, 0) / gF.length : 1; const gY = data.filter(r => r.HomeYellows !== null && r.AwayYellows !== null).map(r => r.HomeYellows + r.AwayYellows); const gmY = gY.length ? gY.reduce((a, b) => a + b, 0) / gY.length : 1; const gR = data.map(r => (r.HomeReds || 0) + (r.AwayReds || 0)); const gmR = gR.length ? gR.reduce((a, b) => a + b, 0) / gR.length : 1; const rF = mt.filter(r => r.HomeFouls !== null && r.AwayFouls !== null).map(r => r.HomeFouls + r.AwayFouls); const rY = mt.filter(r => r.HomeYellows !== null && r.AwayYellows !== null).map(r => r.HomeYellows + r.AwayYellows); const rR = mt.map(r => (r.HomeReds || 0) + (r.AwayReds || 0)); return { partidos: mt.length, fouls_mult: gmF > 0 ? (rF.length ? rF.reduce((a, b) => a + b, 0) / rF.length : gmF) / gmF : 1, yellows_mult: gmY > 0 ? (rY.length ? rY.reduce((a, b) => a + b, 0) / rY.length : gmY) / gmY : 1, reds_mult: gmR > 0 ? (rR.length ? rR.reduce((a, b) => a + b, 0) / rR.length : gmR) / gmR : 1 } }
+
+    function analyzeContext(data, torneo, etapa) {
+      const ctx = { torneo: null, etapa: null }; const gG = data.reduce((a, r) => a + r.HomeGoals + r.AwayGoals, 0) / data.length; const gF = data.filter(r => r.HomeFouls !== null && r.AwayFouls !== null).map(r => r.HomeFouls + r.AwayFouls); const gmF = gF.length ? gF.reduce((a, b) => a + b, 0) / gF.length : 1; const gY = data.filter(r => r.HomeYellows !== null && r.AwayYellows !== null).map(r => r.HomeYellows + r.AwayYellows); const gmY = gY.length ? gY.reduce((a, b) => a + b, 0) / gY.length : 1; const gC = data.filter(r => r.HomeCorners !== null && r.AwayCorners !== null).map(r => r.HomeCorners + r.AwayCorners); const gmC = gC.length ? gC.reduce((a, b) => a + b, 0) / gC.length : 1;
+      function sub(ss, nm) { if (ss.length < 1) return null; const tG = ss.reduce((a, r) => a + r.HomeGoals + r.AwayGoals, 0) / ss.length; const tF = ss.filter(r => r.HomeFouls !== null && r.AwayFouls !== null).map(r => r.HomeFouls + r.AwayFouls); const tmF = tF.length ? tF.reduce((a, b) => a + b, 0) / tF.length : gmF; const tY = ss.filter(r => r.HomeYellows !== null && r.AwayYellows !== null).map(r => r.HomeYellows + r.AwayYellows); const tmY = tY.length ? tY.reduce((a, b) => a + b, 0) / tY.length : gmY; const tC = ss.filter(r => r.HomeCorners !== null && r.AwayCorners !== null).map(r => r.HomeCorners + r.AwayCorners); const tmC = tC.length ? tC.reduce((a, b) => a + b, 0) / tC.length : gmC; return { nombre: nm, partidos: ss.length, goles_mult: gG > 0 ? tG / gG : 1, fouls_mult: gmF > 0 ? tmF / gmF : 1, yellows_mult: gmY > 0 ? tmY / gmY : 1, corners_mult: gmC > 0 ? tmC / gmC : 1 } }
+      if (torneo) { const tn = norm(torneo); ctx.torneo = sub(data.filter(r => norm(r.Tournament) === tn), torneo) }
+      if (etapa && torneo) { const en = norm(etapa); const tn = norm(torneo); const ss = data.filter(r => norm(r.Tournament) === tn && norm(r.Round) === en); ctx.etapa = sub(ss, etapa) } return ctx
+    }
+
+    // ======================================================================
+    //                       PREDICTION
+    // ======================================================================
+    function predictStats(models, data, eloDiff, sesgo, contexto, applyHome, teamH, teamA) {
+      const p = {}, ed = eloDiff, ah = applyHome ? 1 : 0;
+      function pm(model, f, mk) { if (model) { const v = predictWLS(model, f); return Math.max(.1, v) } return Math.max(.1, models.means[mk] || 1) }
+
+      function applyTeamAdj(globalVal, tH, tA, multH, multA) {
+        let vH = globalVal.h, vA = globalVal.a;
+        if (tH) { const conf = Math.min(1, tH.games / 8); vH *= 1 + CFG.AJUSTE_EQUIPO * conf * (tH[multH] - 1); }
+        if (tA) { const conf = Math.min(1, tA.games / 8); vA *= 1 + CFG.AJUSTE_EQUIPO * conf * (tA[multA] - 1); }
+        return { h: vH, a: vA };
+      }
+
+      p.shots_home = pm(models.shots_home, [ed, ah], 'HomeShots'); p.shots_away = pm(models.shots_away, [ed, ah], 'AwayShots');
+      const sf = applyTeamAdj({ h: p.shots_home, a: p.shots_away }, teamH, teamA, 'mult_sf', 'mult_sa');
+      p.shots_home = sf.h; p.shots_away = sf.a;
+
+      p.target_home = pm(models.target_home, [ed, ah], 'HomeTarget'); p.target_away = pm(models.target_away, [ed, ah], 'AwayTarget');
+      const stf = applyTeamAdj({ h: p.target_home, a: p.target_away }, teamH, teamA, 'mult_stf', 'mult_sta');
+      p.target_home = stf.h; p.target_away = stf.a;
+
+      p.fouls_home = pm(models.fouls_home, [ed, ah], 'HomeFouls') * CFG.FACTOR_FOULS; p.fouls_away = pm(models.fouls_away, [ed, ah], 'AwayFouls') * CFG.FACTOR_FOULS;
+      const ff = applyTeamAdj({ h: p.fouls_home, a: p.fouls_away }, teamH, teamA, 'mult_ff', 'mult_fa');
+      p.fouls_home = ff.h; p.fouls_away = ff.a;
+
+      p.yellows_home = pm(models.yellows_home, [ed, ah], 'HomeYellows') * CFG.FACTOR_YELLOWS; p.yellows_away = pm(models.yellows_away, [ed, ah], 'AwayYellows') * CFG.FACTOR_YELLOWS;
+      const yf = applyTeamAdj({ h: p.yellows_home, a: p.yellows_away }, teamH, teamA, 'mult_yf', 'mult_ya');
+      p.yellows_home = yf.h; p.yellows_away = yf.a;
+
+      p.corners_home = models.corners_home ? Math.max(.1, predictWLS(models.corners_home, [ed, p.shots_home, ah])) * CFG.FACTOR_CORNERS : Math.max(.1, models.means.HomeCorners || 4) * CFG.FACTOR_CORNERS;
+      p.corners_away = models.corners_away ? Math.max(.1, predictWLS(models.corners_away, [ed, p.shots_away, ah])) * CFG.FACTOR_CORNERS : Math.max(.1, models.means.AwayCorners || 4) * CFG.FACTOR_CORNERS;
+      const cf = applyTeamAdj({ h: p.corners_home, a: p.corners_away }, teamH, teamA, 'mult_cf', 'mult_ca');
+      p.corners_home = cf.h; p.corners_away = cf.a;
+
+      if (models.xg_home) p.xg_home = Math.max(CFG.XG_MINIMO, predictWLS(models.xg_home, [ed, ah])); else if (models.goals_home) p.xg_home = Math.max(CFG.XG_MINIMO, predictWLS(models.goals_home, [ed, ah])); else p.xg_home = Math.max(CFG.XG_MINIMO, models.means.HomeGoals || 1);
+      if (models.xg_away) p.xg_away = Math.max(CFG.XG_MINIMO, predictWLS(models.xg_away, [ed, ah])); else if (models.goals_away) p.xg_away = Math.max(CFG.XG_MINIMO, predictWLS(models.goals_away, [ed, ah])); else p.xg_away = Math.max(CFG.XG_MINIMO, models.means.AwayGoals || 1);
+      const gf = applyTeamAdj({ h: p.xg_home, a: p.xg_away }, teamH, teamA, 'mult_gf', 'mult_ga');
+      p.xg_home = gf.h * CFG.FACTOR_LOCAL; p.xg_away = gf.a * CFG.FACTOR_VISITA;
+
+      if (sesgo) { const ff = 1 + (sesgo.fouls_mult - 1) * CFG.AJUSTE_ARBITRO_FALTAS; p.fouls_home *= ff; p.fouls_away *= ff; const fy = 1 + (sesgo.yellows_mult - 1) * CFG.AJUSTE_ARBITRO_TARJETAS; p.yellows_home *= fy; p.yellows_away *= fy }
+      if (contexto.torneo) { const t = contexto.torneo; const fg = 1 + (t.goles_mult - 1) * CFG.AJUSTE_TORNEO_GOLES; p.xg_home *= fg; p.xg_away *= fg; const ff = 1 + (t.fouls_mult - 1) * CFG.AJUSTE_TORNEO_FALTAS; p.fouls_home *= ff; p.fouls_away *= ff; const fy = 1 + (t.yellows_mult - 1) * CFG.AJUSTE_TORNEO_TARJETAS; p.yellows_home *= fy; p.yellows_away *= fy; const fc = 1 + (t.corners_mult - 1) * CFG.AJUSTE_TORNEO_CORNERS; p.corners_home *= fc; p.corners_away *= fc }
+      if (contexto.etapa) { const e = contexto.etapa; const fg = 1 + (e.goles_mult - 1) * CFG.AJUSTE_ETAPA_GOLES; p.xg_home *= fg; p.xg_away *= fg; const ff = 1 + (e.fouls_mult - 1) * CFG.AJUSTE_ETAPA_FALTAS; p.fouls_home *= ff; p.fouls_away *= ff; const fy = 1 + (e.yellows_mult - 1) * CFG.AJUSTE_ETAPA_TARJETAS; p.yellows_home *= fy; p.yellows_away *= fy; const fc = 1 + (e.corners_mult - 1) * CFG.AJUSTE_ETAPA_CORNERS; p.corners_home *= fc; p.corners_away *= fc }
+      p.xg_home = Math.max(CFG.XG_MINIMO, p.xg_home); p.xg_away = Math.max(CFG.XG_MINIMO, p.xg_away);
+      p.shots_total = p.shots_home + p.shots_away; p.target_total = p.target_home + p.target_away;
+      p.corners_total = p.corners_home + p.corners_away; p.fouls_total = p.fouls_home + p.fouls_away; p.yellows_total = p.yellows_home + p.yellows_away;
+      p.red_prob = Math.max(1 - Math.pow(1 - models.red_per_foul, p.fouls_total), models.red_base_rate);
+      if (sesgo) p.red_prob = Math.min(1, p.red_prob * (1 + (sesgo.reds_mult - 1) * CFG.AJUSTE_ARBITRO_ROJAS));
+      p.cards_total = p.yellows_total + p.red_prob;
+      return p;
+    }
+
+    // ======================================================================
+    //                    MARKET CALCULATIONS
+    // ======================================================================
+    function buildPoissonMatrix(lH, lA) { const mg = CFG.MAX_GOLES_POISSON; const m = []; for (let i = 0; i < mg; i++) { m[i] = []; for (let j = 0; j < mg; j++)m[i][j] = poissonPMF(i, lH) * poissonPMF(j, lA) } return m }
+    function calc1X2(mx) { const mg = mx.length; let p1 = 0, pX = 0, p2 = 0; for (let i = 0; i < mg; i++)for (let j = 0; j < mg; j++) { if (i > j) p1 += mx[i][j]; else if (i === j) pX += mx[i][j]; else p2 += mx[i][j] } return { p1, pX, p2 } }
+    function calcBTTS(mx) { const mg = mx.length; let y = 0; for (let i = 1; i < mg; i++)for (let j = 1; j < mg; j++)y += mx[i][j]; return { yes: y, no: 1 - y } }
+    function calcOU(mx, lines) { const mg = mx.length, r = {}; lines.forEach(l => { let u = 0; for (let i = 0; i < mg; i++)for (let j = 0; j < mg; j++)if (i + j < l) u += mx[i][j]; r[l] = { over: 1 - u, under: u } }); return r }
+    function calcTeamOU(lam, lines) { const r = {}; lines.forEach(l => { let u = 0; for (let k = 0; k < Math.ceil(l); k++)u += poissonPMF(k, lam); r[l] = { over: 1 - u, under: u } }); return r }
+    function calcScores(mx, top) { const mg = mx.length, sc = []; for (let i = 0; i < mg; i++)for (let j = 0; j < mg; j++)sc.push({ s: `${i}-${j}`, p: mx[i][j] }); sc.sort((a, b) => b.p - a.p); return sc.slice(0, top) }
+    function calcEuropeanHC(mx, lines) { const mg = mx.length, r = {}; lines.forEach(hc => { let p1 = 0, pX = 0, p2 = 0; for (let i = 0; i < mg; i++)for (let j = 0; j < mg; j++) { const d = i - j + hc; if (d > 0) p1 += mx[i][j]; else if (d === 0) pX += mx[i][j]; else p2 += mx[i][j] } r[hc] = { p1, pX, p2 } }); return r }
+    function calcAsianHC(mx, lines) { const mg = mx.length, r = {}; lines.forEach(line => { const isQ = (Math.abs(line * 4) % 2 === 1), isH = !isQ && (Math.abs(line * 2) % 2 === 1); if (isH) { let pW = 0, pL = 0; for (let i = 0; i < mg; i++)for (let j = 0; j < mg; j++) { if ((i - j) + line > 0) pW += mx[i][j]; else pL += mx[i][j] } const a = pW + pL > 0 ? (pW / (pW + pL)) * 100 : 50; r[line] = { pWin: pW, pLose: pL, pPush: 0, pHalfWin: 0, pHalfLose: 0, asian: a, fairOdds: pW > 0 ? 1 / pW : 99 } } else if (!isQ) { let pW = 0, pP = 0, pL = 0; for (let i = 0; i < mg; i++)for (let j = 0; j < mg; j++) { const adj = (i - j) + line; if (adj > 0) pW += mx[i][j]; else if (adj === 0) pP += mx[i][j]; else pL += mx[i][j] } const a = pW + pL > 0 ? (pW / (pW + pL)) * 100 : 50; r[line] = { pWin: pW, pLose: pL, pPush: pP, pHalfWin: 0, pHalfLose: 0, asian: a, fairOdds: pW > 0 ? 1 / pW : 99 } } else { const lo = Math.floor(line * 2) / 2, hi = Math.ceil(line * 2) / 2; let fW = 0, hW = 0, pP = 0, hL = 0, fL = 0; for (let i = 0; i < mg; i++)for (let j = 0; j < mg; j++) { const p = mx[i][j], aL = (i - j) + lo, aH = (i - j) + hi; const oL = aL > 0 ? 1 : (aL === 0 ? 0 : -1), oH = aH > 0 ? 1 : (aH === 0 ? 0 : -1), n = oL + oH; if (n === 2) fW += p; else if (n === 1) hW += p; else if (n === 0) pP += p; else if (n === -1) hL += p; else fL += p } const eW = fW + .5 * hW, eL = fL + .5 * hL; const a = eW + eL > 0 ? (eW / (eW + eL)) * 100 : 50; r[line] = { pWin: fW, pLose: fL, pPush: pP, pHalfWin: hW, pHalfLose: hL, asian: a, fairOdds: eW > 0 ? 1 / eW : 99 } } }); return r }
+    function calcNormalOU(mean, std, lines) { const r = {}; lines.forEach(l => { const z = (l - mean) / std; r[l] = { over: 1 - normalCDF(z), under: normalCDF(z) } }); return r }
+    function calcPoissonOU(lam, lines) { const r = {}; lines.forEach(l => { let u = 0; for (let k = 0; k < Math.ceil(l); k++)u += poissonPMF(k, lam); r[l] = { over: 1 - u, under: u } }); return r }
+
+    // ======================================================================
+    //                         UI RENDERING
+    // ======================================================================
+    function fmt(v, d = 1) { return v.toFixed(d) }
+    function fmtP(v) { return (v * 100).toFixed(1) + '%' }
+    function fmtO(v) { return v > 0 && v < 100 ? (1 / v).toFixed(2) : '—' }
+
+    function makeOUTable(data, lines, prefix) {
+      let h = `<table class="mkt-table"><tr><th>Línea</th><th>Over</th><th>Cuota</th><th>Under</th><th>Cuota</th></tr>`;
+      lines.forEach(l => {
+        const o = data[l];
+        h += `<tr><td>${l}</td><td class="prob">${fmtP(o.over)}</td><td class="odds">${fmtO(o.over)}</td><td class="prob">${fmtP(o.under)}</td><td class="odds">${fmtO(o.under)}</td></tr>`;
+      });
+      return h + `</table>`;
+    }
+
+    // ======================================================================
+    //            SCORE SELECTION — SUMMING EXACT SCORES
+    // ======================================================================
+    function toggleScore(key) {
+      const el = document.getElementById('sc-' + key);
+      if (SELECTED_SCORES.has(key)) {
+        SELECTED_SCORES.delete(key);
+        if (el) el.classList.remove('selected');
+      } else {
+        SELECTED_SCORES.add(key);
+        if (el) el.classList.add('selected');
+      }
+      updateScoreSum();
+    }
+
+    function clearScoreSelection() {
+      SELECTED_SCORES.clear();
+      document.querySelectorAll('.score-cell.selected').forEach(el => el.classList.remove('selected'));
+      updateScoreSum();
+    }
+
+    function updateScoreSum() {
+      const panel = document.getElementById('score-sum-panel');
+      if (SELECTED_SCORES.size === 0) {
+        panel.classList.remove('visible');
+        return;
+      }
+      panel.classList.add('visible');
+
+      let totalProb = 0;
+      const mg = CURRENT_MATRIX ? CURRENT_MATRIX.length : 0;
+      SELECTED_SCORES.forEach(key => {
+        const [i, j] = key.split('-').map(Number);
+        if (CURRENT_MATRIX && i < mg && j < mg) {
+          totalProb += CURRENT_MATRIX[i][j];
+        }
+      });
+
+      document.getElementById('sum-count').textContent = SELECTED_SCORES.size;
+      document.getElementById('sum-prob').textContent = (totalProb * 100).toFixed(2) + '%';
+      document.getElementById('sum-odds').textContent = totalProb > 0 ? (1 / totalProb).toFixed(2) : '—';
+    }
+
+    function renderFullScorelines(matrix, home, away) {
+      const mg = matrix.length;
+      // Collect all scores with prob > 0.01%
+      const g1 = [], draws = [], g2 = [];
+      for (let i = 0; i < mg; i++) {
+        for (let j = 0; j < mg; j++) {
+          const p = matrix[i][j];
+          if (p < 0.0001) continue;
+          const entry = { i, j, p, key: `${i}-${j}`, diff: Math.abs(i - j) };
+          if (i > j) g1.push(entry);
+          else if (i === j) draws.push(entry);
+          else g2.push(entry);
+        }
+      }
+      // Sort by goal difference (least to most), then by total goals
+      const sortFn = (a, b) => a.diff - b.diff || (a.i + a.j) - (b.i + b.j);
+      g1.sort(sortFn);
+      draws.sort((a, b) => a.i - b.i);
+      g2.sort(sortFn);
+
+      function renderGroup(items) {
+        return items.map(s => {
+          const sel = SELECTED_SCORES.has(s.key) ? ' selected' : '';
+          return `<div class="score-cell${sel}" id="sc-${s.key}" onclick="toggleScore('${s.key}')">
+            <div class="sc-score">${s.i} - ${s.j}</div>
+            <div class="sc-prob">${(s.p * 100).toFixed(2)}%</div>
+            <div class="sc-odds">${fmtO(s.p)}</div>
+          </div>`;
+        }).join('');
+      }
+
+      return `<div class="card full-width">
+        <div class="card-title">📋 Todos los Marcadores Exactos — Selecciona para sumar</div>
+        <div class="score-group-title">🏠 G1 — Victoria ${home} (${g1.length} marcadores)</div>
+        <div class="score-grid">${renderGroup(g1)}</div>
+        <div class="score-group-title">🤝 X — Empate (${draws.length} marcadores)</div>
+        <div class="score-grid">${renderGroup(draws)}</div>
+        <div class="score-group-title">✈️ G2 — Victoria ${away} (${g2.length} marcadores)</div>
+        <div class="score-grid">${renderGroup(g2)}</div>
+      </div>`;
+    }
+
+    function renderEvaluator(evalOpts) {
+      const container = document.getElementById('evaluator-container');
+      const groups = {};
+      evalOpts.forEach(o => {
+        if (!groups[o.grp]) groups[o.grp] = [];
+        groups[o.grp].push(o);
+      });
+      let optsHtml = '<option value="">-- Selecciona un Mercado --</option>';
+      for (const grp in groups) {
+        optsHtml += `<optgroup label="${grp}">`;
+        groups[grp].forEach(o => {
+          optsHtml += `<option value="${o.p}">${o.lbl} (Prob: ${(o.p * 100).toFixed(1)}%)</option>`;
+        });
+        optsHtml += `</optgroup>`;
+      }
+      container.innerHTML = `
+      <div class="card full-width" style="margin-bottom: 20px; border-color: var(--accent);">
+        <div class="card-title" style="color: var(--accent); display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px;">
+          <span>💵 Comparador de Apuestas (Value & EV)</span>
+          <button id="add-eval-btn" class="add-btn" style="width: auto; padding: 4px 12px; font-weight: 600; border-radius: 8px;">+ Añadir Opción</button>
+        </div>
+        <div id="eval-rows-container"></div>
+        <div id="eval-best-option" style="margin-top: 16px; padding: 16px; background: rgba(52, 211, 153, 0.12); border: 1px solid var(--success); border-radius: 9px; display: none; text-align: center; animation: fadeUp .3s ease;">
+           <div style="color: var(--success); font-weight: 700; margin-bottom: 6px; font-size: 0.85rem; text-transform: uppercase; letter-spacing: 0.5px;">🏆 Mejor Opción (Mayor Value)</div>
+           <div id="eval-best-text" style="font-size: 1.15rem; font-weight: 800; color: #fff;"></div>
+           <div id="eval-best-stake" style="font-size: 0.95rem; color: var(--success); margin-top: 6px; font-weight: 600;"></div>
+        </div>
+      </div>
+      `;
+
+      const rowsContainer = document.getElementById('eval-rows-container');
+      const addBtn = document.getElementById('add-eval-btn');
+      const bestContainer = document.getElementById('eval-best-option');
+      const bestText = document.getElementById('eval-best-text');
+      const bestStake = document.getElementById('eval-best-stake');
+
+      const updateAll = () => {
+        let bestValue = -Infinity;
+        let bestItem = null;
+
+        const rows = rowsContainer.querySelectorAll('.eval-item');
+        rows.forEach(row => {
+          const mktSel = row.querySelector('.eval-market');
+          const oddsInp = row.querySelector('.eval-odds');
+          const customProbInp = row.querySelector('.eval-custom-prob');
+          const pEl = row.querySelector('.eval-prob');
+          const vEl = row.querySelector('.eval-value');
+          const sEl = row.querySelector('.eval-rec-stake');
+
+          let prob = 0;
+          let label = '';
+          if (mktSel.value === 'custom') {
+            const customProb = parseFloat(customProbInp.value);
+            prob = isNaN(customProb) ? 0 : customProb / 100;
+            label = 'Evento Personalizado';
+          } else {
+            prob = parseFloat(mktSel.value);
+            if (mktSel.selectedIndex >= 0) {
+              label = mktSel.options[mktSel.selectedIndex].text.split(' (Prob:')[0];
+            }
+          }
+
+          const odds = parseFloat(oddsInp.value);
+
+          if (isNaN(prob) || isNaN(odds) || prob <= 0 || odds <= 1) {
+            pEl.innerHTML = '—'; vEl.innerHTML = '—'; sEl.innerHTML = '—';
+            return;
+          }
+
+          const valueDecimal = (prob * odds) - 1;
+          const valuePct = valueDecimal * 100;
+
+          let stake = 0;
+          if (valueDecimal > 0) {
+            const kellyFraction = valueDecimal / (odds - 1);
+            let rawStake = kellyFraction * 25;
+            const allowedStakes = [0.25, 0.5, 0.75, 1, 1.5, 2, 2.5, 3, 3.5, 4, 4.5, 5, 6, 7, 8, 9, 10];
+            stake = allowedStakes.reduce((prev, curr) => Math.abs(curr - rawStake) < Math.abs(prev - rawStake) ? curr : prev);
+          }
+
+          pEl.textContent = (prob * 100).toFixed(1) + '%';
+          pEl.style.color = 'var(--text2)';
+
+          vEl.textContent = (valuePct > 0 ? '+' : '') + valuePct.toFixed(2) + '%';
+          vEl.style.color = valuePct > 0 ? 'var(--success)' : 'var(--danger)';
+
+          sEl.textContent = stake > 0 ? stake.toFixed(2) + ' U' : '0 U';
+          sEl.style.color = stake > 0 ? 'var(--warning)' : 'var(--text3)';
+
+          if (valuePct > bestValue && valuePct > 0) {
+            bestValue = valuePct;
+            bestItem = {
+              label: label,
+              odds: odds,
+              prob: prob,
+              value: valuePct,
+              stake: stake
+            };
+          }
+        });
+
+        if (bestItem) {
+          bestContainer.style.display = 'block';
+          bestText.textContent = `${bestItem.label} @ ${bestItem.odds.toFixed(2)}`;
+          bestStake.textContent = `Stake Recomendado: ${bestItem.stake.toFixed(2)} Unidades (Value: +${bestItem.value.toFixed(2)}%)`;
+        } else {
+          bestContainer.style.display = 'none';
+        }
+      };
+
+      const addRow = () => {
+        const div = document.createElement('div');
+        div.className = 'eval-item';
+        div.style.cssText = 'background: rgba(30, 30, 70, 0.4); padding: 12px; border: 1px solid var(--glass-border); border-radius: 8px; margin-bottom: 10px; display: flex; flex-wrap: wrap; gap: 12px; align-items: center;';
+        div.innerHTML = `
+          <div style="flex: 1 1 220px; min-width: 0; display: flex; gap: 6px;">
+            <select class="eval-market" style="flex: 1; background: var(--bg-input); border: 1px solid var(--glass-border); color: var(--text); padding: 8px 10px; border-radius: 6px; font-size: .85rem; outline: none; text-overflow: ellipsis;">
+              <option value="custom">✏️ Evento Personalizado</option>
+              ${optsHtml}
+            </select>
+            <input type="number" step="0.1" class="eval-custom-prob" placeholder="Prob %" style="display:none; width: 75px; background: var(--bg-input); border: 1px solid var(--accent); color: var(--text); padding: 8px; border-radius: 6px; font-size: .85rem; outline: none;" title="Probabilidad en %">
+          </div>
+          <div style="width: 90px;">
+            <input type="number" step="0.01" class="eval-odds" placeholder="Cuota" style="width: 100%; background: var(--bg-input); border: 1px solid var(--glass-border); color: var(--text); padding: 8px; border-radius: 6px; font-size: .85rem; outline: none;">
+          </div>
+          <div style="flex: 1 1 180px; display: flex; justify-content: space-around; font-size: 0.95rem; background: rgba(0,0,0,0.2); padding: 8px 6px; border-radius: 6px;">
+            <div style="text-align:center"><div style="font-size:0.65rem;color:var(--text3);font-weight:700;letter-spacing:.5px;">PROB</div><div class="eval-prob" style="font-weight:600;margin-top:2px;">—</div></div>
+            <div style="text-align:center"><div style="font-size:0.65rem;color:var(--text3);font-weight:700;letter-spacing:.5px;">VALUE</div><div class="eval-value" style="font-weight:700;margin-top:2px;">—</div></div>
+            <div style="text-align:center"><div style="font-size:0.65rem;color:var(--text3);font-weight:700;letter-spacing:.5px;">STAKE</div><div class="eval-rec-stake" style="font-weight:700;margin-top:2px;">—</div></div>
+          </div>
+          <button class="eval-remove" style="background: none; border: none; color: var(--danger); font-size: 1.4rem; cursor: pointer; padding: 0 8px; line-height: 1; transition: transform .15s;" title="Eliminar opción">×</button>
+        `;
+
+        const mktSel = div.querySelector('.eval-market');
+        const customProb = div.querySelector('.eval-custom-prob');
+        mktSel.addEventListener('change', () => {
+          customProb.style.display = mktSel.value === 'custom' ? 'block' : 'none';
+          updateAll();
+        });
+        customProb.addEventListener('input', updateAll);
+        div.querySelector('.eval-odds').addEventListener('input', updateAll);
+        div.querySelector('.eval-remove').addEventListener('click', () => {
+          div.remove();
+          updateAll();
+        });
+
+        rowsContainer.appendChild(div);
+      };
+
+      addBtn.addEventListener('click', addRow);
+
+      // Añadir la primera fila por defecto
+      addRow();
+    }
+
+    function renderParlayBuilder(evalOpts) {
+      const parlayContainer = document.getElementById('parlay-container');
+      if (!parlayContainer) return;
+      parlayContainer.style.display = 'block';
+
+      let optsHtml = '';
+      let currentGroup = '';
+      evalOpts.forEach(o => {
+        if (o.grp !== currentGroup) {
+          if (currentGroup !== '') optsHtml += `</optgroup>`;
+          optsHtml += `<optgroup label="${o.grp}">`;
+          currentGroup = o.grp;
+        }
+        optsHtml += `<option value="${o.p}">${o.lbl} (Prob: ${(o.p * 100).toFixed(1)}%)</option>`;
+      });
+      if (currentGroup !== '') optsHtml += `</optgroup>`;
+
+      parlayContainer.innerHTML = `
+      <div class="card full-width" style="margin-bottom: 20px; border: 1px solid var(--accent2);">
+        <div class="card-title" style="color: var(--accent2); display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px;">
+          <span>🔗 Creador de Combinadas (Parlay)</span>
+          <button id="add-parlay-row" class="add-btn" style="width: auto; padding: 4px 12px; font-weight: 600; border-radius: 8px;">+ Añadir Selección</button>
+        </div>
+        <div id="parlay-rows"></div>
+        <div style="margin-top: 16px; padding: 16px; background: rgba(139, 92, 246, 0.12); border: 1px solid var(--accent2); border-radius: 9px; text-align: center;">
+           <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(120px, 1fr)); gap: 10px; margin-bottom: 12px;">
+             <div><div style="font-size:0.75rem; color:var(--text3); text-transform:uppercase;">Probabilidad Total</div><div id="parlay-prob" style="font-size:1.2rem; font-weight:800;">—</div></div>
+             <div><div style="font-size:0.75rem; color:var(--text3); text-transform:uppercase;">Cuota Real</div><div id="parlay-fair" style="font-size:1.2rem; font-weight:800;">—</div></div>
+             <div><div style="font-size:0.75rem; color:var(--text3); text-transform:uppercase;">Cuota Ofrecida</div><div id="parlay-odds" style="font-size:1.2rem; font-weight:800; color:var(--accent2);">—</div></div>
+           </div>
+           <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 10px; padding-top: 12px; border-top: 1px solid rgba(139, 92, 246, 0.2);">
+             <div><div style="font-size:0.75rem; color:var(--text3); text-transform:uppercase;">Value Total</div><div id="parlay-value" style="font-size:1.3rem; font-weight:800;">—</div></div>
+             <div><div style="font-size:0.75rem; color:var(--text3); text-transform:uppercase;">Stake Recomendado</div><div id="parlay-stake" style="font-size:1.3rem; font-weight:800;">—</div></div>
+           </div>
+           <div style="font-size:.75rem; color:var(--text3); margin-top: 10px;">⚠️ Asume independencia entre selecciones. Evitar combinar mercados del mismo partido (ej. Gana Local y Over 2.5) debido a su correlación natural.</div>
+        </div>
+      </div>`;
+
+      const rowsContainer = document.getElementById('parlay-rows');
+      const addBtn = document.getElementById('add-parlay-row');
+      const pProb = document.getElementById('parlay-prob');
+      const pFair = document.getElementById('parlay-fair');
+      const pOdds = document.getElementById('parlay-odds');
+      const pValue = document.getElementById('parlay-value');
+      const pStake = document.getElementById('parlay-stake');
+
+      const updateParlay = () => {
+        const rows = rowsContainer.querySelectorAll('.parlay-item');
+        let totalProb = 1;
+        let totalOdds = 1;
+        let validRows = 0;
+
+        rows.forEach(row => {
+          const mktSel = row.querySelector('.parlay-market');
+          const oddsInp = row.querySelector('.parlay-odds');
+          const customProbInp = row.querySelector('.parlay-custom-prob');
+
+          let prob = 0;
+          if (mktSel.value === 'custom') {
+            const customProb = parseFloat(customProbInp.value);
+            prob = isNaN(customProb) ? 0 : customProb / 100;
+          } else {
+            prob = parseFloat(mktSel.value);
+          }
+          const odds = parseFloat(oddsInp.value);
+
+          if (!isNaN(prob) && !isNaN(odds) && prob > 0 && odds >= 1) {
+            totalProb *= prob;
+            totalOdds *= odds;
+            validRows++;
+          }
+        });
+
+        if (validRows === 0) {
+          pProb.innerHTML = '—'; pFair.innerHTML = '—'; pOdds.innerHTML = '—';
+          pValue.innerHTML = '—'; pStake.innerHTML = '—';
+          return;
+        }
+
+        const fairOdds = 1 / totalProb;
+        const valueDecimal = (totalProb * totalOdds) - 1;
+        const valuePct = valueDecimal * 100;
+
+        let stake = 0;
+        if (valueDecimal > 0) {
+          const kellyFraction = valueDecimal / (totalOdds - 1);
+          let rawStake = kellyFraction * 25;
+          const allowedStakes = [0.25, 0.5, 0.75, 1, 1.5, 2, 2.5, 3, 3.5, 4, 4.5, 5, 6, 7, 8, 9, 10];
+          stake = allowedStakes.reduce((prev, curr) => Math.abs(curr - rawStake) < Math.abs(prev - rawStake) ? curr : prev);
+        }
+
+        pProb.textContent = (totalProb * 100).toFixed(2) + '%';
+        pFair.textContent = fairOdds.toFixed(2);
+        pOdds.textContent = totalOdds.toFixed(2);
+
+        pValue.textContent = (valuePct > 0 ? '+' : '') + valuePct.toFixed(2) + '%';
+        pValue.style.color = valuePct > 0 ? 'var(--success)' : 'var(--danger)';
+
+        pStake.textContent = stake > 0 ? stake.toFixed(2) + ' U' : '0 U';
+        pStake.style.color = stake > 0 ? 'var(--warning)' : 'var(--text3)';
+      };
+
+      const addRow = () => {
+        const div = document.createElement('div');
+        div.className = 'parlay-item';
+        div.style.cssText = 'background: rgba(30, 30, 70, 0.4); padding: 10px; border: 1px solid var(--glass-border); border-radius: 8px; margin-bottom: 8px; display: flex; flex-wrap: wrap; gap: 8px; align-items: center;';
+        div.innerHTML = `
+          <div style="flex: 1 1 200px; min-width: 0; display: flex; gap: 6px;">
+            <select class="parlay-market" style="flex: 1; background: var(--bg-input); border: 1px solid var(--glass-border); color: var(--text); padding: 8px; border-radius: 6px; font-size: .85rem; outline: none;">
+              <option value="custom">✏️ Evento Personalizado</option>
+              \${optsHtml}
+            </select>
+            <input type="number" step="0.1" class="parlay-custom-prob" placeholder="Prob %" style="display:none; width: 75px; background: var(--bg-input); border: 1px solid var(--accent); color: var(--text); padding: 8px; border-radius: 6px; font-size: .85rem; outline: none;" title="Probabilidad en %">
+          </div>
+          <div style="width: 80px;">
+            <input type="number" step="0.01" class="parlay-odds" placeholder="Cuota" style="width: 100%; background: var(--bg-input); border: 1px solid var(--glass-border); color: var(--text); padding: 8px; border-radius: 6px; font-size: .85rem; outline: none;">
+          </div>
+          <button class="parlay-remove" style="background: none; border: none; color: var(--danger); font-size: 1.4rem; cursor: pointer; padding: 0 4px; line-height: 1;" title="Eliminar selección">×</button>
+        `;
+
+        const mktSel = div.querySelector('.parlay-market');
+        const customProb = div.querySelector('.parlay-custom-prob');
+        mktSel.addEventListener('change', () => {
+          customProb.style.display = mktSel.value === 'custom' ? 'block' : 'none';
+          updateParlay();
+        });
+        customProb.addEventListener('input', updateParlay);
+        div.querySelector('.parlay-odds').addEventListener('input', updateParlay);
+        div.querySelector('.parlay-remove').addEventListener('click', () => {
+          div.remove();
+          updateParlay();
+        });
+
+        rowsContainer.appendChild(div);
+      };
+
+      addBtn.addEventListener('click', addRow);
+      addRow();
+      addRow();
+    }
+
+    function renderResults(home, away, pred, matrix, sesgo, contexto, models) {
+      const grid = document.getElementById('results-grid');
+      grid.innerHTML = '';
+      document.getElementById('results-section').style.display = 'block';
+      SELECTED_SCORES.clear();
+      updateScoreSum();
+
+      const m1x2 = calc1X2(matrix), btts = calcBTTS(matrix);
+      const ouG = calcOU(matrix, LINEAS_GOLES), ouH = calcTeamOU(pred.xg_home, LINEAS_EQUIPO), ouA = calcTeamOU(pred.xg_away, LINEAS_EQUIPO);
+      const scores = calcScores(matrix, CFG.TOP_MARCADORES);
+      const hcE = calcEuropeanHC(matrix, LINEAS_HC_EUR), hcA = calcAsianHC(matrix, LINEAS_HC_ASIA);
+      const cOU = calcNormalOU(pred.corners_total, models.corners_std, LINEAS_CORNERS);
+      const sOU = calcNormalOU(pred.shots_total, models.shots_std, LINEAS_SHOTS);
+      const tOU = calcNormalOU(pred.target_total, models.target_std, LINEAS_TARGET);
+      const fOU = calcPoissonOU(pred.fouls_total, LINEAS_FOULS);
+      const yOU = calcPoissonOU(pred.yellows_total, LINEAS_YELLOWS);
+
+      const genL = (m) => [-2.5, -1.5, -0.5, 0.5, 1.5, 2.5].map(d => Math.floor(m) + d).filter(x => x > 0);
+      const sH = genL(pred.shots_home), sA = genL(pred.shots_away);
+      const tH = genL(pred.target_home), tA = genL(pred.target_away);
+      const cH = genL(pred.corners_home), cA = genL(pred.corners_away);
+      const fH = genL(pred.fouls_home), fA = genL(pred.fouls_away);
+      const yH = genL(pred.yellows_home), yA = genL(pred.yellows_away);
+
+      const sOUH = calcPoissonOU(pred.shots_home, sH), sOUA = calcPoissonOU(pred.shots_away, sA);
+      const tOUH = calcPoissonOU(pred.target_home, tH), tOUA = calcPoissonOU(pred.target_away, tA);
+      const cOUH = calcPoissonOU(pred.corners_home, cH), cOUA = calcPoissonOU(pred.corners_away, cA);
+      const fOUH = calcPoissonOU(pred.fouls_home, fH), fOUA = calcPoissonOU(pred.fouls_away, fA);
+      const yOUH = calcPoissonOU(pred.yellows_home, yH), yOUA = calcPoissonOU(pred.yellows_away, yA);
+
+      const evalOpts = [];
+      const addEval = (grp, lbl, p) => evalOpts.push({ grp, lbl, p });
+      addEval('1X2', `1(${home})`, m1x2.p1); addEval('1X2', `X(Empate)`, m1x2.pX); addEval('1X2', `2(${away})`, m1x2.p2);
+      addEval('Doble Oportunidad', `1X`, m1x2.p1 + m1x2.pX); addEval('Doble Oportunidad', `12`, m1x2.p1 + m1x2.p2); addEval('Doble Oportunidad', `X2`, m1x2.pX + m1x2.p2);
+      addEval('Ambos Marcan', `Sí`, btts.yes); addEval('Ambos Marcan', `No`, btts.no);
+      LINEAS_GOLES.forEach(l => { addEval('Goles O/U', `Over ${l} `, ouG[l].over); addEval('Goles O/U', `Under ${l} `, ouG[l].under); });
+      LINEAS_EQUIPO.forEach(l => { addEval(`Goles ${home} `, `Over ${l} `, ouH[l].over); addEval(`Goles ${home} `, `Under ${l} `, ouH[l].under); addEval(`Goles ${away} `, `Over ${l} `, ouA[l].over); addEval(`Goles ${away} `, `Under ${l} `, ouA[l].under); });
+      LINEAS_CORNERS.forEach(l => { addEval('Corners', `Over ${l} `, cOU[l].over); addEval('Corners', `Under ${l} `, cOU[l].under); });
+      LINEAS_SHOTS.forEach(l => { addEval('Tiros', `Over ${l} `, sOU[l].over); addEval('Tiros', `Under ${l} `, sOU[l].under); });
+      LINEAS_TARGET.forEach(l => { addEval('Tiros A Puerta', `Over ${l} `, tOU[l].over); addEval('Tiros A Puerta', `Under ${l} `, tOU[l].under); });
+      LINEAS_FOULS.forEach(l => { addEval('Faltas', `Over ${l} `, fOU[l].over); addEval('Faltas', `Under ${l} `, fOU[l].under); });
+      LINEAS_YELLOWS.forEach(l => { addEval('Amarillas', `Over ${l} `, yOU[l].over); addEval('Amarillas', `Under ${l} `, yOU[l].under); });
+
+      sH.forEach(l => { addEval(`Tiros ${home} `, `Over ${l} `, sOUH[l].over); addEval(`Tiros ${home} `, `Under ${l} `, sOUH[l].under); });
+      sA.forEach(l => { addEval(`Tiros ${away} `, `Over ${l} `, sOUA[l].over); addEval(`Tiros ${away} `, `Under ${l} `, sOUA[l].under); });
+      tH.forEach(l => { addEval(`A Puerta ${home} `, `Over ${l} `, tOUH[l].over); addEval(`A Puerta ${home} `, `Under ${l} `, tOUH[l].under); });
+      tA.forEach(l => { addEval(`A Puerta ${away} `, `Over ${l} `, tOUA[l].over); addEval(`A Puerta ${away} `, `Under ${l} `, tOUA[l].under); });
+      cH.forEach(l => { addEval(`Corners ${home} `, `Over ${l} `, cOUH[l].over); addEval(`Corners ${home} `, `Under ${l} `, cOUH[l].under); });
+      cA.forEach(l => { addEval(`Corners ${away} `, `Over ${l} `, cOUA[l].over); addEval(`Corners ${away} `, `Under ${l} `, cOUA[l].under); });
+      fH.forEach(l => { addEval(`Faltas ${home} `, `Over ${l} `, fOUH[l].over); addEval(`Faltas ${home} `, `Under ${l} `, fOUH[l].under); });
+      fA.forEach(l => { addEval(`Faltas ${away} `, `Over ${l} `, fOUA[l].over); addEval(`Faltas ${away} `, `Under ${l} `, fOUA[l].under); });
+      yH.forEach(l => { addEval(`Amarillas ${home} `, `Over ${l} `, yOUH[l].over); addEval(`Amarillas ${home} `, `Under ${l} `, yOUH[l].under); });
+      yA.forEach(l => { addEval(`Amarillas ${away} `, `Over ${l} `, yOUA[l].over); addEval(`Amarillas ${away} `, `Under ${l} `, yOUA[l].under); });
+
+      addEval('Tarjetas Rojas', `≥1 Roja`, pred.red_prob); addEval('Tarjetas Rojas', `0 Rojas`, 1 - pred.red_prob);
+
+      renderEvaluator(evalOpts);
+      renderParlayBuilder(evalOpts);
+
+      let ctxInfo = ''; if (contexto.torneo) ctxInfo += contexto.torneo.nombre; if (contexto.etapa) ctxInfo += (ctxInfo ? ' | ' : '') + contexto.etapa.nombre;
+      const refInfo = sesgo ? `Árbitro: ${sesgo.partidos} partidos` : '';
+
+      // xG Hero
+      // xG Hero
+      grid.innerHTML += `<div class="card full-width" style="margin-bottom: 16px;"><div class="card-title">⚽ xG Predicho</div>${ctxInfo ? `<div style="text-align:center;font-size:.78rem;color:var(--text3);margin-bottom:8px">${ctxInfo}${refInfo ? ' — ' + refInfo : ''}</div>` : (refInfo ? `<div style="text-align:center;font-size:.78rem;color:var(--text3);margin-bottom:8px">${refInfo}</div>` : '')}
+  <div class="xg-hero"><div class="xg-team"><div class="name">${home}</div><div class="val">${fmt(pred.xg_home, 2)}</div></div><div class="xg-vs">VS</div><div class="xg-team"><div class="name">${away}</div><div class="val">${fmt(pred.xg_away, 2)}</div></div></div>
+  <div class="xg-total">Goles Esperados Total: <strong>${fmt(pred.xg_home + pred.xg_away, 2)}</strong></div></div>`;
+
+      function makeAcc(title, content, isOpen = false) {
+        const svgPin = `<svg viewBox="0 0 24 24"><path d="M16,12V4H17V2H7V4H8V12L6,14V16H11.2V22H12.8V16H18V14L16,12Z" transform="rotate(45 12 12)" /></svg>`;
+        return `<div class="accordion-item ${isOpen ? 'active' : ''}">
+              <div class="accordion-header" onclick="this.parentElement.classList.toggle('active')">
+                <div class="title-left">${svgPin} <span>${title}</span></div>
+                <span class="chevron">▼</span>
+              </div>
+              <div class="accordion-content">${content}</div>
+            </div>`;
+      }
+
+      let accHTML = '';
+
+      // 1X2
+      accHTML += makeAcc('1X2', `<table class="mkt-table"><tr><th>Mercado</th><th>Prob</th><th>Cuota</th></tr>
+  <tr><td>1 — ${home}</td><td class="prob">${fmtP(m1x2.p1)}</td><td class="odds">${fmtO(m1x2.p1)}</td></tr>
+  <tr><td>X — Empate</td><td class="prob">${fmtP(m1x2.pX)}</td><td class="odds">${fmtO(m1x2.pX)}</td></tr>
+  <tr><td>2 — ${away}</td><td class="prob">${fmtP(m1x2.p2)}</td><td class="odds">${fmtO(m1x2.p2)}</td></tr></table>`, true);
+
+      // Doble Oportunidad
+      accHTML += makeAcc('Doble oportunidad', `<table class="mkt-table"><tr><th>Mercado</th><th>Prob</th><th>Cuota</th></tr>
+  <tr><td>1X</td><td class="prob">${fmtP(m1x2.p1 + m1x2.pX)}</td><td class="odds">${fmtO(m1x2.p1 + m1x2.pX)}</td></tr>
+  <tr><td>12</td><td class="prob">${fmtP(m1x2.p1 + m1x2.p2)}</td><td class="odds">${fmtO(m1x2.p1 + m1x2.p2)}</td></tr>
+  <tr><td>X2</td><td class="prob">${fmtP(m1x2.pX + m1x2.p2)}</td><td class="odds">${fmtO(m1x2.pX + m1x2.p2)}</td></tr></table>`);
+
+      // BTTS
+      accHTML += makeAcc('Ambos equipos anotarán', `<table class="mkt-table"><tr><th>Mercado</th><th>Prob</th><th>Cuota</th></tr>
+  <tr><td>Sí</td><td class="prob">${fmtP(btts.yes)}</td><td class="odds">${fmtO(btts.yes)}</td></tr>
+  <tr><td>No</td><td class="prob">${fmtP(btts.no)}</td><td class="odds">${fmtO(btts.no)}</td></tr></table>`);
+
+      // O/U Goles
+      accHTML += makeAcc('Total (Goles)', makeOUTable(ouG, LINEAS_GOLES, 'Goles'));
+      accHTML += makeAcc(`Total 1 (${home})`, makeOUTable(ouH, LINEAS_EQUIPO, home));
+      accHTML += makeAcc(`Total 2 (${away})`, makeOUTable(ouA, LINEAS_EQUIPO, away));
+
+      // Top Marcadores
+
+      let scH = `<table class="mkt-table"><tr><th>Marcador</th><th>Prob</th><th>Cuota</th></tr>`;
+      scores.slice(0, CFG.TOP_MARCADORES).forEach(s => { if (s.p > 0) scH += `<tr><td>${s.s}</td><td class="prob">${fmtP(s.p)}</td><td class="odds">${fmtO(s.p)}</td></tr>` });
+      accHTML += makeAcc(`Marcador Exacto (Top ${CFG.TOP_MARCADORES})`, scH + `</table>`);
+
+      // Handicap Europeo
+      let hcEH = `<table class="mkt-table"><tr><th>HC</th><th>1</th><th>Cuota</th><th>X</th><th>Cuota</th><th>2</th><th>Cuota</th></tr>`;
+      LINEAS_HC_EUR.forEach(hc => {
+        const h = hcE[hc]; const lb = hc >= 0 ? `+${hc}` : `${hc}`;
+        hcEH += `<tr><td><strong>${lb}</strong></td><td class="prob">${fmtP(h.p1)}</td><td class="odds">${fmtO(h.p1)}</td><td class="prob">${fmtP(h.pX)}</td><td class="odds">${fmtO(h.pX)}</td><td class="prob">${fmtP(h.p2)}</td><td class="odds">${fmtO(h.p2)}</td></tr>`
+      });
+      accHTML += makeAcc('Hándicap (Europeo)', hcEH + `</table>`);
+
+      // Handicap Asiático
+      let hcAH = `<div style="font-size:.75rem;color:var(--text3);margin-bottom:10px">Fórmula: (P<sub>ganar</sub> / (P<sub>ganar</sub> + P<sub>perder</sub>)) × 100</div>`;
+      hcAH += `<table class="mkt-table"><tr><th>Línea</th><th>${home} %</th><th>Cuota</th><th>${away} %</th><th>Cuota</th><th>Info</th></tr>`;
+      LINEAS_HC_ASIA.forEach(line => {
+        const h = hcA[line]; const aw = 100 - h.asian; const awO = aw > 0 ? 100 / aw : 99;
+        const lb = line >= 0 ? `+${line % 1 === 0 ? line + '.0' : line}` : `${line % 1 === 0 ? line + '.0' : line}`;
+        let info = ''; if (h.pPush > .001) info = `Push: ${fmtP(h.pPush)}`; if (h.pHalfWin > .001 || h.pHalfLose > .001) { const pts = []; if (h.pHalfWin > .001) pts.push(`½W: ${fmtP(h.pHalfWin)}`); if (h.pHalfLose > .001) pts.push(`½L: ${fmtP(h.pHalfLose)}`); info = pts.join(' ') }
+        hcAH += `<tr><td><strong>${lb}</strong></td><td class="prob">${h.asian.toFixed(1)}%</td><td class="odds">${h.fairOdds.toFixed(2)}</td><td class="prob">${aw.toFixed(1)}%</td><td class="odds">${awO.toFixed(2)}</td><td style="font-size:.7rem;color:var(--text3)">${info}</td></tr>`
+      });
+      accHTML += makeAcc('Hándicap asiático', hcAH + `</table>`);
+
+      // Tiros
+      accHTML += makeAcc('Tiros (Total)', `<div style="font-size:.75rem;color:var(--text3);margin-bottom:8px">Normal (μ=${fmt(pred.shots_total)}, σ=${fmt(models.shots_std)})</div>${makeOUTable(sOU, LINEAS_SHOTS, 'Tiros')}`);
+      accHTML += makeAcc(`Tiros 1 (${home})`, makeOUTable(sOUH, sH, 'Tiros'));
+      accHTML += makeAcc(`Tiros 2 (${away})`, makeOUTable(sOUA, sA, 'Tiros'));
+
+      // Tiros a Puerta
+      accHTML += makeAcc('Tiros entre los tres palos (Total)', `<div style="font-size:.75rem;color:var(--text3);margin-bottom:8px">Normal (μ=${fmt(pred.target_total)}, σ=${fmt(models.target_std)})</div>${makeOUTable(tOU, LINEAS_TARGET, 'A Puerta')}`);
+      accHTML += makeAcc(`Tiros entre los tres palos 1 (${home})`, makeOUTable(tOUH, tH, 'A Puerta'));
+      accHTML += makeAcc(`Tiros entre los tres palos 2 (${away})`, makeOUTable(tOUA, tA, 'A Puerta'));
+
+      // Corners
+      accHTML += makeAcc('Saques de esquina (Total)', `<div style="font-size:.75rem;color:var(--text3);margin-bottom:8px">Normal (μ=${fmt(pred.corners_total)}, σ=${fmt(models.corners_std)})</div>${makeOUTable(cOU, LINEAS_CORNERS, 'Corners')}`);
+      accHTML += makeAcc(`Saques de esquina 1 (${home})`, makeOUTable(cOUH, cH, 'Corners'));
+      accHTML += makeAcc(`Saques de esquina 2 (${away})`, makeOUTable(cOUA, cA, 'Corners'));
+
+      // Faltas
+      accHTML += makeAcc('Faltas (Total)', makeOUTable(fOU, LINEAS_FOULS, 'Faltas'));
+      accHTML += makeAcc(`Faltas 1 (${home})`, makeOUTable(fOUH, fH, 'Faltas'));
+      accHTML += makeAcc(`Faltas 2 (${away})`, makeOUTable(fOUA, fA, 'Faltas'));
+
+      // Amarillas
+      accHTML += makeAcc('Tarjetas amarillas (Total)', makeOUTable(yOU, LINEAS_YELLOWS, 'Amarillas'));
+      accHTML += makeAcc(`Tarjetas amarillas 1 (${home})`, makeOUTable(yOUH, yH, 'Amarillas'));
+      accHTML += makeAcc(`Tarjetas amarillas 2 (${away})`, makeOUTable(yOUA, yA, 'Amarillas'));
+
+      // Rojas
+      const rY = pred.red_prob, rN = 1 - rY;
+      accHTML += makeAcc('Tarjetas Rojas', `<div style="font-size:.75rem;color:var(--text3);margin-bottom:10px">Binomial (tasa/falta: ${(models.red_per_foul * 100).toFixed(2)}%, base: ${(models.red_base_rate * 100).toFixed(1)}%)</div>
+  <table class="mkt-table"><tr><th>Mercado</th><th>Prob</th><th>Cuota</th></tr>
+  <tr><td>≥1 roja: Sí</td><td class="prob">${fmtP(rY)}</td><td class="odds">${fmtO(rY)}</td></tr>
+  <tr><td>≥1 roja: No</td><td class="prob">${fmtP(rN)}</td><td class="odds">${fmtO(rN)}</td></tr></table>`);
+
+      grid.innerHTML += `<div style="width: 100%; display: flex; flex-direction: column;">${accHTML}</div>`;
+
+      // ====== SECCIÓN DE TODOS LOS MARCADORES EXACTOS ======
+      grid.innerHTML += renderFullScorelines(matrix, home, away);
+
+      document.getElementById('results-section').scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+
+    // ======================================================================
+    //                    LOG & EVENT HANDLERS
+    // ======================================================================
+    function logMsg(m) { const el = document.getElementById('log'); el.style.display = 'block'; el.textContent += m + '\n'; el.scrollTop = el.scrollHeight }
+    function logClear() { const el = document.getElementById('log'); el.textContent = ''; el.style.display = 'none' }
+
+    function handleFileUpload(file) { const r = new FileReader(); r.onload = e => { const raw = parseCSV(e.target.result); RAW_DATA = processData(raw); const st = document.getElementById('data-status'); if (!RAW_DATA.length) { st.textContent = '⚠️ No se encontraron partidos válidos.'; st.className = ''; document.getElementById('predict-btn').disabled = true; return } const d = RAW_DATA.filter(r => r.Date).map(r => r.Date).sort((a, b) => a - b); st.textContent = `✅ ${RAW_DATA.length} partidos(${d[0] ? d[0].toISOString().slice(0, 10) : '?'} → ${d[d.length - 1] ? d[d.length - 1].toISOString().slice(0, 10) : '?'})`; st.className = 'loaded'; document.getElementById('predict-btn').disabled = false }; r.readAsText(file) }
+
+    function handlePredict() {
+      logClear(); clearScoreSelection();
+      const home = document.getElementById('home-team').value.trim(), away = document.getElementById('away-team').value.trim();
+      const eloH = parseFloat(document.getElementById('home-elo').value), eloA = parseFloat(document.getElementById('away-elo').value);
+      const torneo = document.getElementById('tournament').value.trim(), etapa = document.getElementById('round').value.trim();
+      const arbitro = document.getElementById('referee').value.trim(), limitDate = document.getElementById('start-date').value;
+      const applyHome = document.getElementById('apply-home').checked;
+      if (!home || !away || isNaN(eloH) || isNaN(eloA)) { alert('Completa al menos: equipos y ELOs.'); return }
+      readConfig();
+      let data = filterByDate(RAW_DATA, limitDate);
+      logMsg(`[*] ${data.length} partidos${limitDate ? ' (antes de ' + limitDate + ')' : ''} `);
+      if (data.length < 2) { alert(`Solo ${data.length} partido(s). Se necesitan >=2.`); return }
+      const models = trainModels(data);
+      logMsg(`[OK] Modelos entrenados — Corners σ = ${models.corners_std.toFixed(2)}, Tiros σ = ${models.shots_std.toFixed(2)} `);
+      logMsg(`  Rojas: base = ${(models.red_base_rate * 100).toFixed(1)}%, /falta=${(models.red_per_foul * 100).toFixed(2)}%`);
+      const sesgo = analyzeReferee(data, arbitro);
+      if (sesgo) logMsg(`  Árbitro: ${arbitro} (${sesgo.partidos}p) F:x${sesgo.fouls_mult.toFixed(2)} Y:x${sesgo.yellows_mult.toFixed(2)} R:x${sesgo.reds_mult.toFixed(2)}`);
+      else if (arbitro) logMsg(`  [!] Árbitro '${arbitro}' no encontrado.`);
+      const contexto = analyzeContext(data, torneo, etapa);
+      if (contexto.torneo) logMsg(`  Torneo: ${torneo} (${contexto.torneo.partidos}p) → Goles x${contexto.torneo.goles_mult.toFixed(2)}`);
+      if (contexto.etapa) logMsg(`  Etapa: ${etapa} (${contexto.etapa.partidos}p) → Goles x${contexto.etapa.goles_mult.toFixed(2)}`);
+
+      const teamH = analyzeTeam(data, home, true);
+      const teamA = analyzeTeam(data, away, false);
+      if (teamH) logMsg(`  [Equipo] ${home} (${teamH.games}p): Goles x${teamH.mult_gf.toFixed(2)}, Corners x${teamH.mult_cf.toFixed(2)}, Tarjetas x${teamH.mult_yf.toFixed(2)}`);
+      if (teamA) logMsg(`  [Equipo] ${away} (${teamA.games}p): Goles x${teamA.mult_gf.toFixed(2)}, Corners x${teamA.mult_cf.toFixed(2)}, Tarjetas x${teamA.mult_yf.toFixed(2)}`);
+
+      const pred = predictStats(models, data, eloH - eloA, sesgo, contexto, applyHome, teamH, teamA);
+      logMsg(`  xG: ${home} ${pred.xg_home.toFixed(2)} — ${away} ${pred.xg_away.toFixed(2)}`);
+      CURRENT_MATRIX = buildPoissonMatrix(pred.xg_home, pred.xg_away);
+      renderResults(home, away, pred, CURRENT_MATRIX, sesgo, contexto, models);
+    }
+
+    // ======================================================================
+    //                    CONFIG & AUTOCOMPLETE
+    // ======================================================================
+    function buildConfigUI() { const g = document.getElementById('cfg-grid'); g.innerHTML = ''; for (const [k, l] of Object.entries(CFG_LABELS)) g.innerHTML += `<div class="cfg-item"><label>${l}</label><input type="number" step="any" id="cfg-${k}" value="${CFG[k]}"></div>` }
+    function readConfig() { for (const k of Object.keys(CFG_LABELS)) { const el = document.getElementById(`cfg-${k}`); if (el) { const v = parseFloat(el.value); if (!isNaN(v)) CFG[k] = v } } }
+    function setupAutocomplete(inputId, listId, eloId) {
+      const input = document.getElementById(inputId), list = document.getElementById(listId), eloInput = document.getElementById(eloId);
+      const teams = Object.entries(ELO_TABLE);
+      input.addEventListener('input', () => { const v = norm(input.value); if (!v) { list.classList.remove('visible'); return } const mt = teams.filter(([n]) => norm(n).includes(v)).sort((a, b) => b[1] - a[1]).slice(0, 8); if (!mt.length) { list.classList.remove('visible'); return } list.innerHTML = mt.map(([n, e]) => `<div class="ac-item" data-name="${n}" data-elo="${e}"><span>${n}</span><span class="ac-elo">${e}</span></div>`).join(''); list.classList.add('visible'); list.querySelectorAll('.ac-item').forEach(item => { item.addEventListener('click', () => { input.value = item.dataset.name; eloInput.value = item.dataset.elo; list.classList.remove('visible') }) }) });
+      input.addEventListener('blur', () => { setTimeout(() => list.classList.remove('visible'), 150) });
+      input.addEventListener('keydown', e => { if (e.key === 'Escape') list.classList.remove('visible') });
+    }
+
+    function setupDynamicAutocomplete(inputId, listId, fieldGetter, fallbackList = []) {
+      const input = document.getElementById(inputId), list = document.getElementById(listId);
+      input.addEventListener('input', () => {
+        const v = norm(input.value);
+        if (!v) { list.classList.remove('visible'); return; }
+        const allVals = Array.from(new Set([...(RAW_DATA ? RAW_DATA.map(fieldGetter) : []), ...fallbackList].filter(x => x)));
+        const mt = allVals.filter(n => norm(n).includes(v)).slice(0, 8);
+        if (!mt.length) { list.classList.remove('visible'); return; }
+        list.innerHTML = mt.map(n => `<div class="ac-item" data-name="${n}"><span>${n}</span></div>`).join('');
+        list.classList.add('visible');
+        list.querySelectorAll('.ac-item').forEach(item => {
+          item.addEventListener('click', () => { input.value = item.dataset.name; list.classList.remove('visible') });
+        });
+      });
+      input.addEventListener('blur', () => { setTimeout(() => list.classList.remove('visible'), 150) });
+      input.addEventListener('keydown', e => { if (e.key === 'Escape') list.classList.remove('visible') });
+    }
+
+    function init() {
+      buildConfigUI();
+      setupAutocomplete('home-team', 'ac-home', 'home-elo');
+      setupAutocomplete('away-team', 'ac-away', 'away-elo');
+      setupDynamicAutocomplete('tournament', 'ac-tournament', r => r.Tournament, Object.keys(PESOS_TORNEO));
+      setupDynamicAutocomplete('round', 'ac-round', r => r.Round, Object.keys(PESOS_ETAPA));
+      setupDynamicAutocomplete('referee', 'ac-referee', r => r.Referee);
+      document.getElementById('file-input').addEventListener('change', e => { if (e.target.files.length > 0) handleFileUpload(e.target.files[0]) });
+      const dz = document.getElementById('drop-zone');
+      dz.addEventListener('dragover', e => { e.preventDefault(); dz.classList.add('dragover') });
+      dz.addEventListener('dragleave', () => dz.classList.remove('dragover'));
+      dz.addEventListener('drop', e => { e.preventDefault(); dz.classList.remove('dragover'); if (e.dataTransfer.files.length > 0) handleFileUpload(e.dataTransfer.files[0]) });
+      document.getElementById('predict-btn').addEventListener('click', handlePredict);
+      document.querySelectorAll('#match-form input').forEach(inp => { inp.addEventListener('keydown', e => { if (e.key === 'Enter') handlePredict() }) });
+    }
+    document.addEventListener('DOMContentLoaded', init);
+  </script>
+</body>
+
+</html>
