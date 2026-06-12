@@ -13,3 +13,6 @@
 ### Gold Cup
 ##### 2025: Group D & from quarterfinals
 ##### 2023: Group A & from quarterfinals
+
+### WC Qualifiers CONMEBOL
+##### 2023-2026: Completed
