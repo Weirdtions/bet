@@ -6,7 +6,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Simulador Predictivo ML — World</title>
   <meta name="description"
-    content="Simulador predictivo de fútbol con modelos ML, handicaps, mercados asiáticos y combinadas basadas en matriz de Poisson.">
+    content="Simulador predictivo de fútbol con Gradient Boosted Trees, análisis de rivalidad, H2H y mercados avanzados.">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap"
     rel="stylesheet">
@@ -642,62 +642,194 @@
       color: #fff;
     }
 
-    .accordion-item {
-      margin-bottom: 4px;
+    /* ML Dashboard */
+    .ml-panel {
+      border-color: rgba(139, 92, 246, 0.3) !important;
+    }
+
+    .ml-subtitle {
+      font-size: .82rem;
+      font-weight: 700;
+      color: var(--accent2);
+      margin-bottom: 10px;
+      text-transform: uppercase;
+      letter-spacing: .5px;
+    }
+
+    .feature-bars {
+      display: flex;
+      flex-direction: column;
+      gap: 5px;
+    }
+
+    .feature-row {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: .78rem;
+    }
+
+    .feature-name {
+      width: 130px;
+      color: var(--text2);
+      font-weight: 500;
+      flex-shrink: 0;
+      text-align: right;
+      font-size: .72rem;
+    }
+
+    .feature-bar-bg {
+      flex: 1;
+      height: 18px;
+      background: rgba(255, 255, 255, 0.05);
       border-radius: 4px;
-      background: var(--bg-card);
-      border: 1px solid var(--glass-border);
       overflow: hidden;
     }
 
-    .accordion-header {
-      padding: 12px 16px;
-      background: #e2e2e2;
-      color: #222;
+    .feature-bar-fill {
+      height: 100%;
+      background: linear-gradient(90deg, var(--accent), var(--accent2));
+      border-radius: 4px;
+      transition: width .6s ease;
+      min-width: 2px;
+    }
+
+    .feature-pct {
+      width: 42px;
+      text-align: right;
+      color: var(--accent3);
       font-weight: 600;
-      font-size: 0.88rem;
+      font-size: .72rem;
+    }
+
+    .ml-stats-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(90px, 1fr));
+      gap: 8px;
+    }
+
+    .ml-stat {
+      text-align: center;
+      padding: 10px 6px;
+      background: rgba(255, 255, 255, 0.04);
+      border-radius: 8px;
+    }
+
+    .ml-stat-label {
+      font-size: .68rem;
+      color: var(--text3);
+      text-transform: uppercase;
+      letter-spacing: .4px;
+    }
+
+    .ml-stat-value {
+      font-size: 1.15rem;
+      font-weight: 800;
+      color: var(--accent3);
+      margin-top: 3px;
+    }
+
+    /* H2H Panel */
+    .h2h-match {
       display: flex;
-      justify-content: space-between;
       align-items: center;
-      cursor: pointer;
-      user-select: none;
-      transition: background 0.2s;
+      gap: 8px;
+      padding: 5px 0;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+      font-size: .8rem;
     }
 
-    .accordion-header:hover {
-      background: #d4d4d4;
+    .h2h-match:last-child {
+      border-bottom: none;
     }
 
-    .accordion-header .title-left {
+    .h2h-result {
+      font-weight: 700;
+      padding: 2px 8px;
+      border-radius: 4px;
+      font-size: .72rem;
+      flex-shrink: 0;
+    }
+
+    .h2h-result.W {
+      background: rgba(52, 211, 153, 0.2);
+      color: var(--success);
+    }
+
+    .h2h-result.D {
+      background: rgba(251, 191, 36, 0.2);
+      color: var(--warning);
+    }
+
+    .h2h-result.L {
+      background: rgba(248, 113, 113, 0.2);
+      color: var(--danger);
+    }
+
+    /* Form Indicators */
+    .form-indicators {
+      display: flex;
+      gap: 4px;
+      margin: 6px 0;
+      flex-wrap: wrap;
+    }
+
+    .form-dot {
+      width: 32px;
+      height: 28px;
+      border-radius: 5px;
       display: flex;
       align-items: center;
-      gap: 10px;
+      justify-content: center;
+      font-size: .65rem;
+      font-weight: 700;
+      color: #fff;
     }
 
-    .accordion-header .title-left svg {
-      width: 14px;
-      height: 14px;
-      fill: #555;
+    .form-dot.W {
+      background: var(--success);
     }
 
-    .accordion-content {
-      display: none;
-      padding: 16px;
-      background: var(--bg-card);
+    .form-dot.D {
+      background: var(--warning);
+      color: #1a1a2e;
     }
 
-    .accordion-item.active .accordion-content {
-      display: block;
+    .form-dot.L {
+      background: var(--danger);
     }
 
-    .accordion-item.active .accordion-header .chevron {
-      transform: rotate(180deg);
+    /* Market Sections */
+    .market-section-title {
+      grid-column: 1/-1;
+      font-size: .95rem;
+      font-weight: 700;
+      color: var(--accent3);
+      margin: 12px 0 0;
+      padding: 8px 0 6px;
+      border-bottom: 1px solid var(--glass-border);
     }
 
-    .accordion-header .chevron {
-      transition: transform 0.3s;
-      font-size: 0.8rem;
-      color: #666;
+    /* Comparison Grid */
+    .comparison-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr 1fr;
+      gap: 6px;
+      text-align: center;
+    }
+
+    .comp-header {
+      font-size: .7rem;
+      color: var(--text3);
+      text-transform: uppercase;
+      font-weight: 700;
+      padding: 4px;
+    }
+
+    .comp-value {
+      font-size: 1rem;
+      font-weight: 700;
+      padding: 4px;
     }
 
     @media(max-width:700px) {
@@ -720,6 +852,11 @@
       .score-grid {
         grid-template-columns: repeat(auto-fill, minmax(80px, 1fr));
       }
+
+      .feature-name {
+        width: 90px;
+        font-size: .65rem;
+      }
     }
 
     ::-webkit-scrollbar {
@@ -735,6 +872,43 @@
       background: var(--accent);
       border-radius: 3px
     }
+
+    /* Dynamic Odds Styling */
+    .dyn-odds {
+      background: var(--bg-input);
+      border: 1px solid var(--glass-border);
+      color: var(--text);
+      padding: 4px 6px;
+      border-radius: 4px;
+      font-size: .75rem;
+      width: 60px;
+      outline: none;
+      transition: border-color .2s;
+    }
+
+    .dyn-odds:focus {
+      border-color: var(--accent);
+    }
+
+    .dyn-res {
+      font-size: .7rem;
+      line-height: 1.2;
+      min-width: 65px;
+    }
+
+    .val-pos {
+      color: var(--success);
+      font-weight: 700;
+    }
+
+    .val-neg {
+      color: var(--danger);
+    }
+
+    .val-stake {
+      color: var(--warning);
+      font-weight: 700;
+    }
   </style>
 </head>
 
@@ -742,7 +916,7 @@
   <div class="container">
     <header>
       <h1>⚽ Simulador Predictivo ML — World</h1>
-      <p>Predicciones con regresión ponderada, Poisson y mercados avanzados</p>
+      <p>Gradient Boosted Trees · Análisis de Rivalidad · H2H · Poisson-Dixon-Coles</p>
     </header>
     <div class="section">
       <div class="section-title"><span>📁</span> Cargar Datos</div>
@@ -790,11 +964,16 @@
               placeholder="Ej: Rubiel Vázquez" autocomplete="off">
             <div class="ac-list" id="ac-referee"></div>
           </div>
-          <div class="form-group" style="flex-direction: row; align-items: center; gap: 8px;">
+          <div class="form-group"><label>Motivación Local (1-10)</label><input type="number" id="home-mot" value="10"
+              min="1" max="10" placeholder="Ej: 10"></div>
+          <div class="form-group"><label>Motivación Visita (1-10)</label><input type="number" id="away-mot" value="10"
+              min="1" max="10" placeholder="Ej: 10"></div>
+
+          <div class="form-group full" style="flex-direction: row; align-items: center; gap: 8px;">
             <input type="checkbox" id="apply-home" checked style="width: 18px; height: 18px; cursor: pointer;">
             <label for="apply-home" style="cursor: pointer; margin-bottom: 0;">Incluir Localía</label>
           </div>
-          <button id="predict-btn" disabled>🔮 Predecir</button>
+          <button id="predict-btn" disabled>🔮 Predecir con GBT</button>
         </div>
       </div>
     </div>
@@ -825,63 +1004,86 @@
 
     // ====== TABLA DE ELO POR SELECCIÓN ======
     const ELO_TABLE = {
-      'España': 2155,
-      'Argentina': 2113,
-      'Francia': 2062,
-      'Inglaterra': 2020,
-      'Brasil': 1988,
-      'México': 1875,
-      'Sudáfrica': 1517,
+      'España': 2157,
+      'Argentina': 2115,
+      'Francia': 2063,
+      'Brasil': 1991,
+      'Turquía': 1911,
+      'Suiza': 1891,
+      'México': 1881,
+      'Marruecos': 1827,
+      'Canadá': 1788,
+      'Corea del Sur': 1786,
+      'Escocia': 1782,
+      'Estados Unidos': 1780,
+      'Paraguay': 1780,
+      'Australia': 1777,
+      'República Checa': 1712,
+      'Bosnia y Herzegovina': 1595,
+      'Haití': 1548,
+      'Sudáfrica': 1511,
+      'Catar': 1421,
     };
 
     // ====== PESOS POR TORNEO ======
     const PESOS_TORNEO = {
-      'World Cup': 5,
-      'Euro': 4.35,
-      'UEFA Nations League Final Four': 4.20,
-      'Copa America': 4.15,
-      'WC Qualifiers CONMEBOL': 3.80,
-      'Finalissima': 3.60,
-      'CONCACAF Nations League Final Four': 3.50,
-      'WC Qualifiers UEFA': 3.20,
-      'Africa Cup of Nations': 3.10,
-      'UEFA Nations League AB': 2.80,
-      'WC Qualifiers CAF': 2.60,
-      'Asian Cup': 2.50,
-      'WC Qualifiers CONCACAF': 2.15,
-      'WC Qualifiers AFC': 2.05,
-      'Gold Cup': 2.00,
-      'UEFA Nations League C': 1.90,
-      'CONCACAF Nations League A': 1.80,
-      'UEFA Nations League D': 1.40,
-      'CONCACAF Nations League B': 1.35,
-      'CONCACAF Nations League C': 1.15,
-      'WC Qualifiers OFC': 0.80,
-      'OFC Cup of Nations': 0.75,
+      'World Cup': 5.00,
+      'Euro': 4.25,
+      'Copa America': 3.85,
+      'Finalissima': 2.50,
+      'Africa Cup of Nations': 2.90,
+      'UEFA Nations League': 2.50,
+      'Asian Cup': 2.10,
+      'Gold Cup': 1.70,
+      'CONCACAF Nations League': 1.50,
+      'OFC Cup of Nations': 0.70,
+
+      'WC Qualifiers CONMEBOL': 3.30,
+      'WC Qualifiers UEFA': 2.80,
+      'WC Qualifiers CAF': 2.20,
+      'WC Qualifiers CONCACAF': 1.80,
+      'WC Qualifiers AFC': 1.75,
+      'WC Qualifiers OFC': 0.75,
+      'Euro Qualifiers': 2.60,
+      'Africa Cup Qualifiers': 1.70,
     };
-    const PESO_DEFAULT_TORNEO = 1.0;
+    const PESO_DEFAULT_TORNEO = 1.00;
 
     // ====== PESOS POR ETAPA ======
     const PESOS_ETAPA = {
       'Final': 5.00,
-      '3rd Place': 4.50,
-      'Semifinal': 4.00,
-      'Final Four': 3.5,
-      'Ro8': 3.00,
-      'Ro16': 2.25,
+      '3rd Place': 2.75,
+      'Semifinal': 4.25,
+      'Quarterfinal': 3.25,
+      'Ro16': 2.50,
       'Ro32': 1.75,
-      'Group Stage': 1.25
+      'Group Stage': 1.25,
+      'Playoff': 2.10,
+      'Qualifier': 1.10,
+      'Nations League Final': 3.90,
+      'Nations League 3rd Place': 2.00,
+      'Nations League Semifinal': 3.25,
+      'Nations League Quarterfinal': 2.50,
+      'League A': 1.80,
+      'League B': 1.40,
+      'League C': 1.10,
+      'League D': 0.80,
+
+      'Round 1': 1.00,
+      'Round 2': 1.20,
+      'Round 3': 1.50,
+      'Round 4': 1.90,
     };
-    const PESO_DEFAULT_ETAPA = 1.0;
+    const PESO_DEFAULT_ETAPA = 1.00;
 
     // ====== LÍNEAS DE MERCADO ======
     const LINEAS_GOLES = [0.5, 1.5, 2.5, 3.5, 4.5];
     const LINEAS_EQUIPO = [0.5, 1.5, 2.5];
     const LINEAS_CORNERS = [6.5, 7.5, 8.5, 9.5, 10.5, 11.5];
-    const LINEAS_FOULS = [18.5, 20.5, 22.5, 24.5, 26.5];
+    const LINEAS_FOULS = [22.5, 23.5, 24.5, 25.5, 26.5];
     const LINEAS_YELLOWS = [2.5, 3.5, 4.5, 5.5, 6.5];
     const LINEAS_CARDS = [2.5, 3.5, 4.5, 5.5, 6.5, 7.5];
-    const LINEAS_SHOTS = [16.5, 18.5, 20.5, 22.5, 24.5, 26.5];
+    const LINEAS_SHOTS = [18.5, 19.5, 20.5, 21.5, 22.5, 23.5];
     const LINEAS_TARGET = [6.5, 7.5, 8.5, 9.5, 10.5, 11.5];
     const LINEAS_HC_EUR = [-3, -2, -1, 0, 1, 2, 3];
     const LINEAS_HC_ASIA = [-2.5, -2.25, -2, -1.75, -1.5, -1.25, -1, -0.75, -0.5, -0.25, 0, 0.25, 0.5, 0.75, 1, 1.25, 1.5, 1.75, 2, 2.25, 2.5];
@@ -889,13 +1091,21 @@
     // ====== COEFICIENTES DEL MODELO ======
     const CFG = {
       FACTOR_LOCAL: 1.00, FACTOR_VISITA: 1.00,
-      AJUSTE_EQUIPO: 0.6,
-      AJUSTE_ARBITRO_FALTAS: 0.6, AJUSTE_ARBITRO_TARJETAS: 0.7, AJUSTE_ARBITRO_ROJAS: 0.5,
+      AJUSTE_EQUIPO: 0.15,
+      AJUSTE_ARBITRO_FALTAS: 0.15, AJUSTE_ARBITRO_TARJETAS: 0.20, AJUSTE_ARBITRO_ROJAS: 0.4,
       FACTOR_CORNERS: 1.0, FACTOR_FOULS: 1.0, FACTOR_YELLOWS: 1.0,
-      MAX_GOLES_POISSON: 10, XG_MINIMO: 0, DECAIMIENTO_HALFLIFE_DIAS: 730,
-      AJUSTE_TORNEO_GOLES: 0.5, AJUSTE_TORNEO_FALTAS: 0.7, AJUSTE_TORNEO_TARJETAS: 0.7, AJUSTE_TORNEO_CORNERS: 0.5,
-      AJUSTE_ETAPA_GOLES: 0.3, AJUSTE_ETAPA_FALTAS: 0.5, AJUSTE_ETAPA_TARJETAS: 0.5, AJUSTE_ETAPA_CORNERS: 0.3,
+      MAX_GOLES_POISSON: 10, XG_MINIMO: 0.1, DECAIMIENTO_HALFLIFE_DIAS: 1200,
+      AJUSTE_TORNEO_GOLES: 0.3, AJUSTE_TORNEO_FALTAS: 0.4, AJUSTE_TORNEO_TARJETAS: 0.4, AJUSTE_TORNEO_CORNERS: 0.3,
+      AJUSTE_ETAPA_GOLES: 0.2, AJUSTE_ETAPA_FALTAS: 0.3, AJUSTE_ETAPA_TARJETAS: 0.3, AJUSTE_ETAPA_CORNERS: 0.2,
       TOP_MARCADORES: 10,
+      // GBT Parameters (auto-tuned when AUTO_TUNE=true)
+      GBT_N_ESTIMADORES: 50, GBT_LEARNING_RATE: 0.05, GBT_MAX_DEPTH: 2, GBT_COL_SAMPLE: 0.75,
+      // H2H Parameters
+      H2H_PESO: 0.10, H2H_MAX_PARTIDOS: 7,
+      // Forma Reciente Parameters
+      FORMA_RECIENTE_PARTIDOS: 5, FORMA_RECIENTE_PESO: 0.10,
+      // Auto-Tune & Advanced
+      AUTO_TUNE: true, USAR_POISSON_LOSS: true, CV_FOLDS: 5, POST_GBT_MAX_ADJ: 0.35,
     };
     const CFG_LABELS = {
       FACTOR_LOCAL: 'Factor Local (xG)', FACTOR_VISITA: 'Factor Visita (xG)',
@@ -906,15 +1116,51 @@
       AJUSTE_TORNEO_GOLES: 'Torneo→Goles', AJUSTE_TORNEO_FALTAS: 'Torneo→Faltas', AJUSTE_TORNEO_TARJETAS: 'Torneo→Tarjetas', AJUSTE_TORNEO_CORNERS: 'Torneo→Corners',
       AJUSTE_ETAPA_GOLES: 'Etapa→Goles', AJUSTE_ETAPA_FALTAS: 'Etapa→Faltas', AJUSTE_ETAPA_TARJETAS: 'Etapa→Tarjetas', AJUSTE_ETAPA_CORNERS: 'Etapa→Corners',
       TOP_MARCADORES: 'Top Marcadores',
+      GBT_N_ESTIMADORES: '🌲 GBT Árboles', GBT_LEARNING_RATE: '🌲 GBT Learning Rate', GBT_MAX_DEPTH: '🌲 GBT Profundidad', GBT_COL_SAMPLE: '🌲 GBT Col. Sample (features/split)',
+      H2H_PESO: '🤝 H2H Peso (0=off)', H2H_MAX_PARTIDOS: '🤝 H2H Max Partidos',
+      FORMA_RECIENTE_PARTIDOS: '📈 Forma Partidos', FORMA_RECIENTE_PESO: '📈 Forma Peso',
+      AUTO_TUNE: '🔧 Auto-Tune', USAR_POISSON_LOSS: '🎯 Poisson Loss', CV_FOLDS: '📊 CV Folds', POST_GBT_MAX_ADJ: '🔒 Ajuste máx post-GBT',
     };
 
     // ######################################################################
     // #              FIN DE VARIABLES EDITABLES                            #
     // ######################################################################
 
+    const FEATURE_NAMES = [
+      'Win Expect. (ELO)', 'Dif. ELO', 'Localía', 'Peso Torneo', 'Peso Etapa',
+      'Forma GF (L)', 'Forma GA (L)', 'Forma Pts (L)',
+      'Forma GF (V)', 'Forma GA (V)', 'Forma Pts (V)',
+      'H2H Dif. Gol', 'H2H Win Rate',
+      'Forma xGF (L)', 'Forma xGA (L)',
+      'Forma xGF (V)', 'Forma xGA (V)',
+      'Dif Tiros (L)', 'Dif Tiros (V)',
+      'Descanso (L)', 'Descanso (V)',
+      'Árb. Faltas', 'Árb. Tarjetas',
+      'Prob Impl. (L)', 'Prob Impl. (V)'
+    ];
+
     let RAW_DATA = [];
     let CURRENT_MATRIX = null;
-    let SELECTED_SCORES = new Set(); // selected score keys for summing
+    let SELECTED_SCORES = new Set();
+    const KELLY_MIN_STAKE = 0.1;
+
+    let CURRENT_MODELS = null;
+    let CURRENT_PRED = null;
+
+    function getSigma() {
+      if (!CURRENT_MODELS || !CURRENT_PRED) return 0.03;
+      const MAE = (CURRENT_MODELS.cvMetrics && CURRENT_MODELS.cvMetrics.mae) ? CURRENT_MODELS.cvMetrics.mae : 0.25;
+      const c = CURRENT_PRED.confidence ? CURRENT_PRED.confidence.score : 50;
+      const lam = 0.10; // Sensibilidad xG->prob fija
+      return MAE * lam * (2 - c / 100);
+    }
+
+    function getVMin(p) {
+      const sigma = getSigma();
+      const denom = p - sigma;
+      if (denom <= 0) return 999;
+      return (sigma / denom) * 100;
+    }
 
     // ======================================================================
     //                       MATH UTILITIES
@@ -922,11 +1168,271 @@
     function logFactorial(n) { let s = 0; for (let i = 2; i <= n; i++)s += Math.log(i); return s }
     function poissonPMF(k, lam) { if (lam <= 0) return k === 0 ? 1 : 0; return Math.exp(-lam + k * Math.log(lam) - logFactorial(k)) }
     function normalCDF(x) { const a1 = .254829592, a2 = -.284496736, a3 = 1.421413741, a4 = -1.453152027, a5 = 1.061405429, p = .3275911; const sign = x < 0 ? -1 : 1; const ax = Math.abs(x) / Math.SQRT2; const t = 1 / (1 + p * ax); const y = 1 - (((((a5 * t + a4) * t) + a3) * t + a2) * t + a1) * t * Math.exp(-ax * ax); return .5 * (1 + sign * y) }
-
     function matInvert(m) { const n = m.length; const aug = m.map((row, i) => [...row, ...Array.from({ length: n }, (_, j) => i === j ? 1 : 0)]); for (let i = 0; i < n; i++) { let mx = i; for (let k = i + 1; k < n; k++)if (Math.abs(aug[k][i]) > Math.abs(aug[mx][i])) mx = k;[aug[i], aug[mx]] = [aug[mx], aug[i]]; const piv = aug[i][i]; if (Math.abs(piv) < 1e-14) return null; for (let j = 0; j < 2 * n; j++)aug[i][j] /= piv; for (let k = 0; k < n; k++) { if (k === i) continue; const f = aug[k][i]; for (let j = 0; j < 2 * n; j++)aug[k][j] -= f * aug[i][j] } } return aug.map(row => row.slice(n)) }
-
     function fitWLS(Xd, yd, w) { const m = Xd.length; if (m < 2) return null; const nf = Xd[0].length, nc = nf + 1; const XtWX = Array.from({ length: nc }, () => new Float64Array(nc)); const XtWy = new Float64Array(nc); for (let s = 0; s < m; s++) { const wi = w[s]; const xi = [1, ...Xd[s]]; const y = yd[s]; for (let i = 0; i < nc; i++) { for (let j = 0; j < nc; j++)XtWX[i][j] += xi[i] * wi * xi[j]; XtWy[i] += xi[i] * wi * y } } const inv = matInvert(XtWX.map(r => Array.from(r))); if (!inv) return null; const beta = new Float64Array(nc); for (let i = 0; i < nc; i++)for (let j = 0; j < nc; j++)beta[i] += inv[i][j] * XtWy[j]; return Array.from(beta) }
     function predictWLS(c, f) { if (!c) return null; let r = c[0]; for (let i = 0; i < f.length; i++)r += c[i + 1] * f[i]; return r }
+
+    let PRNG_SEED = 12345;
+    function nextRandom() {
+      let t = PRNG_SEED += 0x6D2B79F5;
+      t = Math.imul(t ^ t >>> 15, t | 1);
+      t ^= t + Math.imul(t ^ t >>> 7, t | 61);
+      return ((t ^ t >>> 14) >>> 0) / 4294967296;
+    }
+    function shuffleArr(arr) { const a = [...arr]; for (let i = a.length - 1; i > 0; i--) { const j = Math.floor(nextRandom() * (i + 1));[a[i], a[j]] = [a[j], a[i]]; } return a; }
+    function rangeN(n) { return Array.from({ length: n }, (_, i) => i); }
+
+    // ======================================================================
+    //        AUTO-TUNING, CROSS-VALIDATION & CONFIDENCE
+    // ======================================================================
+    function autoTuneGBT(n) {
+      if (n < 100) return { nTrees: 30, maxDepth: 1, lr: 0.08, colSample: 1.0, rowSample: 0.8, minLeaf: 5, lambda: 2.0 };
+      if (n < 300) return { nTrees: 50, maxDepth: 2, lr: 0.06, colSample: 0.85, rowSample: 0.8, minLeaf: 4, lambda: 1.5 };
+      if (n < 700) return { nTrees: 80, maxDepth: 2, lr: 0.05, colSample: 0.80, rowSample: 0.8, minLeaf: 3, lambda: 1.0 };
+      if (n < 2000) return { nTrees: 120, maxDepth: 3, lr: 0.04, colSample: 0.75, rowSample: 0.8, minLeaf: 3, lambda: 1.0 };
+      return { nTrees: 200, maxDepth: 4, lr: 0.03, colSample: 0.70, rowSample: 0.8, minLeaf: 2, lambda: 0.8 };
+    }
+
+    function runTimeSeriesCV(sortedData, allFeatures, weights, targetCol, nFolds, gbtOpts, usePoissonLoss) {
+      const n = sortedData.length;
+      const minTrain = Math.max(30, Math.floor(n * 0.3));
+      const foldSize = Math.floor((n - minTrain) / nFolds);
+      if (foldSize < 5) return null;
+      let totalMAE = 0, totalSS_res = 0, totalSS_tot = 0, validSamples = 0;
+      const yAll = sortedData.map(r => r[targetCol]).filter(v => v !== null);
+      const yMeanAll = yAll.length > 0 ? yAll.reduce((a, b) => a + b, 0) / yAll.length : 0;
+      for (let fold = 0; fold < nFolds; fold++) {
+        const valStart = minTrain + fold * foldSize;
+        const valEnd = Math.min(valStart + foldSize, n);
+        if (valEnd <= valStart) continue;
+        const trainIdx = [], valIdx = [];
+        for (let i = 0; i < valStart; i++) { if (sortedData[i][targetCol] !== null) trainIdx.push(i); }
+        for (let i = valStart; i < valEnd; i++) { if (sortedData[i][targetCol] !== null) valIdx.push(i); }
+        if (trainIdx.length < 10 || valIdx.length < 2) continue;
+        const Xt = trainIdx.map(i => allFeatures[i]);
+        const Yt = trainIdx.map(i => sortedData[i][targetCol]);
+        const Wt = trainIdx.map(i => weights[i]);
+        const model = new GBTRegressor({ ...gbtOpts, poissonLoss: usePoissonLoss });
+        model.fit(Xt, Yt, Wt);
+        for (const vi of valIdx) {
+          const yTrue = sortedData[vi][targetCol];
+          const yPred = Math.max(0.01, model.predict(allFeatures[vi]));
+          totalMAE += Math.abs(yTrue - yPred);
+          totalSS_res += (yTrue - yPred) ** 2;
+          totalSS_tot += (yTrue - yMeanAll) ** 2;
+          validSamples++;
+        }
+      }
+      if (validSamples < 5) return null;
+      return { mae: totalMAE / validSamples, r2: Math.max(0, 1 - totalSS_res / totalSS_tot), samples: validSamples, folds: nFolds };
+    }
+
+    function computeConfidence(teamH, teamA, h2hData, formH, formA, pred, wlsPred, cvMetrics) {
+      let score = 20;
+      const tHg = teamH ? Math.min(teamH.games, 30) : 0;
+      const tAg = teamA ? Math.min(teamA.games, 30) : 0;
+      score += Math.min(20, (tHg + tAg) / 3);
+      if (h2hData && h2hData.games > 0) score += Math.min(10, h2hData.games * 2.5);
+      const fHn = formH ? formH.length : 0, fAn = formA ? formA.length : 0;
+      score += Math.min(10, (fHn + fAn));
+      if (wlsPred && pred) {
+        const xgDivH = Math.abs(pred.xg_home - wlsPred.xg_home) / Math.max(0.5, pred.xg_home);
+        const xgDivA = Math.abs(pred.xg_away - wlsPred.xg_away) / Math.max(0.5, pred.xg_away);
+        score += Math.max(0, 10 - (xgDivH + xgDivA) * 15);
+      }
+      if (cvMetrics) score += Math.min(10, cvMetrics.r2 * 20);
+      score = Math.min(100, Math.max(0, score));
+      let label, color;
+      if (score >= 70) { label = 'ALTA'; color = 'var(--success)'; }
+      else if (score >= 40) { label = 'MEDIA'; color = 'var(--warning)'; }
+      else { label = 'BAJA'; color = 'var(--danger)'; }
+      return { score: Math.round(score), label, color };
+    }
+
+    function computeRestDays(sortedData, beforeIdx, teamName) {
+      const tn = norm(teamName);
+      for (let i = beforeIdx - 1; i >= 0; i--) {
+        const r = sortedData[i];
+        if ((norm(r.HomeTeam) === tn || norm(r.AwayTeam) === tn) && r.Date) {
+          const refDate = beforeIdx < sortedData.length && sortedData[beforeIdx].Date ? sortedData[beforeIdx].Date : new Date();
+          return Math.max(0, (refDate - r.Date) / 86400000);
+        }
+      }
+      return 7; // neutral default
+    }
+
+    function computeRefHistoryFeatures(sortedData, beforeIdx, refName) {
+      if (!refName) return { foulsMult: 1, yellowsMult: 1 };
+      const rn = norm(refName);
+      let refFouls = 0, refYellows = 0, refGames = 0, globalFouls = 0, globalYellows = 0, globalGames = 0;
+      for (let i = 0; i < beforeIdx; i++) {
+        const r = sortedData[i];
+        const f = (r.HomeFouls || 0) + (r.AwayFouls || 0);
+        const y = (r.HomeYellows || 0) + (r.AwayYellows || 0);
+        if (r.HomeFouls !== null && r.AwayFouls !== null) { globalFouls += f; globalGames++; }
+        if (r.HomeYellows !== null && r.AwayYellows !== null) globalYellows += y;
+        if (norm(r.Referee) === rn) { refFouls += f; refYellows += y; refGames++; }
+      }
+      if (refGames < 2 || globalGames < 5) return { foulsMult: 1, yellowsMult: 1 };
+      const gAvgF = globalFouls / globalGames, gAvgY = globalYellows / globalGames;
+      const prior = 3;
+      const fM = gAvgF > 0 ? ((refFouls + prior * gAvgF) / (refGames + prior)) / gAvgF : 1;
+      const yM = gAvgY > 0 ? ((refYellows + prior * gAvgY) / (refGames + prior)) / gAvgY : 1;
+      return { foulsMult: fM, yellowsMult: yM };
+    }
+
+    function oddsToImpliedProb(oddsW1, oddsX, oddsW2) {
+      if (!oddsW1 || !oddsX || !oddsW2 || oddsW1 <= 1 || oddsX <= 1 || oddsW2 <= 1) return { home: 0.33, away: 0.33 };
+      const p1 = 1 / oddsW1, pX = 1 / oddsX, p2 = 1 / oddsW2;
+      const total = p1 + pX + p2;
+      return { home: p1 / total, away: p2 / total };
+    }
+
+    // ======================================================================
+    //           GRADIENT BOOSTED TREES ENGINE (mini-XGBoost)
+    // ======================================================================
+    class GBTRegressor {
+      constructor(opts = {}) {
+        this.nTrees = opts.nTrees || 40;
+        this.lr = opts.lr || 0.15;
+        this.maxDepth = opts.maxDepth || 3;
+        this.colSample = opts.colSample || 0.8;
+        this.rowSample = opts.rowSample || 0.8;
+        this.lambda = opts.lambda || 1.0;
+        this.minLeaf = opts.minLeaf || 3;
+        this.poissonLoss = opts.poissonLoss || false;
+        this.trees = [];
+        this.base = 0;
+        this.importance = null;
+        this.nFeatures = 0;
+        this.trainR2 = 0;
+        this.trainSamples = 0;
+      }
+
+      fit(X, y, w) {
+        const n = X.length;
+        if (n < 3) return;
+        this.nFeatures = X[0].length;
+        this.trainSamples = n;
+
+        // Base prediction (log-space for Poisson)
+        let wS = 0, wyS = 0;
+        for (let i = 0; i < n; i++) { wS += w[i]; wyS += y[i] * w[i]; }
+        const wMean = wS > 0 ? wyS / wS : 0.1;
+        this.base = this.poissonLoss ? Math.log(Math.max(0.01, wMean)) : wMean;
+
+        const pred = new Float64Array(n).fill(this.base);
+        this.trees = [];
+        this.importance = new Float64Array(this.nFeatures);
+
+        for (let t = 0; t < this.nTrees; t++) {
+          // Row subsampling
+          const nRowSub = Math.max(3, Math.floor(n * this.rowSample));
+          const rowIdx = nRowSub < n ? shuffleArr(rangeN(n)).slice(0, nRowSub).sort((a, b) => a - b) : rangeN(n);
+
+          // Negative gradient (Poisson: y - exp(pred), MSE: y - pred)
+          const residuals = new Float64Array(n);
+          if (this.poissonLoss) {
+            for (let i = 0; i < n; i++) residuals[i] = y[i] - Math.exp(pred[i]);
+          } else {
+            for (let i = 0; i < n; i++) residuals[i] = y[i] - pred[i];
+          }
+
+          // Feature subsampling
+          const nSub = Math.max(2, Math.floor(this.nFeatures * this.colSample));
+          const feats = shuffleArr(rangeN(this.nFeatures)).slice(0, nSub);
+
+          // Build tree on residuals
+          const tree = this._buildTree(X, residuals, w, rowIdx, 0, feats);
+
+          // Update predictions
+          for (let i = 0; i < n; i++) {
+            pred[i] += this.lr * this._predictNode(tree, X[i]);
+          }
+
+          this._countImp(tree);
+          this.trees.push(tree);
+        }
+
+        // Normalize importance
+        const impSum = this.importance.reduce((a, b) => a + b, 0);
+        if (impSum > 0) for (let i = 0; i < this.nFeatures; i++) this.importance[i] /= impSum;
+
+        // Compute training R²
+        let ssRes = 0, ssTot = 0;
+        const yMean = y.reduce((a, b) => a + b, 0) / n;
+        for (let i = 0; i < n; i++) {
+          const pVal = this.poissonLoss ? Math.exp(pred[i]) : pred[i];
+          ssRes += (y[i] - pVal) ** 2; ssTot += (y[i] - yMean) ** 2;
+        }
+        this.trainR2 = ssTot > 0 ? Math.max(0, 1 - ssRes / ssTot) : 0;
+      }
+
+      predict(x) {
+        let p = this.base;
+        for (const tree of this.trees) p += this.lr * this._predictNode(tree, x);
+        return this.poissonLoss ? Math.exp(p) : p;
+      }
+
+      _buildTree(X, y, w, idx, depth, feats) {
+        let wS = 0, wyS = 0;
+        for (const i of idx) { wS += w[i]; wyS += y[i] * w[i]; }
+        const leafVal = wS > 0 ? wyS / wS : 0;
+
+        if (depth >= this.maxDepth || idx.length < this.minLeaf * 2) {
+          return { v: leafVal, lf: true };
+        }
+
+        let bestGain = 0, bestF = -1, bestThr = 0;
+
+        for (const f of feats) {
+          const sorted = [...idx].sort((a, b) => X[a][f] - X[b][f]);
+          let lW = 0, lWY = 0, rW = wS, rWY = wyS;
+
+          for (let j = 0; j < sorted.length - 1; j++) {
+            const i = sorted[j];
+            lW += w[i]; lWY += y[i] * w[i];
+            rW -= w[i]; rWY -= y[i] * w[i];
+
+            if (j + 1 < this.minLeaf || sorted.length - j - 1 < this.minLeaf) continue;
+            if (X[sorted[j]][f] === X[sorted[j + 1]][f]) continue;
+
+            const gain = (lW > 0 ? (lWY * lWY) / (lW + this.lambda) : 0) +
+              (rW > 0 ? (rWY * rWY) / (rW + this.lambda) : 0) -
+              (wS > 0 ? (wyS * wyS) / (wS + this.lambda) : 0);
+
+            if (gain > bestGain) {
+              bestGain = gain;
+              bestF = f;
+              bestThr = (X[sorted[j]][f] + X[sorted[j + 1]][f]) / 2;
+            }
+          }
+        }
+
+        if (bestF === -1) return { v: leafVal, lf: true };
+
+        const lIdx = idx.filter(i => X[i][bestF] <= bestThr);
+        const rIdx = idx.filter(i => X[i][bestF] > bestThr);
+
+        return {
+          f: bestF, t: bestThr, lf: false, g: bestGain,
+          l: this._buildTree(X, y, w, lIdx, depth + 1, feats),
+          r: this._buildTree(X, y, w, rIdx, depth + 1, feats)
+        };
+      }
+
+      _predictNode(node, x) {
+        if (node.lf) return node.v;
+        return x[node.f] <= node.t ? this._predictNode(node.l, x) : this._predictNode(node.r, x);
+      }
+
+      _countImp(node) {
+        if (node.lf) return;
+        this.importance[node.f] += (node.g || 0);
+        this._countImp(node.l);
+        this._countImp(node.r);
+      }
+    }
 
     // ======================================================================
     //                  CSV PARSER & DATA PROCESSING
@@ -934,20 +1440,185 @@
     function parseCSVLine(line) { const fields = []; let cur = '', inQ = false; for (let i = 0; i < line.length; i++) { const c = line[i]; if (c === '"') inQ = !inQ; else if (c === ',' && !inQ) { fields.push(cur.trim()); cur = '' } else cur += c } fields.push(cur.trim()); return fields.map(f => { f = f.trim(); if (f.startsWith('"') && f.endsWith('"')) f = f.slice(1, -1); return f.trim() }) }
     function parseCSV(text) { const lines = text.split(/\r?\n/).filter(l => l.trim()); if (lines.length < 2) return []; const hdr = parseCSVLine(lines[0]); const data = []; for (let i = 1; i < lines.length; i++) { const v = parseCSVLine(lines[i]); if (v.length < 5) continue; const row = {}; hdr.forEach((h, idx) => { row[h.trim()] = (v[idx] || '').trim() }); data.push(row) } return data }
     function toNum(v) { const n = parseFloat(v); return isNaN(n) ? null : n }
-    function processData(raw) { return raw.map(r => ({ Date: r.Date ? new Date(r.Date) : null, Tournament: r.Tournament || '', Round: r.Round || '', HomeTeam: r.HomeTeam || '', AwayTeam: r.AwayTeam || '', Referee: r.Referee || '', HomeGoals: toNum(r.HomeGoals), AwayGoals: toNum(r.AwayGoals), HomeShots: toNum(r.HomeShots), AwayShots: toNum(r.AwayShots), HomeTarget: toNum(r.HomeTarget), AwayTarget: toNum(r.AwayTarget), HomeCorners: toNum(r.HomeCorners), AwayCorners: toNum(r.AwayCorners), HomeFouls: toNum(r.HomeFouls), AwayFouls: toNum(r.AwayFouls), HomeYellows: toNum(r.HomeYellows), AwayYellows: toNum(r.AwayYellows), HomeReds: toNum(r.HomeReds), AwayReds: toNum(r.AwayReds), HomexG: toNum(r.HomexG), AwayxG: toNum(r.AwayxG), HomeElo: toNum(r.HomeElo), AwayElo: toNum(r.AwayElo), LineCorners: toNum(r.LineCorners), OverCorners: toNum(r.OverCorners), UnderCorners: toNum(r.UnderCorners), LineCards: toNum(r.LineCards), OverCards: toNum(r.OverCards), UnderCards: toNum(r.UnderCards), LineShots: toNum(r.LineShots), OverShots: toNum(r.OverShots), UnderShots: toNum(r.UnderShots), LineTarget: toNum(r.LineTarget), OverTarget: toNum(r.OverTarget), UnderTarget: toNum(r.UnderTarget), ApplyHome: r.ApplyHome && r.ApplyHome.trim().toLowerCase() === 'true' })).filter(r => r.HomeGoals !== null && r.AwayGoals !== null && r.HomeElo !== null && r.AwayElo !== null) }
+    function processData(raw) { return raw.map(r => ({ Date: r.Date ? new Date(r.Date) : null, Tournament: r.Tournament || '', Round: r.Round || '', HomeTeam: r.HomeTeam || '', AwayTeam: r.AwayTeam || '', Referee: r.Referee || '', HomeGoals: toNum(r.HomeGoals), AwayGoals: toNum(r.AwayGoals), HomeShots: toNum(r.HomeShots), AwayShots: toNum(r.AwayShots), HomeTarget: toNum(r.HomeTarget), AwayTarget: toNum(r.AwayTarget), HomeCorners: toNum(r.HomeCorners), AwayCorners: toNum(r.AwayCorners), HomeFouls: toNum(r.HomeFouls), AwayFouls: toNum(r.AwayFouls), HomeYellows: toNum(r.HomeYellows), AwayYellows: toNum(r.AwayYellows), HomeReds: toNum(r.HomeReds), AwayReds: toNum(r.AwayReds), HomexG: toNum(r.HomexG), AwayxG: toNum(r.AwayxG), HomeElo: toNum(r.HomeElo), AwayElo: toNum(r.AwayElo), LineCorners: toNum(r.LineCorners), OverCorners: toNum(r.OverCorners), UnderCorners: toNum(r.UnderCorners), LineCards: toNum(r.LineCards), OverCards: toNum(r.OverCards), UnderCards: toNum(r.UnderCards), LineShots: toNum(r.LineShots), OverShots: toNum(r.OverShots), UnderShots: toNum(r.UnderShots), LineTarget: toNum(r.LineTarget), OverTarget: toNum(r.OverTarget), UnderTarget: toNum(r.UnderTarget), Odds1: toNum(r.B365H || r.OddsHome || r.Odds1), OddsX: toNum(r.B365D || r.OddsDraw || r.OddsX), Odds2: toNum(r.B365A || r.OddsAway || r.Odds2), ApplyHome: r.ApplyHome && r.ApplyHome.trim().toLowerCase() === 'true' })).filter(r => r.HomeGoals !== null && r.AwayGoals !== null && r.HomeElo !== null && r.AwayElo !== null) }
     function norm(t) { return (t || '').normalize('NFD').replace(/[\u0300-\u036f]/g, '').trim().toLowerCase() }
+
+    // ======================================================================
+    //        TOURNAMENT / STAGE WEIGHT LOOKUP (fixed normalization)
+    // ======================================================================
+    function getTournamentWeight(name) {
+      if (!name) return PESO_DEFAULT_TORNEO;
+      const n = norm(name);
+      for (const [k, v] of Object.entries(PESOS_TORNEO)) { if (norm(k) === n) return v; }
+      return PESO_DEFAULT_TORNEO;
+    }
+    function getStageWeight(name) {
+      if (!name || name === 'nan' || name === 'none') return PESO_DEFAULT_ETAPA;
+      const n = norm(name);
+      for (const [k, v] of Object.entries(PESOS_ETAPA)) { if (norm(k) === n) return v; }
+      return PESO_DEFAULT_ETAPA;
+    }
+
+    // ======================================================================
+    //          FEATURE ENGINEERING — Recent Form, H2H, Rival
+    // ======================================================================
+    function computeTeamForm(sortedData, beforeIdx, teamName, nGames) {
+      if (nGames <= 0) return { gf: 0, ga: 0, xgf: 0, xga: 0, sf: 0, sa: 0, pts: 0, games: 0 };
+      const tn = norm(teamName);
+      let gf = 0, ga = 0, xgf = 0, xga = 0, sf = 0, sa = 0, pts = 0, count = 0, dSum = 0;
+      for (let i = beforeIdx - 1; i >= 0 && count < nGames; i--) {
+        const r = sortedData[i];
+        const isH = norm(r.HomeTeam) === tn, isA = norm(r.AwayTeam) === tn;
+        if (!isH && !isA) continue;
+        count++;
+        const d = Math.pow(0.9, count - 1);
+        dSum += d;
+        if (isH) {
+          gf += r.HomeGoals * d; ga += r.AwayGoals * d;
+          xgf += (r.HomexG !== null ? r.HomexG : r.HomeGoals) * d;
+          xga += (r.AwayxG !== null ? r.AwayxG : r.AwayGoals) * d;
+          sf += (r.HomeShots || 0) * d; sa += (r.AwayShots || 0) * d;
+          pts += (r.HomeGoals > r.AwayGoals ? 3 : r.HomeGoals === r.AwayGoals ? 1 : 0) * d;
+        } else {
+          gf += r.AwayGoals * d; ga += r.HomeGoals * d;
+          xgf += (r.AwayxG !== null ? r.AwayxG : r.AwayGoals) * d;
+          xga += (r.HomexG !== null ? r.HomexG : r.HomeGoals) * d;
+          sf += (r.AwayShots || 0) * d; sa += (r.HomeShots || 0) * d;
+          pts += (r.AwayGoals > r.HomeGoals ? 3 : r.AwayGoals === r.HomeGoals ? 1 : 0) * d;
+        }
+      }
+      return {
+        gf: dSum > 0 ? gf / dSum : 0, ga: dSum > 0 ? ga / dSum : 0,
+        xgf: dSum > 0 ? xgf / dSum : 0, xga: dSum > 0 ? xga / dSum : 0,
+        sf: dSum > 0 ? sf / dSum : 0, sa: dSum > 0 ? sa / dSum : 0,
+        pts: dSum > 0 ? pts / dSum : 0, games: count
+      };
+    }
+
+    function computeH2H(sortedData, beforeIdx, team1, team2, maxGames) {
+      const t1 = norm(team1), t2 = norm(team2);
+      let goalDiff = 0, wins1 = 0, total = 0, dSum = 0;
+      const matches = [];
+      for (let i = beforeIdx - 1; i >= 0 && total < maxGames; i--) {
+        const r = sortedData[i];
+        const is12 = norm(r.HomeTeam) === t1 && norm(r.AwayTeam) === t2;
+        const is21 = norm(r.HomeTeam) === t2 && norm(r.AwayTeam) === t1;
+        if (!is12 && !is21) continue;
+        total++;
+        const d = Math.pow(0.85, total - 1);
+        dSum += d;
+        if (is12) {
+          goalDiff += (r.HomeGoals - r.AwayGoals) * d;
+          if (r.HomeGoals > r.AwayGoals) wins1 += d;
+        } else {
+          goalDiff += (r.AwayGoals - r.HomeGoals) * d;
+          if (r.AwayGoals > r.HomeGoals) wins1 += d;
+        }
+        matches.push({ date: r.Date, home: r.HomeTeam, away: r.AwayTeam, hg: r.HomeGoals, ag: r.AwayGoals, t: r.Tournament });
+      }
+      return { goalDiff: dSum > 0 ? goalDiff / dSum : 0, winRate: dSum > 0 ? wins1 / dSum : 0.5, games: total, matches };
+    }
+
+    function getRecentMatchDetails(sortedData, teamName, n) {
+      const tn = norm(teamName);
+      const matches = [];
+      for (let i = sortedData.length - 1; i >= 0 && matches.length < n; i--) {
+        const r = sortedData[i];
+        const isH = norm(r.HomeTeam) === tn, isA = norm(r.AwayTeam) === tn;
+        if (!isH && !isA) continue;
+        const gf = isH ? r.HomeGoals : r.AwayGoals;
+        const ga = isH ? r.AwayGoals : r.HomeGoals;
+        matches.push({ date: r.Date, rival: isH ? r.AwayTeam : r.HomeTeam, gf, ga, result: gf > ga ? 'W' : (gf === ga ? 'D' : 'L'), tournament: r.Tournament, wasHome: isH });
+      }
+      return matches;
+    }
+
+    function analyzeRivalPerformance(data, teamName, rivalElo, range = 50) {
+      const tn = norm(teamName);
+      const matches = [];
+      data.forEach(r => {
+        const isH = norm(r.HomeTeam) === tn, isA = norm(r.AwayTeam) === tn;
+        if (!isH && !isA) return;
+        const rElo = isH ? r.AwayElo : r.HomeElo;
+        if (Math.abs(rElo - rivalElo) > range) return;
+        const gf = isH ? r.HomeGoals : r.AwayGoals;
+        const ga = isH ? r.AwayGoals : r.HomeGoals;
+        matches.push({ date: r.Date, rival: isH ? r.AwayTeam : r.HomeTeam, rivalElo: rElo, gf, ga, result: gf > ga ? 'W' : (gf === ga ? 'D' : 'L'), tournament: r.Tournament });
+      });
+      if (matches.length === 0) return null;
+      const w = matches.filter(m => m.result === 'W').length, d = matches.filter(m => m.result === 'D').length, l = matches.filter(m => m.result === 'L').length;
+      const avgGF = matches.reduce((a, m) => a + m.gf, 0) / matches.length;
+      const avgGA = matches.reduce((a, m) => a + m.ga, 0) / matches.length;
+      return { matches: matches.sort((a, b) => (b.date || 0) - (a.date || 0)).slice(0, 10), w, d, l, avgGF, avgGA, total: matches.length };
+    }
+
+    function buildFeatures(sortedData, idx, row) {
+      const eloDiff = row.HomeElo - row.AwayElo;
+      const we = 1 / (1 + Math.pow(10, -eloDiff / 400));
+      const tw = getTournamentWeight(row.Tournament);
+      const sw = getStageWeight(row.Round);
+      const nG = CFG.FORMA_RECIENTE_PARTIDOS;
+      const hF = computeTeamForm(sortedData, idx, row.HomeTeam, nG);
+      const aF = computeTeamForm(sortedData, idx, row.AwayTeam, nG);
+      const h2h = CFG.H2H_PESO > 0 ? computeH2H(sortedData, idx, row.HomeTeam, row.AwayTeam, CFG.H2H_MAX_PARTIDOS) : { goalDiff: 0, winRate: 0.5 };
+      const restH = computeRestDays(sortedData, idx, row.HomeTeam);
+      const restA = computeRestDays(sortedData, idx, row.AwayTeam);
+      const refF = computeRefHistoryFeatures(sortedData, idx, row.Referee);
+      const probs = oddsToImpliedProb(row.Odds1, row.OddsX, row.Odds2);
+      return [
+        we, eloDiff / 500, row.ApplyHome ? 1 : 0,
+        tw / 5, sw / 5,
+        hF.gf * CFG.FORMA_RECIENTE_PESO, hF.ga * CFG.FORMA_RECIENTE_PESO, (hF.pts / 3) * CFG.FORMA_RECIENTE_PESO,
+        aF.gf * CFG.FORMA_RECIENTE_PESO, aF.ga * CFG.FORMA_RECIENTE_PESO, (aF.pts / 3) * CFG.FORMA_RECIENTE_PESO,
+        h2h.goalDiff * CFG.H2H_PESO, (h2h.winRate - 0.5) * 2 * CFG.H2H_PESO,
+        hF.xgf * CFG.FORMA_RECIENTE_PESO, hF.xga * CFG.FORMA_RECIENTE_PESO,
+        aF.xgf * CFG.FORMA_RECIENTE_PESO, aF.xga * CFG.FORMA_RECIENTE_PESO,
+        (hF.sf - hF.sa) * CFG.FORMA_RECIENTE_PESO, (aF.sf - aF.sa) * CFG.FORMA_RECIENTE_PESO,
+        Math.min(restH, 14) / 7, Math.min(restA, 14) / 7,
+        refF.foulsMult, refF.yellowsMult,
+        probs.home, probs.away
+      ];
+    }
+
+    function buildPredictionFeatures(eloH, eloA, applyHome, tournament, round, home, away, referee, oddsW1, oddsX, oddsW2, sortedData) {
+      const eloDiff = eloH - eloA;
+      const we = 1 / (1 + Math.pow(10, -eloDiff / 400));
+      const tw = getTournamentWeight(tournament);
+      const sw = getStageWeight(round);
+      const nG = CFG.FORMA_RECIENTE_PARTIDOS;
+      const hF = computeTeamForm(sortedData, sortedData.length, home, nG);
+      const aF = computeTeamForm(sortedData, sortedData.length, away, nG);
+      const h2h = CFG.H2H_PESO > 0 ? computeH2H(sortedData, sortedData.length, home, away, CFG.H2H_MAX_PARTIDOS) : { goalDiff: 0, winRate: 0.5 };
+      const restH = computeRestDays(sortedData, sortedData.length, home);
+      const restA = computeRestDays(sortedData, sortedData.length, away);
+      const refF = computeRefHistoryFeatures(sortedData, sortedData.length, referee);
+      const probs = oddsToImpliedProb(oddsW1, oddsX, oddsW2);
+      return [
+        we, eloDiff / 500, applyHome ? 1 : 0,
+        tw / 5, sw / 5,
+        hF.gf * CFG.FORMA_RECIENTE_PESO, hF.ga * CFG.FORMA_RECIENTE_PESO, (hF.pts / 3) * CFG.FORMA_RECIENTE_PESO,
+        aF.gf * CFG.FORMA_RECIENTE_PESO, aF.ga * CFG.FORMA_RECIENTE_PESO, (aF.pts / 3) * CFG.FORMA_RECIENTE_PESO,
+        h2h.goalDiff * CFG.H2H_PESO, (h2h.winRate - 0.5) * 2 * CFG.H2H_PESO,
+        hF.xgf * CFG.FORMA_RECIENTE_PESO, hF.xga * CFG.FORMA_RECIENTE_PESO,
+        aF.xgf * CFG.FORMA_RECIENTE_PESO, aF.xga * CFG.FORMA_RECIENTE_PESO,
+        (hF.sf - hF.sa) * CFG.FORMA_RECIENTE_PESO, (aF.sf - aF.sa) * CFG.FORMA_RECIENTE_PESO,
+        Math.min(restH, 14) / 7, Math.min(restA, 14) / 7,
+        refF.foulsMult, refF.yellowsMult,
+        probs.home, probs.away
+      ];
+    }
 
     // ======================================================================
     //         TEAM ANALYSIS & MULTIPLIERS
     // ======================================================================
-    function analyzeTeam(data, teamName, isHome) {
+    function analyzeTeam(data, teamName) {
       if (!teamName) return null;
       const tn = norm(teamName);
-      const m = { games: 0, w: 0, gf: 0, ga: 0, sf: 0, sa: 0, stf: 0, sta: 0, cf: 0, ca: 0, ff: 0, fa: 0, yf: 0, ya: 0 };
+      const m = { games: 0, gf: 0, ga: 0, sf: 0, sa: 0, stf: 0, sta: 0, cf: 0, ca: 0, ff: 0, fa: 0, yf: 0, ya: 0 };
       data.forEach(r => {
         const isH = norm(r.HomeTeam) === tn; const isA = norm(r.AwayTeam) === tn;
         if (!isH && !isA) return;
-        m.games++; m.w += 1; // Unweighted for now, but counts games
+        m.games++;
         if (isH) {
           m.gf += r.HomeGoals; m.ga += r.AwayGoals; m.sf += r.HomeShots; m.sa += r.AwayShots;
           m.stf += r.HomeTarget; m.sta += r.AwayTarget; m.cf += r.HomeCorners; m.ca += r.AwayCorners;
@@ -959,9 +1630,6 @@
         }
       });
       if (m.games === 0) return null;
-      const calcMult = (teamSum, globalMean) => globalMean > 0 ? (teamSum / m.games) / globalMean : 1;
-
-      // Calculate global means across all data
       const gm = { gf: 0, ga: 0, sf: 0, sa: 0, stf: 0, sta: 0, cf: 0, ca: 0, ff: 0, fa: 0, yf: 0, ya: 0 };
       let gCount = 0;
       data.forEach(r => {
@@ -971,23 +1639,23 @@
         gm.ff += (r.HomeFouls || 0) + (r.AwayFouls || 0); gm.yf += (r.HomeYellows || 0) + (r.AwayYellows || 0);
       });
       if (gCount === 0) return null;
-
-      // Normalize global means per team per game
       for (let k in gm) gm[k] /= (gCount * 2);
-
+      gm.ga = gm.gf; gm.sa = gm.sf; gm.sta = gm.stf; gm.ca = gm.cf; gm.fa = gm.ff; gm.ya = gm.yf;
+      const priorW = 5;
+      const calcMult = (teamSum, globalMean) => globalMean > 0 ? ((teamSum + priorW * globalMean) / (m.games + priorW)) / globalMean : 1;
       return {
         name: teamName, games: m.games,
-        mult_gf: calcMult(m.gf, gm.gf), mult_ga: calcMult(m.ga, gm.gf),
-        mult_sf: calcMult(m.sf, gm.sf), mult_sa: calcMult(m.sa, gm.sf),
-        mult_stf: calcMult(m.stf, gm.stf), mult_sta: calcMult(m.sta, gm.stf),
-        mult_cf: calcMult(m.cf, gm.cf), mult_ca: calcMult(m.ca, gm.cf),
-        mult_ff: calcMult(m.ff, gm.ff), mult_fa: calcMult(m.fa, gm.ff),
-        mult_yf: calcMult(m.yf, gm.yf), mult_ya: calcMult(m.ya, gm.yf)
+        mult_gf: calcMult(m.gf, gm.gf), mult_ga: calcMult(m.ga, gm.ga),
+        mult_sf: calcMult(m.sf, gm.sf), mult_sa: calcMult(m.sa, gm.sa),
+        mult_stf: calcMult(m.stf, gm.stf), mult_sta: calcMult(m.sta, gm.sta),
+        mult_cf: calcMult(m.cf, gm.cf), mult_ca: calcMult(m.ca, gm.ca),
+        mult_ff: calcMult(m.ff, gm.ff), mult_fa: calcMult(m.fa, gm.fa),
+        mult_yf: calcMult(m.yf, gm.yf), mult_ya: calcMult(m.ya, gm.ya)
       };
     }
 
     // ======================================================================
-    //         FILTERING & WEIGHTS (EXPONENTIAL DECAY PER DAY)
+    //         FILTERING & WEIGHTS
     // ======================================================================
     function filterByDate(data, limitDateStr) {
       if (!limitDateStr) return data;
@@ -996,17 +1664,13 @@
     }
 
     function calcWeights(data) {
-      // Decaimiento exponencial: w(t) = 2^(-t/halflife)
-      // Cada día que pasa, el partido pierde un poco de importancia
       const now = new Date();
       const hl = CFG.DECAIMIENTO_HALFLIFE_DIAS;
       const weights = data.map(r => {
         const days = r.Date ? Math.max(0, (now - r.Date) / 86400000) : 365;
         const wTemporal = Math.pow(2, -days / hl);
-        const tn = norm(r.Tournament);
-        const wTorneo = PESOS_TORNEO[tn] !== undefined ? PESOS_TORNEO[tn] : PESO_DEFAULT_TORNEO;
-        const en = norm(r.Round);
-        const wEtapa = (en && en !== 'nan' && en !== 'none' && en !== '') ? (PESOS_ETAPA[en] !== undefined ? PESOS_ETAPA[en] : PESO_DEFAULT_ETAPA) : PESO_DEFAULT_ETAPA;
+        const wTorneo = getTournamentWeight(r.Tournament);
+        const wEtapa = getStageWeight(r.Round);
         return wTemporal * wTorneo * wEtapa;
       });
       const sum = weights.reduce((a, b) => a + b, 0);
@@ -1015,33 +1679,99 @@
     }
 
     // ======================================================================
-    //                       MODEL TRAINING
+    //                       MODEL TRAINING (GBT)
     // ======================================================================
     function trainModels(data) {
-      const weights = calcWeights(data); const models = {};
-      function train1(col) { const X = [], Y = [], W = []; data.forEach((r, i) => { const v = r[col]; if (v === null) return; X.push([r.HomeElo - r.AwayElo, r.ApplyHome ? 1 : 0]); Y.push(v); W.push(weights[i]) }); return X.length < 2 ? null : fitWLS(X, Y, W) }
-      models.shots_home = train1('HomeShots'); models.shots_away = train1('AwayShots');
-      models.target_home = train1('HomeTarget'); models.target_away = train1('AwayTarget');
-      models.fouls_home = train1('HomeFouls'); models.fouls_away = train1('AwayFouls');
-      models.yellows_home = train1('HomeYellows'); models.yellows_away = train1('AwayYellows');
-      function trainCorners(cCol, sCol) { const X = [], Y = [], W = []; data.forEach((r, i) => { const c = r[cCol], s = r[sCol]; if (c === null || s === null) return; X.push([r.HomeElo - r.AwayElo, s, r.ApplyHome ? 1 : 0]); Y.push(c); W.push(weights[i]) }); return X.length < 3 ? null : fitWLS(X, Y, W) }
-      models.corners_home = trainCorners('HomeCorners', 'HomeShots'); models.corners_away = trainCorners('AwayCorners', 'AwayShots');
-      function calcStd(cH, cA) { const v = data.filter(r => r[cH] !== null && r[cA] !== null).map(r => r[cH] + r[cA]); if (v.length > 1) { const m = v.reduce((a, b) => a + b, 0) / v.length; return Math.sqrt(v.reduce((a, b) => a + (b - m) ** 2, 0) / (v.length - 1)) } return 5 }
-      models.corners_std = calcStd('HomeCorners', 'AwayCorners'); models.shots_std = calcStd('HomeShots', 'AwayShots'); models.target_std = calcStd('HomeTarget', 'AwayTarget');
-      models.xg_home = train1('HomexG'); models.xg_away = train1('AwayxG');
-      models.goals_home = train1('HomeGoals'); models.goals_away = train1('AwayGoals');
+      PRNG_SEED = 12345; // Reset seed for deterministic trees
+      const sorted = [...data].sort((a, b) => (a.Date || 0) - (b.Date || 0));
+
+      // Precompute features for all rows
+      const allFeatures = sorted.map((r, idx) => buildFeatures(sorted, idx, r));
+
+      // Compute sample weights (temporal decay * tournament * stage)
+      const now = new Date();
+      const rawW = sorted.map(r => {
+        const days = r.Date ? Math.max(0, (now - r.Date) / 86400000) : 365;
+        return Math.pow(2, -days / CFG.DECAIMIENTO_HALFLIFE_DIAS) * getTournamentWeight(r.Tournament) * getStageWeight(r.Round);
+      });
+      const wSum = rawW.reduce((a, b) => a + b, 0);
+      const weights = rawW.map(w => w * sorted.length / wSum);
+
+      const models = {};
+      const gbtOpts = CFG.AUTO_TUNE ? autoTuneGBT(sorted.length) : { nTrees: CFG.GBT_N_ESTIMADORES, lr: CFG.GBT_LEARNING_RATE, maxDepth: CFG.GBT_MAX_DEPTH, colSample: CFG.GBT_COL_SAMPLE, lambda: 1.0, minLeaf: 3 };
+
+      function trainOne(col, isPoisson = false) {
+        const idx = [];
+        for (let i = 0; i < sorted.length; i++) { if (sorted[i][col] !== null) idx.push(i); }
+        if (idx.length < 5) return null;
+        const X = idx.map(i => allFeatures[i]);
+        const Y = idx.map(i => sorted[i][col]);
+        const W = idx.map(i => weights[i]);
+        const model = new GBTRegressor({ ...gbtOpts, poissonLoss: isPoisson });
+        model.fit(X, Y, W);
+        return model;
+      }
+
+      models.cvMetrics = null;
+      if (CFG.CV_FOLDS > 1) {
+        models.cvMetrics = runTimeSeriesCV(sorted, allFeatures, weights, 'HomexG', CFG.CV_FOLDS, gbtOpts, CFG.USAR_POISSON_LOSS);
+      }
+
+      models.xg_home = trainOne('HomexG', CFG.USAR_POISSON_LOSS); models.xg_away = trainOne('AwayxG', CFG.USAR_POISSON_LOSS);
+      models.goals_home = trainOne('HomeGoals', CFG.USAR_POISSON_LOSS); models.goals_away = trainOne('AwayGoals', CFG.USAR_POISSON_LOSS);
+      models.shots_home = trainOne('HomeShots', CFG.USAR_POISSON_LOSS); models.shots_away = trainOne('AwayShots', CFG.USAR_POISSON_LOSS);
+      models.target_home = trainOne('HomeTarget', CFG.USAR_POISSON_LOSS); models.target_away = trainOne('AwayTarget', CFG.USAR_POISSON_LOSS);
+      models.corners_home = trainOne('HomeCorners', CFG.USAR_POISSON_LOSS); models.corners_away = trainOne('AwayCorners', CFG.USAR_POISSON_LOSS);
+      models.fouls_home = trainOne('HomeFouls', CFG.USAR_POISSON_LOSS); models.fouls_away = trainOne('AwayFouls', CFG.USAR_POISSON_LOSS);
+      models.yellows_home = trainOne('HomeYellows', CFG.USAR_POISSON_LOSS); models.yellows_away = trainOne('AwayYellows', CFG.USAR_POISSON_LOSS);
+
+      // Standard deviations for normal distribution markets
+      function calcStd(cH, cA) { const v = sorted.filter(r => r[cH] !== null && r[cA] !== null).map(r => r[cH] + r[cA]); if (v.length > 1) { const m = v.reduce((a, b) => a + b, 0) / v.length; return Math.sqrt(v.reduce((a, b) => a + (b - m) ** 2, 0) / (v.length - 1)) } return 5 }
+      models.corners_std = calcStd('HomeCorners', 'AwayCorners');
+      models.shots_std = calcStd('HomeShots', 'AwayShots');
+      models.target_std = calcStd('HomeTarget', 'AwayTarget');
+
+      // Red card rates
       let totalFouls = 0, totalReds = 0, gamesWithRed = 0, totalGames = 0;
-      data.forEach(r => { totalGames++; const f = (r.HomeFouls || 0) + (r.AwayFouls || 0); const rd = (r.HomeReds || 0) + (r.AwayReds || 0); if (r.HomeFouls !== null && r.AwayFouls !== null) totalFouls += f; totalReds += rd; if (rd > 0) gamesWithRed++ });
-      models.red_base_rate = totalGames > 0 ? gamesWithRed / totalGames : .12; models.red_per_foul = totalFouls > 0 ? totalReds / totalFouls : .012;
-      function meanOf(col) { const v = data.map(r => r[col]).filter(v => v !== null); return v.length > 0 ? v.reduce((a, b) => a + b, 0) / v.length : 0 }
+      sorted.forEach(r => { totalGames++; const f = (r.HomeFouls || 0) + (r.AwayFouls || 0); const rd = (r.HomeReds || 0) + (r.AwayReds || 0); if (r.HomeFouls !== null && r.AwayFouls !== null) totalFouls += f; totalReds += rd; if (rd > 0) gamesWithRed++ });
+      models.red_base_rate = totalGames > 0 ? gamesWithRed / totalGames : .12;
+      models.red_per_foul = totalFouls > 0 ? totalReds / totalFouls : .012;
+
+      // Means for fallback
+      function meanOf(col) { const v = sorted.map(r => r[col]).filter(v => v !== null); return v.length > 0 ? v.reduce((a, b) => a + b, 0) / v.length : 0 }
       models.means = { HomeShots: meanOf('HomeShots'), AwayShots: meanOf('AwayShots'), HomeTarget: meanOf('HomeTarget'), AwayTarget: meanOf('AwayTarget'), HomeCorners: meanOf('HomeCorners'), AwayCorners: meanOf('AwayCorners'), HomeFouls: meanOf('HomeFouls'), AwayFouls: meanOf('AwayFouls'), HomeYellows: meanOf('HomeYellows'), AwayYellows: meanOf('AwayYellows'), HomeGoals: meanOf('HomeGoals'), AwayGoals: meanOf('AwayGoals') };
+
+      // WLS baseline for comparison
+      const wlsW = calcWeights(sorted);
+      function trainWLS1(col) { const X = [], Y = [], W = []; sorted.forEach((r, i) => { const v = r[col]; if (v === null) return; const eloWe = 1 / (1 + Math.pow(10, -(r.HomeElo - r.AwayElo) / 400)); X.push([eloWe, r.ApplyHome ? 1 : 0]); Y.push(v); W.push(wlsW[i]) }); return X.length < 2 ? null : fitWLS(X, Y, W) }
+      models.wls_goals_home = trainWLS1('HomeGoals'); models.wls_goals_away = trainWLS1('AwayGoals');
+      models.wls_xg_home = trainWLS1('HomexG'); models.wls_xg_away = trainWLS1('AwayxG');
+
+      models.sortedData = sorted;
       return models;
     }
 
     // ======================================================================
     //                    REFEREE & CONTEXT
     // ======================================================================
-    function analyzeReferee(data, refName) { if (!refName) return null; const rn = norm(refName); const mt = data.filter(r => norm(r.Referee) === rn); if (!mt.length) return null; const gF = data.filter(r => r.HomeFouls !== null && r.AwayFouls !== null).map(r => r.HomeFouls + r.AwayFouls); const gmF = gF.length ? gF.reduce((a, b) => a + b, 0) / gF.length : 1; const gY = data.filter(r => r.HomeYellows !== null && r.AwayYellows !== null).map(r => r.HomeYellows + r.AwayYellows); const gmY = gY.length ? gY.reduce((a, b) => a + b, 0) / gY.length : 1; const gR = data.map(r => (r.HomeReds || 0) + (r.AwayReds || 0)); const gmR = gR.length ? gR.reduce((a, b) => a + b, 0) / gR.length : 1; const rF = mt.filter(r => r.HomeFouls !== null && r.AwayFouls !== null).map(r => r.HomeFouls + r.AwayFouls); const rY = mt.filter(r => r.HomeYellows !== null && r.AwayYellows !== null).map(r => r.HomeYellows + r.AwayYellows); const rR = mt.map(r => (r.HomeReds || 0) + (r.AwayReds || 0)); return { partidos: mt.length, fouls_mult: gmF > 0 ? (rF.length ? rF.reduce((a, b) => a + b, 0) / rF.length : gmF) / gmF : 1, yellows_mult: gmY > 0 ? (rY.length ? rY.reduce((a, b) => a + b, 0) / rY.length : gmY) / gmY : 1, reds_mult: gmR > 0 ? (rR.length ? rR.reduce((a, b) => a + b, 0) / rR.length : gmR) / gmR : 1 } }
+    function analyzeReferee(data, refName) {
+      if (!refName) return null;
+      const rn = norm(refName);
+      const mt = data.filter(r => norm(r.Referee) === rn);
+      if (!mt.length) return null;
+      const gF = data.filter(r => r.HomeFouls !== null && r.AwayFouls !== null).map(r => r.HomeFouls + r.AwayFouls);
+      const gmF = gF.length ? gF.reduce((a, b) => a + b, 0) / gF.length : 1;
+      const gY = data.filter(r => r.HomeYellows !== null && r.AwayYellows !== null).map(r => r.HomeYellows + r.AwayYellows);
+      const gmY = gY.length ? gY.reduce((a, b) => a + b, 0) / gY.length : 1;
+      const gR = data.map(r => (r.HomeReds || 0) + (r.AwayReds || 0));
+      const gmR = gR.length ? gR.reduce((a, b) => a + b, 0) / gR.length : 1;
+      const rF = mt.filter(r => r.HomeFouls !== null && r.AwayFouls !== null).map(r => r.HomeFouls + r.AwayFouls);
+      const rY = mt.filter(r => r.HomeYellows !== null && r.AwayYellows !== null).map(r => r.HomeYellows + r.AwayYellows);
+      const rR = mt.map(r => (r.HomeReds || 0) + (r.AwayReds || 0));
+      const priorW = 5;
+      const smoothMult = (arr, globalMean) => { if (globalMean <= 0) return 1; const sum = arr.length ? arr.reduce((a, b) => a + b, 0) : 0; return ((sum + priorW * globalMean) / (mt.length + priorW)) / globalMean; };
+      return { partidos: mt.length, fouls_mult: smoothMult(rF, gmF), yellows_mult: smoothMult(rY, gmY), reds_mult: smoothMult(rR, gmR) };
+    }
 
     function analyzeContext(data, torneo, etapa) {
       const ctx = { torneo: null, etapa: null }; const gG = data.reduce((a, r) => a + r.HomeGoals + r.AwayGoals, 0) / data.length; const gF = data.filter(r => r.HomeFouls !== null && r.AwayFouls !== null).map(r => r.HomeFouls + r.AwayFouls); const gmF = gF.length ? gF.reduce((a, b) => a + b, 0) / gF.length : 1; const gY = data.filter(r => r.HomeYellows !== null && r.AwayYellows !== null).map(r => r.HomeYellows + r.AwayYellows); const gmY = gY.length ? gY.reduce((a, b) => a + b, 0) / gY.length : 1; const gC = data.filter(r => r.HomeCorners !== null && r.AwayCorners !== null).map(r => r.HomeCorners + r.AwayCorners); const gmC = gC.length ? gC.reduce((a, b) => a + b, 0) / gC.length : 1;
@@ -1051,48 +1781,68 @@
     }
 
     // ======================================================================
-    //                       PREDICTION
+    //                       PREDICTION (GBT-based)
     // ======================================================================
-    function predictStats(models, data, eloDiff, sesgo, contexto, applyHome, teamH, teamA) {
-      const p = {}, ed = eloDiff, ah = applyHome ? 1 : 0;
-      function pm(model, f, mk) { if (model) { const v = predictWLS(model, f); return Math.max(.1, v) } return Math.max(.1, models.means[mk] || 1) }
+    function predictStats(models, features, sesgo, contexto, applyHome, teamH, teamA, motH, motA) {
+      const p = {};
+      function pm(model, fbModel, mk) { if (model) return Math.max(.1, model.predict(features)); if (fbModel) return Math.max(.1, fbModel.predict(features)); return Math.max(.1, models.means[mk] || 1); }
 
-      function applyTeamAdj(globalVal, tH, tA, multH, multA) {
-        let vH = globalVal.h, vA = globalVal.a;
-        if (tH) { const conf = Math.min(1, tH.games / 8); vH *= 1 + CFG.AJUSTE_EQUIPO * conf * (tH[multH] - 1); }
-        if (tA) { const conf = Math.min(1, tA.games / 8); vA *= 1 + CFG.AJUSTE_EQUIPO * conf * (tA[multA] - 1); }
-        return { h: vH, a: vA };
+      function applyTeamAdj(vH, vA, tH, tA, mOH, mDA, mOA, mDH) {
+        let adjHoff = tH ? 1 + CFG.AJUSTE_EQUIPO * (tH[mOH] - 1) : 1;
+        let adjAdef = tA ? 1 + CFG.AJUSTE_EQUIPO * (tA[mDA] - 1) : 1;
+        let adjAoff = tA ? 1 + CFG.AJUSTE_EQUIPO * (tA[mOA] - 1) : 1;
+        let adjHdef = tH ? 1 + CFG.AJUSTE_EQUIPO * (tH[mDH] - 1) : 1;
+        return { h: vH * adjHoff * adjAdef, a: vA * adjAoff * adjHdef };
       }
 
-      p.shots_home = pm(models.shots_home, [ed, ah], 'HomeShots'); p.shots_away = pm(models.shots_away, [ed, ah], 'AwayShots');
-      const sf = applyTeamAdj({ h: p.shots_home, a: p.shots_away }, teamH, teamA, 'mult_sf', 'mult_sa');
+      p.shots_home = pm(models.shots_home, null, 'HomeShots'); p.shots_away = pm(models.shots_away, null, 'AwayShots');
+      const sf = applyTeamAdj(p.shots_home, p.shots_away, teamH, teamA, 'mult_sf', 'mult_sa', 'mult_sf', 'mult_sa');
       p.shots_home = sf.h; p.shots_away = sf.a;
 
-      p.target_home = pm(models.target_home, [ed, ah], 'HomeTarget'); p.target_away = pm(models.target_away, [ed, ah], 'AwayTarget');
-      const stf = applyTeamAdj({ h: p.target_home, a: p.target_away }, teamH, teamA, 'mult_stf', 'mult_sta');
+      p.target_home = pm(models.target_home, null, 'HomeTarget'); p.target_away = pm(models.target_away, null, 'AwayTarget');
+      const stf = applyTeamAdj(p.target_home, p.target_away, teamH, teamA, 'mult_stf', 'mult_sta', 'mult_stf', 'mult_sta');
       p.target_home = stf.h; p.target_away = stf.a;
 
-      p.fouls_home = pm(models.fouls_home, [ed, ah], 'HomeFouls') * CFG.FACTOR_FOULS; p.fouls_away = pm(models.fouls_away, [ed, ah], 'AwayFouls') * CFG.FACTOR_FOULS;
-      const ff = applyTeamAdj({ h: p.fouls_home, a: p.fouls_away }, teamH, teamA, 'mult_ff', 'mult_fa');
+      p.fouls_home = pm(models.fouls_home, null, 'HomeFouls') * CFG.FACTOR_FOULS; p.fouls_away = pm(models.fouls_away, null, 'AwayFouls') * CFG.FACTOR_FOULS;
+      const ff = applyTeamAdj(p.fouls_home, p.fouls_away, teamH, teamA, 'mult_ff', 'mult_fa', 'mult_ff', 'mult_fa');
       p.fouls_home = ff.h; p.fouls_away = ff.a;
 
-      p.yellows_home = pm(models.yellows_home, [ed, ah], 'HomeYellows') * CFG.FACTOR_YELLOWS; p.yellows_away = pm(models.yellows_away, [ed, ah], 'AwayYellows') * CFG.FACTOR_YELLOWS;
-      const yf = applyTeamAdj({ h: p.yellows_home, a: p.yellows_away }, teamH, teamA, 'mult_yf', 'mult_ya');
+      p.yellows_home = pm(models.yellows_home, null, 'HomeYellows') * CFG.FACTOR_YELLOWS; p.yellows_away = pm(models.yellows_away, null, 'AwayYellows') * CFG.FACTOR_YELLOWS;
+      const yf = applyTeamAdj(p.yellows_home, p.yellows_away, teamH, teamA, 'mult_yf', 'mult_ya', 'mult_yf', 'mult_ya');
       p.yellows_home = yf.h; p.yellows_away = yf.a;
 
-      p.corners_home = models.corners_home ? Math.max(.1, predictWLS(models.corners_home, [ed, p.shots_home, ah])) * CFG.FACTOR_CORNERS : Math.max(.1, models.means.HomeCorners || 4) * CFG.FACTOR_CORNERS;
-      p.corners_away = models.corners_away ? Math.max(.1, predictWLS(models.corners_away, [ed, p.shots_away, ah])) * CFG.FACTOR_CORNERS : Math.max(.1, models.means.AwayCorners || 4) * CFG.FACTOR_CORNERS;
-      const cf = applyTeamAdj({ h: p.corners_home, a: p.corners_away }, teamH, teamA, 'mult_cf', 'mult_ca');
+      p.corners_home = pm(models.corners_home, null, 'HomeCorners') * CFG.FACTOR_CORNERS; p.corners_away = pm(models.corners_away, null, 'AwayCorners') * CFG.FACTOR_CORNERS;
+      const cf = applyTeamAdj(p.corners_home, p.corners_away, teamH, teamA, 'mult_cf', 'mult_ca', 'mult_cf', 'mult_ca');
       p.corners_home = cf.h; p.corners_away = cf.a;
 
-      if (models.xg_home) p.xg_home = Math.max(CFG.XG_MINIMO, predictWLS(models.xg_home, [ed, ah])); else if (models.goals_home) p.xg_home = Math.max(CFG.XG_MINIMO, predictWLS(models.goals_home, [ed, ah])); else p.xg_home = Math.max(CFG.XG_MINIMO, models.means.HomeGoals || 1);
-      if (models.xg_away) p.xg_away = Math.max(CFG.XG_MINIMO, predictWLS(models.xg_away, [ed, ah])); else if (models.goals_away) p.xg_away = Math.max(CFG.XG_MINIMO, predictWLS(models.goals_away, [ed, ah])); else p.xg_away = Math.max(CFG.XG_MINIMO, models.means.AwayGoals || 1);
-      const gf = applyTeamAdj({ h: p.xg_home, a: p.xg_away }, teamH, teamA, 'mult_gf', 'mult_ga');
+      // xG
+      if (models.xg_home) p.xg_home = Math.max(CFG.XG_MINIMO, models.xg_home.predict(features));
+      else if (models.goals_home) p.xg_home = Math.max(CFG.XG_MINIMO, models.goals_home.predict(features));
+      else p.xg_home = Math.max(CFG.XG_MINIMO, models.means.HomeGoals || 1);
+      if (models.xg_away) p.xg_away = Math.max(CFG.XG_MINIMO, models.xg_away.predict(features));
+      else if (models.goals_away) p.xg_away = Math.max(CFG.XG_MINIMO, models.goals_away.predict(features));
+      else p.xg_away = Math.max(CFG.XG_MINIMO, models.means.AwayGoals || 1);
+      const rawGbtH = p.xg_home, rawGbtA = p.xg_away;
+      const gf = applyTeamAdj(p.xg_home, p.xg_away, teamH, teamA, 'mult_gf', 'mult_ga', 'mult_gf', 'mult_ga');
       p.xg_home = gf.h * CFG.FACTOR_LOCAL; p.xg_away = gf.a * CFG.FACTOR_VISITA;
 
-      if (sesgo) { const ff = 1 + (sesgo.fouls_mult - 1) * CFG.AJUSTE_ARBITRO_FALTAS; p.fouls_home *= ff; p.fouls_away *= ff; const fy = 1 + (sesgo.yellows_mult - 1) * CFG.AJUSTE_ARBITRO_TARJETAS; p.yellows_home *= fy; p.yellows_away *= fy }
-      if (contexto.torneo) { const t = contexto.torneo; const fg = 1 + (t.goles_mult - 1) * CFG.AJUSTE_TORNEO_GOLES; p.xg_home *= fg; p.xg_away *= fg; const ff = 1 + (t.fouls_mult - 1) * CFG.AJUSTE_TORNEO_FALTAS; p.fouls_home *= ff; p.fouls_away *= ff; const fy = 1 + (t.yellows_mult - 1) * CFG.AJUSTE_TORNEO_TARJETAS; p.yellows_home *= fy; p.yellows_away *= fy; const fc = 1 + (t.corners_mult - 1) * CFG.AJUSTE_TORNEO_CORNERS; p.corners_home *= fc; p.corners_away *= fc }
-      if (contexto.etapa) { const e = contexto.etapa; const fg = 1 + (e.goles_mult - 1) * CFG.AJUSTE_ETAPA_GOLES; p.xg_home *= fg; p.xg_away *= fg; const ff = 1 + (e.fouls_mult - 1) * CFG.AJUSTE_ETAPA_FALTAS; p.fouls_home *= ff; p.fouls_away *= ff; const fy = 1 + (e.yellows_mult - 1) * CFG.AJUSTE_ETAPA_TARJETAS; p.yellows_home *= fy; p.yellows_away *= fy; const fc = 1 + (e.corners_mult - 1) * CFG.AJUSTE_ETAPA_CORNERS; p.corners_home *= fc; p.corners_away *= fc }
+      // Referee adjustments
+      if (sesgo) { const ffr = 1 + (sesgo.fouls_mult - 1) * CFG.AJUSTE_ARBITRO_FALTAS; p.fouls_home *= ffr; p.fouls_away *= ffr; const fy = 1 + (sesgo.yellows_mult - 1) * CFG.AJUSTE_ARBITRO_TARJETAS; p.yellows_home *= fy; p.yellows_away *= fy }
+      // Context residual adjustments (over GBT)
+      if (contexto.torneo) { const t = contexto.torneo; const ffr = 1 + (t.fouls_mult - 1) * CFG.AJUSTE_TORNEO_FALTAS; p.fouls_home *= ffr; p.fouls_away *= ffr; const fy = 1 + (t.yellows_mult - 1) * CFG.AJUSTE_TORNEO_TARJETAS; p.yellows_home *= fy; p.yellows_away *= fy; const fc = 1 + (t.corners_mult - 1) * CFG.AJUSTE_TORNEO_CORNERS; p.corners_home *= fc; p.corners_away *= fc }
+      if (contexto.etapa) { const e = contexto.etapa; const ffr = 1 + (e.fouls_mult - 1) * CFG.AJUSTE_ETAPA_FALTAS; p.fouls_home *= ffr; p.fouls_away *= ffr; const fy = 1 + (e.yellows_mult - 1) * CFG.AJUSTE_ETAPA_TARJETAS; p.yellows_home *= fy; p.yellows_away *= fy; const fc = 1 + (e.corners_mult - 1) * CFG.AJUSTE_ETAPA_CORNERS; p.corners_home *= fc; p.corners_away *= fc }
+
+      // Motivation
+      if (motH !== undefined && motA !== undefined) {
+        const fH = 0.6 + (motH / 10) * 0.4, fA = 0.6 + (motA / 10) * 0.4;
+        p.xg_home *= fH; p.shots_home *= fH; p.target_home *= fH; p.corners_home *= fH; p.fouls_home *= fH; p.yellows_home *= fH;
+        p.xg_away *= fA; p.shots_away *= fA; p.target_away *= fA; p.corners_away *= fA; p.fouls_away *= fA; p.yellows_away *= fA;
+      }
+
+      // Soft-clamp: don't let post-GBT adjustments move xG more than POST_GBT_MAX_ADJ from raw GBT
+      const maxAdj = CFG.POST_GBT_MAX_ADJ;
+      p.xg_home = Math.max(rawGbtH * (1 - maxAdj), Math.min(rawGbtH * (1 + maxAdj), p.xg_home));
+      p.xg_away = Math.max(rawGbtA * (1 - maxAdj), Math.min(rawGbtA * (1 + maxAdj), p.xg_away));
       p.xg_home = Math.max(CFG.XG_MINIMO, p.xg_home); p.xg_away = Math.max(CFG.XG_MINIMO, p.xg_away);
       p.shots_total = p.shots_home + p.shots_away; p.target_total = p.target_home + p.target_away;
       p.corners_total = p.corners_home + p.corners_away; p.fouls_total = p.fouls_home + p.fouls_away; p.yellows_total = p.yellows_home + p.yellows_away;
@@ -1102,10 +1852,25 @@
       return p;
     }
 
+    function predictWLSBaseline(models, eloH, eloA, applyHome) {
+      const ed = 1 / (1 + Math.pow(10, -(eloH - eloA) / 400));
+      const ah = applyHome ? 1 : 0;
+      const f = [ed, ah];
+      const xgH = models.wls_xg_home ? predictWLS(models.wls_xg_home, f) : (models.wls_goals_home ? predictWLS(models.wls_goals_home, f) : null);
+      const xgA = models.wls_xg_away ? predictWLS(models.wls_xg_away, f) : (models.wls_goals_away ? predictWLS(models.wls_goals_away, f) : null);
+      if (xgH === null || xgA === null) return null;
+      return { xg_home: Math.max(0.1, xgH), xg_away: Math.max(0.1, xgA) };
+    }
+
     // ======================================================================
     //                    MARKET CALCULATIONS
     // ======================================================================
-    function buildPoissonMatrix(lH, lA) { const mg = CFG.MAX_GOLES_POISSON; const m = []; for (let i = 0; i < mg; i++) { m[i] = []; for (let j = 0; j < mg; j++)m[i][j] = poissonPMF(i, lH) * poissonPMF(j, lA) } return m }
+    function buildPoissonMatrix(lH, lA) {
+      const mg = CFG.MAX_GOLES_POISSON; const m = []; const rho = 0.12; let sum = 0;
+      for (let i = 0; i < mg; i++) { m[i] = []; for (let j = 0; j < mg; j++) { let p = poissonPMF(i, lH) * poissonPMF(j, lA); if (i === 0 && j === 0) p *= Math.max(0, 1 + lH * lA * rho); else if (i === 0 && j === 1) p *= Math.max(0, 1 - lH * rho); else if (i === 1 && j === 0) p *= Math.max(0, 1 - lA * rho); else if (i === 1 && j === 1) p *= Math.max(0, 1 + rho); m[i][j] = p; sum += p; } }
+      if (sum > 0) { for (let i = 0; i < mg; i++) for (let j = 0; j < mg; j++) m[i][j] /= sum; }
+      return m;
+    }
     function calc1X2(mx) { const mg = mx.length; let p1 = 0, pX = 0, p2 = 0; for (let i = 0; i < mg; i++)for (let j = 0; j < mg; j++) { if (i > j) p1 += mx[i][j]; else if (i === j) pX += mx[i][j]; else p2 += mx[i][j] } return { p1, pX, p2 } }
     function calcBTTS(mx) { const mg = mx.length; let y = 0; for (let i = 1; i < mg; i++)for (let j = 1; j < mg; j++)y += mx[i][j]; return { yes: y, no: 1 - y } }
     function calcOU(mx, lines) { const mg = mx.length, r = {}; lines.forEach(l => { let u = 0; for (let i = 0; i < mg; i++)for (let j = 0; j < mg; j++)if (i + j < l) u += mx[i][j]; r[l] = { over: 1 - u, under: u } }); return r }
@@ -1123,13 +1888,14 @@
     function fmtP(v) { return (v * 100).toFixed(1) + '%' }
     function fmtO(v) { return v > 0 && v < 100 ? (1 / v).toFixed(2) : '—' }
 
-    function makeOUTable(data, lines, prefix) {
-      let h = `<table class="mkt-table"><tr><th>Línea</th><th>Over</th><th>Cuota</th><th>Under</th><th>Cuota</th></tr>`;
-      lines.forEach(l => {
-        const o = data[l];
-        h += `<tr><td>${l}</td><td class="prob">${fmtP(o.over)}</td><td class="odds">${fmtO(o.over)}</td><td class="prob">${fmtP(o.under)}</td><td class="odds">${fmtO(o.under)}</td></tr>`;
-      });
+    function makeOUTable(data, lines) {
+      let h = `<table class="mkt-table"><tr><th>Línea</th><th>Over</th><th>C. Justa</th><th>Tu Cuota</th><th>Val/Stake</th><th>Under</th><th>C. Justa</th><th>Tu Cuota</th><th>Val/Stake</th></tr>`;
+      lines.forEach(l => { const o = data[l]; h += `<tr><td>${l}</td><td class="prob">${fmtP(o.over)}</td><td class="odds">${fmtO(o.over)}</td><td><input type="number" step="0.01" class="dyn-odds" data-prob="${o.over}" placeholder="Cuota"></td><td class="dyn-res"></td><td class="prob">${fmtP(o.under)}</td><td class="odds">${fmtO(o.under)}</td><td><input type="number" step="0.01" class="dyn-odds" data-prob="${o.under}" placeholder="Cuota"></td><td class="dyn-res"></td></tr>`; });
       return h + `</table>`;
+    }
+
+    function mkCard(title, content, fullWidth = false) {
+      return `<div class="card${fullWidth ? ' full-width' : ''}"><div class="card-title">${title}</div>${content}</div>`;
     }
 
     // ======================================================================
@@ -1137,39 +1903,17 @@
     // ======================================================================
     function toggleScore(key) {
       const el = document.getElementById('sc-' + key);
-      if (SELECTED_SCORES.has(key)) {
-        SELECTED_SCORES.delete(key);
-        if (el) el.classList.remove('selected');
-      } else {
-        SELECTED_SCORES.add(key);
-        if (el) el.classList.add('selected');
-      }
+      if (SELECTED_SCORES.has(key)) { SELECTED_SCORES.delete(key); if (el) el.classList.remove('selected'); }
+      else { SELECTED_SCORES.add(key); if (el) el.classList.add('selected'); }
       updateScoreSum();
     }
-
-    function clearScoreSelection() {
-      SELECTED_SCORES.clear();
-      document.querySelectorAll('.score-cell.selected').forEach(el => el.classList.remove('selected'));
-      updateScoreSum();
-    }
-
+    function clearScoreSelection() { SELECTED_SCORES.clear(); document.querySelectorAll('.score-cell.selected').forEach(el => el.classList.remove('selected')); updateScoreSum(); }
     function updateScoreSum() {
       const panel = document.getElementById('score-sum-panel');
-      if (SELECTED_SCORES.size === 0) {
-        panel.classList.remove('visible');
-        return;
-      }
+      if (SELECTED_SCORES.size === 0) { panel.classList.remove('visible'); return; }
       panel.classList.add('visible');
-
-      let totalProb = 0;
-      const mg = CURRENT_MATRIX ? CURRENT_MATRIX.length : 0;
-      SELECTED_SCORES.forEach(key => {
-        const [i, j] = key.split('-').map(Number);
-        if (CURRENT_MATRIX && i < mg && j < mg) {
-          totalProb += CURRENT_MATRIX[i][j];
-        }
-      });
-
+      let totalProb = 0; const mg = CURRENT_MATRIX ? CURRENT_MATRIX.length : 0;
+      SELECTED_SCORES.forEach(key => { const [i, j] = key.split('-').map(Number); if (CURRENT_MATRIX && i < mg && j < mg) totalProb += CURRENT_MATRIX[i][j]; });
       document.getElementById('sum-count').textContent = SELECTED_SCORES.size;
       document.getElementById('sum-prob').textContent = (totalProb * 100).toFixed(2) + '%';
       document.getElementById('sum-odds').textContent = totalProb > 0 ? (1 / totalProb).toFixed(2) : '—';
@@ -1177,343 +1921,210 @@
 
     function renderFullScorelines(matrix, home, away) {
       const mg = matrix.length;
-      // Collect all scores with prob > 0.01%
       const g1 = [], draws = [], g2 = [];
-      for (let i = 0; i < mg; i++) {
-        for (let j = 0; j < mg; j++) {
-          const p = matrix[i][j];
-          if (p < 0.0001) continue;
-          const entry = { i, j, p, key: `${i}-${j}`, diff: Math.abs(i - j) };
-          if (i > j) g1.push(entry);
-          else if (i === j) draws.push(entry);
-          else g2.push(entry);
-        }
+      for (let i = 0; i < mg; i++) for (let j = 0; j < mg; j++) {
+        const p = matrix[i][j]; if (p < 0.0001) continue;
+        const entry = { i, j, p, key: `${i}-${j}`, diff: Math.abs(i - j) };
+        if (i > j) g1.push(entry); else if (i === j) draws.push(entry); else g2.push(entry);
       }
-      // Sort by goal difference (least to most), then by total goals
       const sortFn = (a, b) => a.diff - b.diff || (a.i + a.j) - (b.i + b.j);
-      g1.sort(sortFn);
-      draws.sort((a, b) => a.i - b.i);
-      g2.sort(sortFn);
-
+      g1.sort(sortFn); draws.sort((a, b) => a.i - b.i); g2.sort(sortFn);
       function renderGroup(items) {
         return items.map(s => {
           const sel = SELECTED_SCORES.has(s.key) ? ' selected' : '';
-          return `<div class="score-cell${sel}" id="sc-${s.key}" onclick="toggleScore('${s.key}')">
-            <div class="sc-score">${s.i} - ${s.j}</div>
-            <div class="sc-prob">${(s.p * 100).toFixed(2)}%</div>
-            <div class="sc-odds">${fmtO(s.p)}</div>
-          </div>`;
+          return `<div class="score-cell${sel}" id="sc-${s.key}" onclick="toggleScore('${s.key}')"><div class="sc-score">${s.i} - ${s.j}</div><div class="sc-prob">${(s.p * 100).toFixed(2)}%</div><div class="sc-odds">${fmtO(s.p)}</div></div>`;
         }).join('');
       }
-
-      return `<div class="card full-width">
-        <div class="card-title">📋 Todos los Marcadores Exactos — Selecciona para sumar</div>
-        <div class="score-group-title">🏠 G1 — Victoria ${home} (${g1.length} marcadores)</div>
-        <div class="score-grid">${renderGroup(g1)}</div>
-        <div class="score-group-title">🤝 X — Empate (${draws.length} marcadores)</div>
-        <div class="score-grid">${renderGroup(draws)}</div>
-        <div class="score-group-title">✈️ G2 — Victoria ${away} (${g2.length} marcadores)</div>
-        <div class="score-grid">${renderGroup(g2)}</div>
-      </div>`;
+      return `<div class="card full-width"><div class="card-title">📋 Todos los Marcadores Exactos — Selecciona para sumar</div>
+        <div class="score-group-title">🏠 G1 — Victoria ${home} (${g1.length})</div><div class="score-grid">${renderGroup(g1)}</div>
+        <div class="score-group-title">🤝 X — Empate (${draws.length})</div><div class="score-grid">${renderGroup(draws)}</div>
+        <div class="score-group-title">✈️ G2 — Victoria ${away} (${g2.length})</div><div class="score-grid">${renderGroup(g2)}</div></div>`;
     }
 
+    // ======================================================================
+    //                   ML INSIGHTS PANELS
+    // ======================================================================
+    function renderMLInsights(models, features, pred, wlsPred, home, away) {
+      const mainModel = models.xg_home || models.goals_home;
+      if (!mainModel || !mainModel.importance) return '';
+      const imp = mainModel.importance;
+      const maxImp = Math.max(...imp, 0.001);
+      const sortedFeats = FEATURE_NAMES.map((name, i) => ({ name, imp: imp[i] || 0 })).sort((a, b) => b.imp - a.imp);
+      let barsHtml = sortedFeats.map(f => {
+        const pct = Math.round((f.imp / maxImp) * 100);
+        return `<div class="feature-row"><span class="feature-name">${f.name}</span><div class="feature-bar-bg"><div class="feature-bar-fill" style="width:${pct}%"></div></div><span class="feature-pct">${(f.imp * 100).toFixed(1)}%</span></div>`;
+      }).join('');
+
+      let compHtml = '';
+      if (wlsPred) {
+        compHtml = `<div class="ml-subtitle" style="margin-top:14px">GBT vs Regresión Lineal (WLS)</div>
+        <div class="comparison-grid">
+          <div class="comp-header">Modelo</div><div class="comp-header">${home}</div><div class="comp-header">${away}</div>
+          <div class="comp-value" style="color:var(--accent)">🌲 GBT</div><div class="comp-value">${pred.xg_home.toFixed(2)}</div><div class="comp-value">${pred.xg_away.toFixed(2)}</div>
+          <div class="comp-value" style="color:var(--text3)">📈 WLS</div><div class="comp-value" style="color:var(--text3)">${wlsPred.xg_home.toFixed(2)}</div><div class="comp-value" style="color:var(--text3)">${wlsPred.xg_away.toFixed(2)}</div>
+        </div>`;
+      }
+
+      let featVals = '<div class="ml-subtitle" style="margin-top:14px">Features (esta predicción)</div><div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(130px,1fr));gap:5px;font-size:.75rem;">';
+      FEATURE_NAMES.forEach((name, i) => {
+        featVals += `<div style="padding:5px 6px;background:rgba(255,255,255,0.03);border-radius:5px;"><div style="color:var(--text3);font-size:.65rem">${name}</div><div style="font-weight:700">${features[i].toFixed(3)}</div></div>`;
+      });
+      featVals += '</div>';
+
+      const nS = mainModel.trainSamples || 0;
+      const r2 = (mainModel.trainR2 * 100).toFixed(1);
+
+      return `<div class="card full-width ml-panel"><div class="card-title" style="color:var(--accent2)">🧠 Insights ML — Gradient Boosted Trees</div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:20px;">
+          <div><div class="ml-subtitle">Importancia de Features (xG)</div><div class="feature-bars">${barsHtml}</div></div>
+          <div><div class="ml-subtitle">Modelo</div>
+            <div class="ml-stats-grid">
+              <div class="ml-stat"><div class="ml-stat-label">Muestras</div><div class="ml-stat-value">${nS}</div></div>
+              <div class="ml-stat"><div class="ml-stat-label">Árboles</div><div class="ml-stat-value">${CFG.GBT_N_ESTIMADORES}</div></div>
+              <div class="ml-stat"><div class="ml-stat-label">Prof.</div><div class="ml-stat-value">${CFG.GBT_MAX_DEPTH}</div></div>
+              <div class="ml-stat"><div class="ml-stat-label">R² Train</div><div class="ml-stat-value">${r2}%</div></div>
+            </div>${compHtml}</div>
+        </div>${featVals}</div>`;
+    }
+
+    function renderH2HPanel(h2hData, home, away) {
+      if (!h2hData || h2hData.games === 0) return '';
+      const hn = norm(home);
+      let w = 0, d = 0, l = 0;
+      const rows = h2hData.matches.map(m => {
+        const isH1 = norm(m.home) === hn;
+        const gf = isH1 ? m.hg : m.ag, ga = isH1 ? m.ag : m.hg;
+        const res = gf > ga ? 'W' : (gf === ga ? 'D' : 'L');
+        if (res === 'W') w++; else if (res === 'D') d++; else l++;
+        const ds = m.date ? m.date.toISOString().slice(0, 10) : '?';
+        return `<div class="h2h-match"><span style="color:var(--text3);width:72px;flex-shrink:0;font-size:.72rem">${ds}</span><span style="flex:1">${m.home} ${m.hg}-${m.ag} ${m.away}</span><span class="h2h-result ${res}">${res}</span><span style="color:var(--text3);font-size:.68rem;width:95px;text-align:right;flex-shrink:0">${m.t}</span></div>`;
+      }).join('');
+      return `<div class="card full-width" style="border-color:rgba(52,211,153,0.3)"><div class="card-title" style="color:var(--success)">🤝 Enfrentamientos Directos — ${home} vs ${away}</div>
+        <div style="display:flex;gap:14px;margin-bottom:10px;font-size:.88rem"><span><strong style="color:var(--success)">${w}W</strong></span><span><strong style="color:var(--warning)">${d}D</strong></span><span><strong style="color:var(--danger)">${l}L</strong></span><span style="color:var(--text3)">(${h2hData.games}p, perspectiva ${home})</span></div>${rows}</div>`;
+    }
+
+    function renderFormPanel(formH, formA, home, away) {
+      function renderTeam(matches, name) {
+        if (!matches || matches.length === 0) return `<div><div style="font-weight:700;margin-bottom:6px">${name}</div><span style="color:var(--text3)">Sin datos</span></div>`;
+        let dots = matches.map(m => `<div class="form-dot ${m.result}" title="${m.rival}: ${m.gf}-${m.ga} (${m.tournament})">${m.gf}-${m.ga}</div>`).join('');
+        const ww = matches.filter(m => m.result === 'W').length, dd = matches.filter(m => m.result === 'D').length, ll = matches.filter(m => m.result === 'L').length;
+        const avgGF = matches.reduce((a, m) => a + m.gf, 0) / matches.length;
+        const avgGA = matches.reduce((a, m) => a + m.ga, 0) / matches.length;
+        return `<div><div style="font-weight:700;margin-bottom:6px">${name}</div><div class="form-indicators">${dots}</div><div style="font-size:.76rem;color:var(--text2);margin-top:3px">${ww}W ${dd}D ${ll}L — Prom: ${avgGF.toFixed(1)} GF / ${avgGA.toFixed(1)} GA</div></div>`;
+      }
+      return `<div class="card full-width"><div class="card-title">📈 Forma Reciente</div><div style="display:grid;grid-template-columns:1fr 1fr;gap:20px">${renderTeam(formH, home)}${renderTeam(formA, away)}</div></div>`;
+    }
+
+    function renderRivalPanel(rivalH, rivalA, home, away) {
+      if (!rivalH && !rivalA) return '';
+      function renderTeam(data, name) {
+        if (!data) return `<div><strong>${name}</strong><br><span style="color:var(--text3);font-size:.82rem">Sin datos vs rivales similares</span></div>`;
+        return `<div><div style="font-weight:700;margin-bottom:6px">${name}</div>
+          <div style="display:flex;gap:10px;margin-bottom:6px;font-size:.85rem"><span style="color:var(--success)">🟢 ${data.w}W</span><span style="color:var(--warning)">🟡 ${data.d}D</span><span style="color:var(--danger)">🔴 ${data.l}L</span></div>
+          <div style="font-size:.78rem;color:var(--text2)">Prom: ${data.avgGF.toFixed(1)} GF / ${data.avgGA.toFixed(1)} GA (${data.total}p en rango ±50 ELO)</div></div>`;
+      }
+      return `<div class="card full-width" style="border-color:rgba(139,92,246,0.3)"><div class="card-title" style="color:var(--accent2)">🎯 Rendimiento vs Rivales de Nivel Similar</div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:20px">${renderTeam(rivalH, home)}${renderTeam(rivalA, away)}</div></div>`;
+    }
+
+    // ======================================================================
+    //                   EVALUATOR & PARLAY (preserved)
+    // ======================================================================
     function renderEvaluator(evalOpts) {
       const container = document.getElementById('evaluator-container');
       const groups = {};
-      evalOpts.forEach(o => {
-        if (!groups[o.grp]) groups[o.grp] = [];
-        groups[o.grp].push(o);
-      });
-      let optsHtml = '<option value="">-- Selecciona un Mercado --</option>';
-      for (const grp in groups) {
-        optsHtml += `<optgroup label="${grp}">`;
-        groups[grp].forEach(o => {
-          optsHtml += `<option value="${o.p}">${o.lbl} (Prob: ${(o.p * 100).toFixed(1)}%)</option>`;
-        });
-        optsHtml += `</optgroup>`;
-      }
-      container.innerHTML = `
-      <div class="card full-width" style="margin-bottom: 20px; border-color: var(--accent);">
-        <div class="card-title" style="color: var(--accent); display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px;">
-          <span>💵 Comparador de Apuestas (Value & EV)</span>
-          <button id="add-eval-btn" class="add-btn" style="width: auto; padding: 4px 12px; font-weight: 600; border-radius: 8px;">+ Añadir Opción</button>
-        </div>
-        <div id="eval-rows-container"></div>
-        <div id="eval-best-option" style="margin-top: 16px; padding: 16px; background: rgba(52, 211, 153, 0.12); border: 1px solid var(--success); border-radius: 9px; display: none; text-align: center; animation: fadeUp .3s ease;">
-           <div style="color: var(--success); font-weight: 700; margin-bottom: 6px; font-size: 0.85rem; text-transform: uppercase; letter-spacing: 0.5px;">🏆 Mejor Opción (Mayor Value)</div>
-           <div id="eval-best-text" style="font-size: 1.15rem; font-weight: 800; color: #fff;"></div>
-           <div id="eval-best-stake" style="font-size: 0.95rem; color: var(--success); margin-top: 6px; font-weight: 600;"></div>
-        </div>
-      </div>
-      `;
-
+      evalOpts.forEach(o => { if (!groups[o.grp]) groups[o.grp] = []; groups[o.grp].push(o); });
+      let optsHtml = `<datalist id="markets-dl">`;
+      for (const grp in groups) { groups[grp].forEach(o => { optsHtml += `<option value="${grp} - ${o.lbl} (Prob: ${(o.p * 100).toFixed(1)}%)" data-prob="${o.p}"></option>`; }); }
+      optsHtml += `</datalist>`;
+      container.innerHTML = optsHtml + `<div class="card full-width" style="margin-bottom:20px;border-color:var(--accent);"><div class="card-title" style="color:var(--accent);display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px;"><span>💵 Comparador de Apuestas (Value & EV)</span><button id="add-eval-btn" class="add-btn" style="width:auto;padding:4px 12px;font-weight:600;border-radius:8px;">+ Añadir Opción</button></div><div id="eval-rows-container"></div><div id="eval-best-option" style="margin-top:16px;padding:16px;background:rgba(52,211,153,0.12);border:1px solid var(--success);border-radius:9px;display:none;text-align:center;animation:fadeUp .3s ease;"><div style="color:var(--success);font-weight:700;margin-bottom:6px;font-size:0.85rem;text-transform:uppercase;letter-spacing:0.5px;">🏆 Mejor Opción (Mayor Value)</div><div id="eval-best-text" style="font-size:1.15rem;font-weight:800;color:#fff;"></div><div id="eval-best-stake" style="font-size:0.95rem;color:var(--success);margin-top:6px;font-weight:600;"></div></div></div>`;
       const rowsContainer = document.getElementById('eval-rows-container');
       const addBtn = document.getElementById('add-eval-btn');
       const bestContainer = document.getElementById('eval-best-option');
       const bestText = document.getElementById('eval-best-text');
       const bestStake = document.getElementById('eval-best-stake');
-
       const updateAll = () => {
-        let bestValue = -Infinity;
-        let bestItem = null;
-
-        const rows = rowsContainer.querySelectorAll('.eval-item');
-        rows.forEach(row => {
-          const mktSel = row.querySelector('.eval-market');
-          const oddsInp = row.querySelector('.eval-odds');
-          const customProbInp = row.querySelector('.eval-custom-prob');
-          const pEl = row.querySelector('.eval-prob');
-          const vEl = row.querySelector('.eval-value');
-          const sEl = row.querySelector('.eval-rec-stake');
-
-          let prob = 0;
-          let label = '';
-          if (mktSel.value === 'custom') {
-            const customProb = parseFloat(customProbInp.value);
-            prob = isNaN(customProb) ? 0 : customProb / 100;
-            label = 'Evento Personalizado';
-          } else {
-            prob = parseFloat(mktSel.value);
-            if (mktSel.selectedIndex >= 0) {
-              label = mktSel.options[mktSel.selectedIndex].text.split(' (Prob:')[0];
-            }
-          }
-
+        let bestValue = -Infinity, bestItem = null;
+        rowsContainer.querySelectorAll('.eval-item').forEach(row => {
+          const mktInp = row.querySelector('.eval-market'), oddsInp = row.querySelector('.eval-odds'), customProbInp = row.querySelector('.eval-custom-prob');
+          const pEl = row.querySelector('.eval-prob'), vEl = row.querySelector('.eval-value'), sEl = row.querySelector('.eval-rec-stake');
+          let prob = 0, label = '';
+          const text = mktInp.value;
+          const dl = document.getElementById('markets-dl');
+          const opt = dl ? Array.from(dl.options).find(o => o.value === text) : null;
+          if (opt) { prob = parseFloat(opt.getAttribute('data-prob')); label = text.split(' (Prob:')[0]; customProbInp.style.display = 'none'; }
+          else { label = text || 'Personalizado'; customProbInp.style.display = 'block'; const cp = parseFloat(customProbInp.value); prob = isNaN(cp) ? 0 : cp / 100; }
           const odds = parseFloat(oddsInp.value);
-
-          if (isNaN(prob) || isNaN(odds) || prob <= 0 || odds <= 1) {
-            pEl.innerHTML = '—'; vEl.innerHTML = '—'; sEl.innerHTML = '—';
-            return;
-          }
-
-          const valueDecimal = (prob * odds) - 1;
-          const valuePct = valueDecimal * 100;
-
+          if (isNaN(prob) || isNaN(odds) || prob <= 0 || odds <= 1 || prob >= 1) { pEl.innerHTML = '—'; vEl.innerHTML = '—'; sEl.innerHTML = '—'; return; }
+          const vDec = (prob * odds) - 1, vPct = vDec * 100;
           let stake = 0;
-          if (valueDecimal > 0) {
-            const kellyFraction = valueDecimal / (odds - 1);
-            let rawStake = kellyFraction * 25;
-            const allowedStakes = [0.25, 0.5, 0.75, 1, 1.5, 2, 2.5, 3, 3.5, 4, 4.5, 5, 6, 7, 8, 9, 10];
-            stake = allowedStakes.reduce((prev, curr) => Math.abs(curr - rawStake) < Math.abs(prev - rawStake) ? curr : prev);
-          }
-
-          pEl.textContent = (prob * 100).toFixed(1) + '%';
-          pEl.style.color = 'var(--text2)';
-
-          vEl.textContent = (valuePct > 0 ? '+' : '') + valuePct.toFixed(2) + '%';
-          vEl.style.color = valuePct > 0 ? 'var(--success)' : 'var(--danger)';
-
-          sEl.textContent = stake > 0 ? stake.toFixed(2) + ' U' : '0 U';
-          sEl.style.color = stake > 0 ? 'var(--warning)' : 'var(--text3)';
-
-          if (valuePct > bestValue && valuePct > 0) {
-            bestValue = valuePct;
-            bestItem = {
-              label: label,
-              odds: odds,
-              prob: prob,
-              value: valuePct,
-              stake: stake
-            };
-          }
+          if (vDec > 0 && vPct >= getVMin(prob)) { const p_safe = prob - getSigma(); const q = 1 - p_safe; const b = odds - 1; const kellyPercent = (((p_safe * b) - q) / b) * 100; const targetStake = kellyPercent / 8; stake = Math.round(targetStake / 0.25) * 0.25; if (stake < KELLY_MIN_STAKE) stake = KELLY_MIN_STAKE; if (stake > 10) stake = 10; }
+          pEl.textContent = (prob * 100).toFixed(1) + '%'; pEl.style.color = 'var(--text2)';
+          const vPctSafe = ((prob - getSigma()) * odds - 1) * 100;
+          vEl.innerHTML = `<div style="font-size:1.05em">${(vPctSafe > 0 ? '+' : '') + vPctSafe.toFixed(2)}%</div><div style="font-size:0.75em;color:var(--text3);margin-top:2px;" title="Valor Teórico Aparente">(Teo: ${(vPct > 0 ? '+' : '') + vPct.toFixed(2)}%)</div>`;
+          vEl.style.color = (vPctSafe > 0) ? 'var(--success)' : (vPct > 0 ? 'var(--warning)' : 'var(--danger)');
+          sEl.textContent = stake > 0 ? stake.toFixed(2) + ' U' : '0 U'; sEl.style.color = stake > 0 ? 'var(--warning)' : 'var(--text3)';
+          if (vPctSafe > bestValue && vPctSafe > 0) { bestValue = vPctSafe; bestItem = { label, odds, prob, value: vPctSafe, stake }; }
         });
-
-        if (bestItem) {
-          bestContainer.style.display = 'block';
-          bestText.textContent = `${bestItem.label} @ ${bestItem.odds.toFixed(2)}`;
-          bestStake.textContent = `Stake Recomendado: ${bestItem.stake.toFixed(2)} Unidades (Value: +${bestItem.value.toFixed(2)}%)`;
-        } else {
-          bestContainer.style.display = 'none';
-        }
+        if (bestItem) { bestContainer.style.display = 'block'; bestText.textContent = `${bestItem.label} @ ${bestItem.odds.toFixed(2)}`; bestStake.textContent = `Stake: ${bestItem.stake.toFixed(2)} U (Real Value: +${bestItem.value.toFixed(2)}%)`; }
+        else bestContainer.style.display = 'none';
       };
-
       const addRow = () => {
-        const div = document.createElement('div');
-        div.className = 'eval-item';
-        div.style.cssText = 'background: rgba(30, 30, 70, 0.4); padding: 12px; border: 1px solid var(--glass-border); border-radius: 8px; margin-bottom: 10px; display: flex; flex-wrap: wrap; gap: 12px; align-items: center;';
-        div.innerHTML = `
-          <div style="flex: 1 1 220px; min-width: 0; display: flex; gap: 6px;">
-            <select class="eval-market" style="flex: 1; background: var(--bg-input); border: 1px solid var(--glass-border); color: var(--text); padding: 8px 10px; border-radius: 6px; font-size: .85rem; outline: none; text-overflow: ellipsis;">
-              <option value="custom">✏️ Evento Personalizado</option>
-              ${optsHtml}
-            </select>
-            <input type="number" step="0.1" class="eval-custom-prob" placeholder="Prob %" style="display:none; width: 75px; background: var(--bg-input); border: 1px solid var(--accent); color: var(--text); padding: 8px; border-radius: 6px; font-size: .85rem; outline: none;" title="Probabilidad en %">
-          </div>
-          <div style="width: 90px;">
-            <input type="number" step="0.01" class="eval-odds" placeholder="Cuota" style="width: 100%; background: var(--bg-input); border: 1px solid var(--glass-border); color: var(--text); padding: 8px; border-radius: 6px; font-size: .85rem; outline: none;">
-          </div>
-          <div style="flex: 1 1 180px; display: flex; justify-content: space-around; font-size: 0.95rem; background: rgba(0,0,0,0.2); padding: 8px 6px; border-radius: 6px;">
-            <div style="text-align:center"><div style="font-size:0.65rem;color:var(--text3);font-weight:700;letter-spacing:.5px;">PROB</div><div class="eval-prob" style="font-weight:600;margin-top:2px;">—</div></div>
-            <div style="text-align:center"><div style="font-size:0.65rem;color:var(--text3);font-weight:700;letter-spacing:.5px;">VALUE</div><div class="eval-value" style="font-weight:700;margin-top:2px;">—</div></div>
-            <div style="text-align:center"><div style="font-size:0.65rem;color:var(--text3);font-weight:700;letter-spacing:.5px;">STAKE</div><div class="eval-rec-stake" style="font-weight:700;margin-top:2px;">—</div></div>
-          </div>
-          <button class="eval-remove" style="background: none; border: none; color: var(--danger); font-size: 1.4rem; cursor: pointer; padding: 0 8px; line-height: 1; transition: transform .15s;" title="Eliminar opción">×</button>
-        `;
-
-        const mktSel = div.querySelector('.eval-market');
-        const customProb = div.querySelector('.eval-custom-prob');
-        mktSel.addEventListener('change', () => {
-          customProb.style.display = mktSel.value === 'custom' ? 'block' : 'none';
-          updateAll();
-        });
+        const div = document.createElement('div'); div.className = 'eval-item';
+        div.style.cssText = 'background:rgba(30,30,70,0.4);padding:12px;border:1px solid var(--glass-border);border-radius:8px;margin-bottom:10px;display:flex;flex-wrap:wrap;gap:12px;align-items:center;';
+        div.innerHTML = `<div style="flex:1 1 220px;min-width:0;display:flex;gap:6px;"><input type="text" list="markets-dl" class="eval-market" placeholder="Buscar mercado..." style="flex:1;background:var(--bg-input);border:1px solid var(--glass-border);color:var(--text);padding:8px 10px;border-radius:6px;font-size:.85rem;outline:none;text-overflow:ellipsis;"><input type="number" step="0.1" class="eval-custom-prob" placeholder="Prob %" style="display:none;width:75px;background:var(--bg-input);border:1px solid var(--accent);color:var(--text);padding:8px;border-radius:6px;font-size:.85rem;outline:none;" title="Probabilidad en %"></div><div style="width:90px;"><input type="number" step="0.01" class="eval-odds" placeholder="Cuota" style="width:100%;background:var(--bg-input);border:1px solid var(--glass-border);color:var(--text);padding:8px;border-radius:6px;font-size:.85rem;outline:none;"></div><div style="flex:1 1 180px;display:flex;justify-content:space-around;font-size:0.95rem;background:rgba(0,0,0,0.2);padding:8px 6px;border-radius:6px;"><div style="text-align:center"><div style="font-size:0.65rem;color:var(--text3);font-weight:700;letter-spacing:.5px;">PROB</div><div class="eval-prob" style="font-weight:600;margin-top:2px;">—</div></div><div style="text-align:center"><div style="font-size:0.65rem;color:var(--text3);font-weight:700;letter-spacing:.5px;">VALUE</div><div class="eval-value" style="font-weight:700;margin-top:2px;">—</div></div><div style="text-align:center"><div style="font-size:0.65rem;color:var(--text3);font-weight:700;letter-spacing:.5px;">STAKE</div><div class="eval-rec-stake" style="font-weight:700;margin-top:2px;">—</div></div></div><button class="eval-remove" style="background:none;border:none;color:var(--danger);font-size:1.4rem;cursor:pointer;padding:0 8px;line-height:1;transition:transform .15s;" title="Eliminar">×</button>`;
+        const mktInp = div.querySelector('.eval-market'), customProb = div.querySelector('.eval-custom-prob');
+        mktInp.addEventListener('input', updateAll);
         customProb.addEventListener('input', updateAll);
         div.querySelector('.eval-odds').addEventListener('input', updateAll);
-        div.querySelector('.eval-remove').addEventListener('click', () => {
-          div.remove();
-          updateAll();
-        });
-
+        div.querySelector('.eval-remove').addEventListener('click', () => { div.remove(); updateAll(); });
         rowsContainer.appendChild(div);
       };
-
       addBtn.addEventListener('click', addRow);
-
-      // Añadir la primera fila por defecto
       addRow();
     }
 
     function renderParlayBuilder(evalOpts) {
-      const parlayContainer = document.getElementById('parlay-container');
-      if (!parlayContainer) return;
-      parlayContainer.style.display = 'block';
-
-      let optsHtml = '';
-      let currentGroup = '';
-      evalOpts.forEach(o => {
-        if (o.grp !== currentGroup) {
-          if (currentGroup !== '') optsHtml += `</optgroup>`;
-          optsHtml += `<optgroup label="${o.grp}">`;
-          currentGroup = o.grp;
-        }
-        optsHtml += `<option value="${o.p}">${o.lbl} (Prob: ${(o.p * 100).toFixed(1)}%)</option>`;
-      });
-      if (currentGroup !== '') optsHtml += `</optgroup>`;
-
-      parlayContainer.innerHTML = `
-      <div class="card full-width" style="margin-bottom: 20px; border: 1px solid var(--accent2);">
-        <div class="card-title" style="color: var(--accent2); display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px;">
-          <span>🔗 Creador de Combinadas (Parlay)</span>
-          <button id="add-parlay-row" class="add-btn" style="width: auto; padding: 4px 12px; font-weight: 600; border-radius: 8px;">+ Añadir Selección</button>
-        </div>
-        <div id="parlay-rows"></div>
-        <div style="margin-top: 16px; padding: 16px; background: rgba(139, 92, 246, 0.12); border: 1px solid var(--accent2); border-radius: 9px; text-align: center;">
-           <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(120px, 1fr)); gap: 10px; margin-bottom: 12px;">
-             <div><div style="font-size:0.75rem; color:var(--text3); text-transform:uppercase;">Probabilidad Total</div><div id="parlay-prob" style="font-size:1.2rem; font-weight:800;">—</div></div>
-             <div><div style="font-size:0.75rem; color:var(--text3); text-transform:uppercase;">Cuota Real</div><div id="parlay-fair" style="font-size:1.2rem; font-weight:800;">—</div></div>
-             <div><div style="font-size:0.75rem; color:var(--text3); text-transform:uppercase;">Cuota Ofrecida</div><div id="parlay-odds" style="font-size:1.2rem; font-weight:800; color:var(--accent2);">—</div></div>
-           </div>
-           <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 10px; padding-top: 12px; border-top: 1px solid rgba(139, 92, 246, 0.2);">
-             <div><div style="font-size:0.75rem; color:var(--text3); text-transform:uppercase;">Value Total</div><div id="parlay-value" style="font-size:1.3rem; font-weight:800;">—</div></div>
-             <div><div style="font-size:0.75rem; color:var(--text3); text-transform:uppercase;">Stake Recomendado</div><div id="parlay-stake" style="font-size:1.3rem; font-weight:800;">—</div></div>
-           </div>
-           <div style="font-size:.75rem; color:var(--text3); margin-top: 10px;">⚠️ Asume independencia entre selecciones. Evitar combinar mercados del mismo partido (ej. Gana Local y Over 2.5) debido a su correlación natural.</div>
-        </div>
-      </div>`;
-
-      const rowsContainer = document.getElementById('parlay-rows');
-      const addBtn = document.getElementById('add-parlay-row');
-      const pProb = document.getElementById('parlay-prob');
-      const pFair = document.getElementById('parlay-fair');
-      const pOdds = document.getElementById('parlay-odds');
-      const pValue = document.getElementById('parlay-value');
-      const pStake = document.getElementById('parlay-stake');
-
-      const updateParlay = () => {
-        const rows = rowsContainer.querySelectorAll('.parlay-item');
-        let totalProb = 1;
-        let totalOdds = 1;
-        let validRows = 0;
-
+      const pc = document.getElementById('parlay-container'); if (!pc) return; pc.style.display = 'block';
+      pc.innerHTML = `<div class="card full-width" style="margin-bottom:20px;border:1px solid var(--accent2);"><div class="card-title" style="color:var(--accent2);display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px;"><span>🔗 Creador de Combinadas (Parlay)</span><button id="add-parlay-row" class="add-btn" style="width:auto;padding:4px 12px;font-weight:600;border-radius:8px;">+ Añadir Selección</button></div><div id="parlay-rows"></div><div style="margin-top:16px;padding:16px;background:rgba(139,92,246,0.12);border:1px solid var(--accent2);border-radius:9px;text-align:center;"><div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(120px,1fr));gap:10px;margin-bottom:12px;"><div><div style="font-size:0.75rem;color:var(--text3);text-transform:uppercase;">Prob Total</div><div id="parlay-prob" style="font-size:1.2rem;font-weight:800;">—</div></div><div><div style="font-size:0.75rem;color:var(--text3);text-transform:uppercase;">Cuota Real</div><div id="parlay-fair" style="font-size:1.2rem;font-weight:800;">—</div></div><div><div style="font-size:0.75rem;color:var(--text3);text-transform:uppercase;">Cuota Ofrecida</div><div id="parlay-odds" style="font-size:1.2rem;font-weight:800;color:var(--accent2);">—</div></div></div><div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px;padding-top:12px;border-top:1px solid rgba(139,92,246,0.2);"><div><div style="font-size:0.75rem;color:var(--text3);text-transform:uppercase;">Value Total</div><div id="parlay-value" style="font-size:1.3rem;font-weight:800;">—</div></div><div><div style="font-size:0.75rem;color:var(--text3);text-transform:uppercase;">Stake Recomendado</div><div id="parlay-stake" style="font-size:1.3rem;font-weight:800;">—</div></div></div><div style="font-size:.75rem;color:var(--text3);margin-top:10px;">⚠️ Asume independencia entre selecciones.</div></div></div>`;
+      const rowsC = document.getElementById('parlay-rows'), addBtn = document.getElementById('add-parlay-row');
+      const pProb = document.getElementById('parlay-prob'), pFair = document.getElementById('parlay-fair'), pOdds = document.getElementById('parlay-odds'), pValue = document.getElementById('parlay-value'), pStake = document.getElementById('parlay-stake');
+      const updateP = () => {
+        const rows = rowsC.querySelectorAll('.parlay-item'); let tProb = 1, tOdds = 1, vRows = 0;
         rows.forEach(row => {
-          const mktSel = row.querySelector('.parlay-market');
-          const oddsInp = row.querySelector('.parlay-odds');
-          const customProbInp = row.querySelector('.parlay-custom-prob');
-
-          let prob = 0;
-          if (mktSel.value === 'custom') {
-            const customProb = parseFloat(customProbInp.value);
-            prob = isNaN(customProb) ? 0 : customProb / 100;
-          } else {
-            prob = parseFloat(mktSel.value);
-          }
-          const odds = parseFloat(oddsInp.value);
-
-          if (!isNaN(prob) && !isNaN(odds) && prob > 0 && odds >= 1) {
-            totalProb *= prob;
-            totalOdds *= odds;
-            validRows++;
-          }
+          const mInp = row.querySelector('.parlay-market'), oi = row.querySelector('.parlay-odds'), cp = row.querySelector('.parlay-custom-prob');
+          let prob = 0; const dl = document.getElementById('markets-dl'); const opt = dl ? Array.from(dl.options).find(o => o.value === mInp.value) : null;
+          if (opt) { prob = parseFloat(opt.getAttribute('data-prob')); cp.style.display = 'none'; } else { cp.style.display = 'block'; const v = parseFloat(cp.value); prob = isNaN(v) ? 0 : v / 100; }
+          const odds = parseFloat(oi.value); if (!isNaN(prob) && !isNaN(odds) && prob > 0 && prob < 1 && odds >= 1) { tProb *= prob; tOdds *= odds; vRows++; }
         });
-
-        if (validRows === 0) {
-          pProb.innerHTML = '—'; pFair.innerHTML = '—'; pOdds.innerHTML = '—';
-          pValue.innerHTML = '—'; pStake.innerHTML = '—';
-          return;
-        }
-
-        const fairOdds = 1 / totalProb;
-        const valueDecimal = (totalProb * totalOdds) - 1;
-        const valuePct = valueDecimal * 100;
-
-        let stake = 0;
-        if (valueDecimal > 0) {
-          const kellyFraction = valueDecimal / (totalOdds - 1);
-          let rawStake = kellyFraction * 25;
-          const allowedStakes = [0.25, 0.5, 0.75, 1, 1.5, 2, 2.5, 3, 3.5, 4, 4.5, 5, 6, 7, 8, 9, 10];
-          stake = allowedStakes.reduce((prev, curr) => Math.abs(curr - rawStake) < Math.abs(prev - rawStake) ? curr : prev);
-        }
-
-        pProb.textContent = (totalProb * 100).toFixed(2) + '%';
-        pFair.textContent = fairOdds.toFixed(2);
-        pOdds.textContent = totalOdds.toFixed(2);
-
-        pValue.textContent = (valuePct > 0 ? '+' : '') + valuePct.toFixed(2) + '%';
-        pValue.style.color = valuePct > 0 ? 'var(--success)' : 'var(--danger)';
-
-        pStake.textContent = stake > 0 ? stake.toFixed(2) + ' U' : '0 U';
-        pStake.style.color = stake > 0 ? 'var(--warning)' : 'var(--text3)';
+        if (vRows === 0) { pProb.innerHTML = '—'; pFair.innerHTML = '—'; pOdds.innerHTML = '—'; pValue.innerHTML = '—'; pStake.innerHTML = '—'; return; }
+        const fairO = 1 / tProb, vDec = (tProb * tOdds) - 1, vPct = vDec * 100;
+        let stake = 0; if (vDec > 0 && vPct >= getVMin(tProb)) { const p_safe = tProb - getSigma(); const q = 1 - p_safe; const b = tOdds - 1; const kellyPercent = (((p_safe * b) - q) / b) * 100; const targetStake = kellyPercent / 8; stake = Math.round(targetStake / 0.25) * 0.25; if (stake < KELLY_MIN_STAKE) stake = KELLY_MIN_STAKE; if (stake > 10) stake = 10; }
+        pProb.textContent = (tProb * 100).toFixed(2) + '%'; pFair.textContent = fairO.toFixed(2); pOdds.textContent = tOdds.toFixed(2);
+        const vPctSafe = ((tProb - getSigma()) * tOdds - 1) * 100;
+        pValue.innerHTML = `<div style="font-size:1.05em">${(vPctSafe > 0 ? '+' : '') + vPctSafe.toFixed(2)}%</div><div style="font-size:0.75em;color:var(--text3);margin-top:2px;" title="Valor Teórico Aparente">(Teo: ${(vPct > 0 ? '+' : '') + vPct.toFixed(2)}%)</div>`;
+        pValue.style.color = (vPctSafe > 0) ? 'var(--success)' : (vPct > 0 ? 'var(--warning)' : 'var(--danger)');
+        pStake.textContent = stake > 0 ? stake.toFixed(2) + ' U' : '0 U'; pStake.style.color = stake > 0 ? 'var(--warning)' : 'var(--text3)';
       };
-
       const addRow = () => {
-        const div = document.createElement('div');
-        div.className = 'parlay-item';
-        div.style.cssText = 'background: rgba(30, 30, 70, 0.4); padding: 10px; border: 1px solid var(--glass-border); border-radius: 8px; margin-bottom: 8px; display: flex; flex-wrap: wrap; gap: 8px; align-items: center;';
-        div.innerHTML = `
-          <div style="flex: 1 1 200px; min-width: 0; display: flex; gap: 6px;">
-            <select class="parlay-market" style="flex: 1; background: var(--bg-input); border: 1px solid var(--glass-border); color: var(--text); padding: 8px; border-radius: 6px; font-size: .85rem; outline: none;">
-              <option value="custom">✏️ Evento Personalizado</option>
-              \${optsHtml}
-            </select>
-            <input type="number" step="0.1" class="parlay-custom-prob" placeholder="Prob %" style="display:none; width: 75px; background: var(--bg-input); border: 1px solid var(--accent); color: var(--text); padding: 8px; border-radius: 6px; font-size: .85rem; outline: none;" title="Probabilidad en %">
-          </div>
-          <div style="width: 80px;">
-            <input type="number" step="0.01" class="parlay-odds" placeholder="Cuota" style="width: 100%; background: var(--bg-input); border: 1px solid var(--glass-border); color: var(--text); padding: 8px; border-radius: 6px; font-size: .85rem; outline: none;">
-          </div>
-          <button class="parlay-remove" style="background: none; border: none; color: var(--danger); font-size: 1.4rem; cursor: pointer; padding: 0 4px; line-height: 1;" title="Eliminar selección">×</button>
-        `;
-
-        const mktSel = div.querySelector('.parlay-market');
-        const customProb = div.querySelector('.parlay-custom-prob');
-        mktSel.addEventListener('change', () => {
-          customProb.style.display = mktSel.value === 'custom' ? 'block' : 'none';
-          updateParlay();
-        });
-        customProb.addEventListener('input', updateParlay);
-        div.querySelector('.parlay-odds').addEventListener('input', updateParlay);
-        div.querySelector('.parlay-remove').addEventListener('click', () => {
-          div.remove();
-          updateParlay();
-        });
-
-        rowsContainer.appendChild(div);
+        const div = document.createElement('div'); div.className = 'parlay-item';
+        div.style.cssText = 'background:rgba(30,30,70,0.4);padding:10px;border:1px solid var(--glass-border);border-radius:8px;margin-bottom:8px;display:flex;flex-wrap:wrap;gap:8px;align-items:center;';
+        div.innerHTML = `<div style="flex:1 1 200px;min-width:0;display:flex;gap:6px;"><input type="text" list="markets-dl" class="parlay-market" placeholder="Buscar mercado..." style="flex:1;background:var(--bg-input);border:1px solid var(--glass-border);color:var(--text);padding:8px;border-radius:6px;font-size:.85rem;outline:none;"><input type="number" step="0.1" class="parlay-custom-prob" placeholder="Prob %" style="display:none;width:75px;background:var(--bg-input);border:1px solid var(--accent);color:var(--text);padding:8px;border-radius:6px;font-size:.85rem;outline:none;" title="Probabilidad en %"></div><div style="width:80px;"><input type="number" step="0.01" class="parlay-odds" placeholder="Cuota" style="width:100%;background:var(--bg-input);border:1px solid var(--glass-border);color:var(--text);padding:8px;border-radius:6px;font-size:.85rem;outline:none;"></div><button class="parlay-remove" style="background:none;border:none;color:var(--danger);font-size:1.4rem;cursor:pointer;padding:0 4px;line-height:1;" title="Eliminar">×</button>`;
+        const mInp = div.querySelector('.parlay-market'), cp = div.querySelector('.parlay-custom-prob');
+        mInp.addEventListener('input', updateP);
+        cp.addEventListener('input', updateP);
+        div.querySelector('.parlay-odds').addEventListener('input', updateP);
+        div.querySelector('.parlay-remove').addEventListener('click', () => { div.remove(); updateP(); });
+        rowsC.appendChild(div);
       };
-
       addBtn.addEventListener('click', addRow);
-      addRow();
-      addRow();
+      addRow(); addRow();
     }
 
-    function renderResults(home, away, pred, matrix, sesgo, contexto, models) {
+    // ======================================================================
+    //            MAIN RESULTS RENDERING (no accordions)
+    // ======================================================================
+    function renderResults(home, away, pred, matrix, sesgo, contexto, models, h2hData, formH, formA, rivalH, rivalA, features, wlsPred) {
       const grid = document.getElementById('results-grid');
       grid.innerHTML = '';
       document.getElementById('results-section').style.display = 'block';
@@ -1543,141 +2154,192 @@
       const fOUH = calcPoissonOU(pred.fouls_home, fH), fOUA = calcPoissonOU(pred.fouls_away, fA);
       const yOUH = calcPoissonOU(pred.yellows_home, yH), yOUA = calcPoissonOU(pred.yellows_away, yA);
 
+      // Build evaluator options
       const evalOpts = [];
-      const addEval = (grp, lbl, p) => evalOpts.push({ grp, lbl, p });
-      addEval('1X2', `1(${home})`, m1x2.p1); addEval('1X2', `X(Empate)`, m1x2.pX); addEval('1X2', `2(${away})`, m1x2.p2);
-      addEval('Doble Oportunidad', `1X`, m1x2.p1 + m1x2.pX); addEval('Doble Oportunidad', `12`, m1x2.p1 + m1x2.p2); addEval('Doble Oportunidad', `X2`, m1x2.pX + m1x2.p2);
-      addEval('Ambos Marcan', `Sí`, btts.yes); addEval('Ambos Marcan', `No`, btts.no);
-      LINEAS_GOLES.forEach(l => { addEval('Goles O/U', `Over ${l} `, ouG[l].over); addEval('Goles O/U', `Under ${l} `, ouG[l].under); });
-      LINEAS_EQUIPO.forEach(l => { addEval(`Goles ${home} `, `Over ${l} `, ouH[l].over); addEval(`Goles ${home} `, `Under ${l} `, ouH[l].under); addEval(`Goles ${away} `, `Over ${l} `, ouA[l].over); addEval(`Goles ${away} `, `Under ${l} `, ouA[l].under); });
-      LINEAS_CORNERS.forEach(l => { addEval('Corners', `Over ${l} `, cOU[l].over); addEval('Corners', `Under ${l} `, cOU[l].under); });
-      LINEAS_SHOTS.forEach(l => { addEval('Tiros', `Over ${l} `, sOU[l].over); addEval('Tiros', `Under ${l} `, sOU[l].under); });
-      LINEAS_TARGET.forEach(l => { addEval('Tiros A Puerta', `Over ${l} `, tOU[l].over); addEval('Tiros A Puerta', `Under ${l} `, tOU[l].under); });
-      LINEAS_FOULS.forEach(l => { addEval('Faltas', `Over ${l} `, fOU[l].over); addEval('Faltas', `Under ${l} `, fOU[l].under); });
-      LINEAS_YELLOWS.forEach(l => { addEval('Amarillas', `Over ${l} `, yOU[l].over); addEval('Amarillas', `Under ${l} `, yOU[l].under); });
-
-      sH.forEach(l => { addEval(`Tiros ${home} `, `Over ${l} `, sOUH[l].over); addEval(`Tiros ${home} `, `Under ${l} `, sOUH[l].under); });
-      sA.forEach(l => { addEval(`Tiros ${away} `, `Over ${l} `, sOUA[l].over); addEval(`Tiros ${away} `, `Under ${l} `, sOUA[l].under); });
-      tH.forEach(l => { addEval(`A Puerta ${home} `, `Over ${l} `, tOUH[l].over); addEval(`A Puerta ${home} `, `Under ${l} `, tOUH[l].under); });
-      tA.forEach(l => { addEval(`A Puerta ${away} `, `Over ${l} `, tOUA[l].over); addEval(`A Puerta ${away} `, `Under ${l} `, tOUA[l].under); });
-      cH.forEach(l => { addEval(`Corners ${home} `, `Over ${l} `, cOUH[l].over); addEval(`Corners ${home} `, `Under ${l} `, cOUH[l].under); });
-      cA.forEach(l => { addEval(`Corners ${away} `, `Over ${l} `, cOUA[l].over); addEval(`Corners ${away} `, `Under ${l} `, cOUA[l].under); });
-      fH.forEach(l => { addEval(`Faltas ${home} `, `Over ${l} `, fOUH[l].over); addEval(`Faltas ${home} `, `Under ${l} `, fOUH[l].under); });
-      fA.forEach(l => { addEval(`Faltas ${away} `, `Over ${l} `, fOUA[l].over); addEval(`Faltas ${away} `, `Under ${l} `, fOUA[l].under); });
-      yH.forEach(l => { addEval(`Amarillas ${home} `, `Over ${l} `, yOUH[l].over); addEval(`Amarillas ${home} `, `Under ${l} `, yOUH[l].under); });
-      yA.forEach(l => { addEval(`Amarillas ${away} `, `Over ${l} `, yOUA[l].over); addEval(`Amarillas ${away} `, `Under ${l} `, yOUA[l].under); });
-
-      addEval('Tarjetas Rojas', `≥1 Roja`, pred.red_prob); addEval('Tarjetas Rojas', `0 Rojas`, 1 - pred.red_prob);
+      const addE = (grp, lbl, p) => evalOpts.push({ grp, lbl, p });
+      addE('1X2', `1(${home})`, m1x2.p1); addE('1X2', `X(Empate)`, m1x2.pX); addE('1X2', `2(${away})`, m1x2.p2);
+      addE('Doble Oportunidad', `1X`, m1x2.p1 + m1x2.pX); addE('Doble Oportunidad', `12`, m1x2.p1 + m1x2.p2); addE('Doble Oportunidad', `X2`, m1x2.pX + m1x2.p2);
+      addE('Ambos Marcan', `Sí`, btts.yes); addE('Ambos Marcan', `No`, btts.no);
+      LINEAS_GOLES.forEach(l => { addE('Goles O/U', `Over ${l}`, ouG[l].over); addE('Goles O/U', `Under ${l}`, ouG[l].under); });
+      LINEAS_EQUIPO.forEach(l => { addE(`Goles ${home}`, `Over ${l}`, ouH[l].over); addE(`Goles ${home}`, `Under ${l}`, ouH[l].under); addE(`Goles ${away}`, `Over ${l}`, ouA[l].over); addE(`Goles ${away}`, `Under ${l}`, ouA[l].under); });
+      LINEAS_CORNERS.forEach(l => { addE('Corners', `Over ${l}`, cOU[l].over); addE('Corners', `Under ${l}`, cOU[l].under); });
+      LINEAS_SHOTS.forEach(l => { addE('Tiros', `Over ${l}`, sOU[l].over); addE('Tiros', `Under ${l}`, sOU[l].under); });
+      LINEAS_TARGET.forEach(l => { addE('A Puerta', `Over ${l}`, tOU[l].over); addE('A Puerta', `Under ${l}`, tOU[l].under); });
+      LINEAS_FOULS.forEach(l => { addE('Faltas', `Over ${l}`, fOU[l].over); addE('Faltas', `Under ${l}`, fOU[l].under); });
+      LINEAS_YELLOWS.forEach(l => { addE('Amarillas', `Over ${l}`, yOU[l].over); addE('Amarillas', `Under ${l}`, yOU[l].under); });
+      sH.forEach(l => { addE(`Tiros ${home}`, `Over ${l}`, sOUH[l].over); addE(`Tiros ${home}`, `Under ${l}`, sOUH[l].under); });
+      sA.forEach(l => { addE(`Tiros ${away}`, `Over ${l}`, sOUA[l].over); addE(`Tiros ${away}`, `Under ${l}`, sOUA[l].under); });
+      tH.forEach(l => { addE(`A Puerta ${home}`, `Over ${l}`, tOUH[l].over); addE(`A Puerta ${home}`, `Under ${l}`, tOUH[l].under); });
+      tA.forEach(l => { addE(`A Puerta ${away}`, `Over ${l}`, tOUA[l].over); addE(`A Puerta ${away}`, `Under ${l}`, tOUA[l].under); });
+      cH.forEach(l => { addE(`Corners ${home}`, `Over ${l}`, cOUH[l].over); addE(`Corners ${home}`, `Under ${l}`, cOUH[l].under); });
+      cA.forEach(l => { addE(`Corners ${away}`, `Over ${l}`, cOUA[l].over); addE(`Corners ${away}`, `Under ${l}`, cOUA[l].under); });
+      fH.forEach(l => { addE(`Faltas ${home}`, `Over ${l}`, fOUH[l].over); addE(`Faltas ${home}`, `Under ${l}`, fOUH[l].under); });
+      fA.forEach(l => { addE(`Faltas ${away}`, `Over ${l}`, fOUA[l].over); addE(`Faltas ${away}`, `Under ${l}`, fOUA[l].under); });
+      yH.forEach(l => { addE(`Amarillas ${home}`, `Over ${l}`, yOUH[l].over); addE(`Amarillas ${home}`, `Under ${l}`, yOUH[l].under); });
+      yA.forEach(l => { addE(`Amarillas ${away}`, `Over ${l}`, yOUA[l].over); addE(`Amarillas ${away}`, `Under ${l}`, yOUA[l].under); });
+      addE('Tarjetas Rojas', `≥1 Roja`, pred.red_prob); addE('Tarjetas Rojas', `0 Rojas`, 1 - pred.red_prob);
 
       renderEvaluator(evalOpts);
       renderParlayBuilder(evalOpts);
 
+      let html = '';
+
+      // ML Insights
+      html += renderMLInsights(models, features, pred, wlsPred, home, away);
+
+      // H2H
+      html += renderH2HPanel(h2hData, home, away);
+
+      // Form
+      html += renderFormPanel(formH, formA, home, away);
+
+      // Rival Analysis
+      html += renderRivalPanel(rivalH, rivalA, home, away);
+
+      // xG Hero
       let ctxInfo = ''; if (contexto.torneo) ctxInfo += contexto.torneo.nombre; if (contexto.etapa) ctxInfo += (ctxInfo ? ' | ' : '') + contexto.etapa.nombre;
-      const refInfo = sesgo ? `Árbitro: ${sesgo.partidos} partidos` : '';
+      const refInfo = sesgo ? `Árbitro: ${sesgo.partidos}p` : '';
+      const confTag = pred.confidence ? `<span style="background:${pred.confidence.color}; color:#fff; padding:2px 8px; border-radius:12px; font-size:0.75rem; margin-left:8px; font-weight:600;">Confianza: ${pred.confidence.score}%</span>` : '';
+      html += `<div class="card full-width"><div class="card-title">⚽ xG Predicho (GBT)${confTag}</div>${ctxInfo || refInfo ? `<div style="text-align:center;font-size:.78rem;color:var(--text3);margin-bottom:8px">${ctxInfo}${refInfo ? ' — ' + refInfo : ''}</div>` : ''}
+        <div class="xg-hero"><div class="xg-team"><div class="name">${home}</div><div class="val">${fmt(pred.xg_home, 2)}</div></div><div class="xg-vs">VS</div><div class="xg-team"><div class="name">${away}</div><div class="val">${fmt(pred.xg_away, 2)}</div></div></div>
+        <div class="xg-total">Goles Esperados Total: <strong>${fmt(pred.xg_home + pred.xg_away, 2)}</strong></div></div>`;
 
-      // xG Hero
-      // xG Hero
-      grid.innerHTML += `<div class="card full-width" style="margin-bottom: 16px;"><div class="card-title">⚽ xG Predicho</div>${ctxInfo ? `<div style="text-align:center;font-size:.78rem;color:var(--text3);margin-bottom:8px">${ctxInfo}${refInfo ? ' — ' + refInfo : ''}</div>` : (refInfo ? `<div style="text-align:center;font-size:.78rem;color:var(--text3);margin-bottom:8px">${refInfo}</div>` : '')}
-  <div class="xg-hero"><div class="xg-team"><div class="name">${home}</div><div class="val">${fmt(pred.xg_home, 2)}</div></div><div class="xg-vs">VS</div><div class="xg-team"><div class="name">${away}</div><div class="val">${fmt(pred.xg_away, 2)}</div></div></div>
-  <div class="xg-total">Goles Esperados Total: <strong>${fmt(pred.xg_home + pred.xg_away, 2)}</strong></div></div>`;
-
-      function makeAcc(title, content, isOpen = false) {
-        const svgPin = `<svg viewBox="0 0 24 24"><path d="M16,12V4H17V2H7V4H8V12L6,14V16H11.2V22H12.8V16H18V14L16,12Z" transform="rotate(45 12 12)" /></svg>`;
-        return `<div class="accordion-item ${isOpen ? 'active' : ''}">
-              <div class="accordion-header" onclick="this.parentElement.classList.toggle('active')">
-                <div class="title-left">${svgPin} <span>${title}</span></div>
-                <span class="chevron">▼</span>
-              </div>
-              <div class="accordion-content">${content}</div>
-            </div>`;
-      }
-
-      let accHTML = '';
+      // === CORE MARKETS ===
+      html += '<div class="market-section-title">📊 Mercados Principales</div>';
 
       // 1X2
-      accHTML += makeAcc('1X2', `<table class="mkt-table"><tr><th>Mercado</th><th>Prob</th><th>Cuota</th></tr>
-  <tr><td>1 — ${home}</td><td class="prob">${fmtP(m1x2.p1)}</td><td class="odds">${fmtO(m1x2.p1)}</td></tr>
-  <tr><td>X — Empate</td><td class="prob">${fmtP(m1x2.pX)}</td><td class="odds">${fmtO(m1x2.pX)}</td></tr>
-  <tr><td>2 — ${away}</td><td class="prob">${fmtP(m1x2.p2)}</td><td class="odds">${fmtO(m1x2.p2)}</td></tr></table>`, true);
+      html += mkCard('1X2', `<table class="mkt-table"><tr><th>Mercado</th><th>Prob</th><th>C. Justa</th><th>Tu Cuota</th><th>Info</th></tr>
+        <tr><td>1 — ${home}</td><td class="prob">${fmtP(m1x2.p1)}</td><td class="odds">${fmtO(m1x2.p1)}</td><td><input type="number" step="0.01" class="dyn-odds" data-prob="${m1x2.p1}" placeholder="Cuota"></td><td class="dyn-res"></td></tr>
+        <tr><td>X — Empate</td><td class="prob">${fmtP(m1x2.pX)}</td><td class="odds">${fmtO(m1x2.pX)}</td><td><input type="number" step="0.01" class="dyn-odds" data-prob="${m1x2.pX}" placeholder="Cuota"></td><td class="dyn-res"></td></tr>
+        <tr><td>2 — ${away}</td><td class="prob">${fmtP(m1x2.p2)}</td><td class="odds">${fmtO(m1x2.p2)}</td><td><input type="number" step="0.01" class="dyn-odds" data-prob="${m1x2.p2}" placeholder="Cuota"></td><td class="dyn-res"></td></tr></table>`, true);
 
       // Doble Oportunidad
-      accHTML += makeAcc('Doble oportunidad', `<table class="mkt-table"><tr><th>Mercado</th><th>Prob</th><th>Cuota</th></tr>
-  <tr><td>1X</td><td class="prob">${fmtP(m1x2.p1 + m1x2.pX)}</td><td class="odds">${fmtO(m1x2.p1 + m1x2.pX)}</td></tr>
-  <tr><td>12</td><td class="prob">${fmtP(m1x2.p1 + m1x2.p2)}</td><td class="odds">${fmtO(m1x2.p1 + m1x2.p2)}</td></tr>
-  <tr><td>X2</td><td class="prob">${fmtP(m1x2.pX + m1x2.p2)}</td><td class="odds">${fmtO(m1x2.pX + m1x2.p2)}</td></tr></table>`);
+      html += mkCard('Doble Oportunidad', `<table class="mkt-table"><tr><th>Mercado</th><th>Prob</th><th>C. Justa</th><th>Tu Cuota</th><th>Info</th></tr>
+        <tr><td>1X</td><td class="prob">${fmtP(m1x2.p1 + m1x2.pX)}</td><td class="odds">${fmtO(m1x2.p1 + m1x2.pX)}</td><td><input type="number" step="0.01" class="dyn-odds" data-prob="${m1x2.p1 + m1x2.pX}" placeholder="Cuota"></td><td class="dyn-res"></td></tr>
+        <tr><td>12</td><td class="prob">${fmtP(m1x2.p1 + m1x2.p2)}</td><td class="odds">${fmtO(m1x2.p1 + m1x2.p2)}</td><td><input type="number" step="0.01" class="dyn-odds" data-prob="${m1x2.p1 + m1x2.p2}" placeholder="Cuota"></td><td class="dyn-res"></td></tr>
+        <tr><td>X2</td><td class="prob">${fmtP(m1x2.pX + m1x2.p2)}</td><td class="odds">${fmtO(m1x2.pX + m1x2.p2)}</td><td><input type="number" step="0.01" class="dyn-odds" data-prob="${m1x2.pX + m1x2.p2}" placeholder="Cuota"></td><td class="dyn-res"></td></tr></table>`, true);
 
       // BTTS
-      accHTML += makeAcc('Ambos equipos anotarán', `<table class="mkt-table"><tr><th>Mercado</th><th>Prob</th><th>Cuota</th></tr>
-  <tr><td>Sí</td><td class="prob">${fmtP(btts.yes)}</td><td class="odds">${fmtO(btts.yes)}</td></tr>
-  <tr><td>No</td><td class="prob">${fmtP(btts.no)}</td><td class="odds">${fmtO(btts.no)}</td></tr></table>`);
+      html += mkCard('Ambos Marcan', `<table class="mkt-table"><tr><th>Mercado</th><th>Prob</th><th>C. Justa</th><th>Tu Cuota</th><th>Info</th></tr>
+        <tr><td>Sí</td><td class="prob">${fmtP(btts.yes)}</td><td class="odds">${fmtO(btts.yes)}</td><td><input type="number" step="0.01" class="dyn-odds" data-prob="${btts.yes}" placeholder="Cuota"></td><td class="dyn-res"></td></tr>
+        <tr><td>No</td><td class="prob">${fmtP(btts.no)}</td><td class="odds">${fmtO(btts.no)}</td><td><input type="number" step="0.01" class="dyn-odds" data-prob="${btts.no}" placeholder="Cuota"></td><td class="dyn-res"></td></tr></table>`, true);
 
-      // O/U Goles
-      accHTML += makeAcc('Total (Goles)', makeOUTable(ouG, LINEAS_GOLES, 'Goles'));
-      accHTML += makeAcc(`Total 1 (${home})`, makeOUTable(ouH, LINEAS_EQUIPO, home));
-      accHTML += makeAcc(`Total 2 (${away})`, makeOUTable(ouA, LINEAS_EQUIPO, away));
+      // === GOLES ===
+      html += '<div class="market-section-title">⚽ Goles</div>';
+      html += mkCard('Total Goles O/U', makeOUTable(ouG, LINEAS_GOLES), true);
+      html += mkCard(`Goles ${home} O/U`, makeOUTable(ouH, LINEAS_EQUIPO), true);
+      html += mkCard(`Goles ${away} O/U`, makeOUTable(ouA, LINEAS_EQUIPO), true);
 
-      // Top Marcadores
+      // Top Scores
+      let scH = `<table class="mkt-table"><tr><th>Marcador</th><th>Prob</th><th>C. Justa</th><th>Tu Cuota</th><th>Info</th></tr>`;
+      scores.slice(0, CFG.TOP_MARCADORES).forEach(s => { if (s.p > 0) scH += `<tr><td>${s.s}</td><td class="prob">${fmtP(s.p)}</td><td class="odds">${fmtO(s.p)}</td><td><input type="number" step="0.01" class="dyn-odds" data-prob="${s.p}" placeholder="Cuota"></td><td class="dyn-res"></td></tr>` });
+      html += mkCard(`Marcador Exacto (Top ${CFG.TOP_MARCADORES})`, scH + `</table>`, true);
 
-      let scH = `<table class="mkt-table"><tr><th>Marcador</th><th>Prob</th><th>Cuota</th></tr>`;
-      scores.slice(0, CFG.TOP_MARCADORES).forEach(s => { if (s.p > 0) scH += `<tr><td>${s.s}</td><td class="prob">${fmtP(s.p)}</td><td class="odds">${fmtO(s.p)}</td></tr>` });
-      accHTML += makeAcc(`Marcador Exacto (Top ${CFG.TOP_MARCADORES})`, scH + `</table>`);
+      // === HANDICAPS ===
+      html += '<div class="market-section-title">📐 Hándicaps</div>';
+      let hcEH = `<table class="mkt-table"><tr><th>HC</th><th>1</th><th>C.J.</th><th>Tu Cuota</th><th>Val</th><th>X</th><th>C.J.</th><th>Tu Cuota</th><th>Val</th><th>2</th><th>C.J.</th><th>Tu Cuota</th><th>Val</th></tr>`;
+      LINEAS_HC_EUR.forEach(hc => { const h = hcE[hc]; const lb = hc >= 0 ? `+${hc}` : `${hc}`; hcEH += `<tr><td><strong>${lb}</strong></td><td class="prob">${fmtP(h.p1)}</td><td class="odds">${fmtO(h.p1)}</td><td><input type="number" step="0.01" class="dyn-odds" data-prob="${h.p1}"></td><td class="dyn-res"></td><td class="prob">${fmtP(h.pX)}</td><td class="odds">${fmtO(h.pX)}</td><td><input type="number" step="0.01" class="dyn-odds" data-prob="${h.pX}"></td><td class="dyn-res"></td><td class="prob">${fmtP(h.p2)}</td><td class="odds">${fmtO(h.p2)}</td><td><input type="number" step="0.01" class="dyn-odds" data-prob="${h.p2}"></td><td class="dyn-res"></td></tr>` });
+      html += mkCard('HC Europeo', hcEH + `</table>`, true);
 
-      // Handicap Europeo
-      let hcEH = `<table class="mkt-table"><tr><th>HC</th><th>1</th><th>Cuota</th><th>X</th><th>Cuota</th><th>2</th><th>Cuota</th></tr>`;
-      LINEAS_HC_EUR.forEach(hc => {
-        const h = hcE[hc]; const lb = hc >= 0 ? `+${hc}` : `${hc}`;
-        hcEH += `<tr><td><strong>${lb}</strong></td><td class="prob">${fmtP(h.p1)}</td><td class="odds">${fmtO(h.p1)}</td><td class="prob">${fmtP(h.pX)}</td><td class="odds">${fmtO(h.pX)}</td><td class="prob">${fmtP(h.p2)}</td><td class="odds">${fmtO(h.p2)}</td></tr>`
-      });
-      accHTML += makeAcc('Hándicap (Europeo)', hcEH + `</table>`);
-
-      // Handicap Asiático
       let hcAH = `<div style="font-size:.75rem;color:var(--text3);margin-bottom:10px">Fórmula: (P<sub>ganar</sub> / (P<sub>ganar</sub> + P<sub>perder</sub>)) × 100</div>`;
-      hcAH += `<table class="mkt-table"><tr><th>Línea</th><th>${home} %</th><th>Cuota</th><th>${away} %</th><th>Cuota</th><th>Info</th></tr>`;
-      LINEAS_HC_ASIA.forEach(line => {
-        const h = hcA[line]; const aw = 100 - h.asian; const awO = aw > 0 ? 100 / aw : 99;
-        const lb = line >= 0 ? `+${line % 1 === 0 ? line + '.0' : line}` : `${line % 1 === 0 ? line + '.0' : line}`;
-        let info = ''; if (h.pPush > .001) info = `Push: ${fmtP(h.pPush)}`; if (h.pHalfWin > .001 || h.pHalfLose > .001) { const pts = []; if (h.pHalfWin > .001) pts.push(`½W: ${fmtP(h.pHalfWin)}`); if (h.pHalfLose > .001) pts.push(`½L: ${fmtP(h.pHalfLose)}`); info = pts.join(' ') }
-        hcAH += `<tr><td><strong>${lb}</strong></td><td class="prob">${h.asian.toFixed(1)}%</td><td class="odds">${h.fairOdds.toFixed(2)}</td><td class="prob">${aw.toFixed(1)}%</td><td class="odds">${awO.toFixed(2)}</td><td style="font-size:.7rem;color:var(--text3)">${info}</td></tr>`
-      });
-      accHTML += makeAcc('Hándicap asiático', hcAH + `</table>`);
+      hcAH += `<table class="mkt-table"><tr><th>Línea</th><th>${home} %</th><th>C.J.</th><th>Tu Cuota</th><th>Val</th><th>${away} %</th><th>C.J.</th><th>Tu Cuota</th><th>Val</th><th>Info</th></tr>`;
+      LINEAS_HC_ASIA.forEach(line => { const h = hcA[line]; const aw = 100 - h.asian; const awO = aw > 0 ? 100 / aw : 99; const hProb = h.asian / 100; const aProb = aw / 100; const lb = line >= 0 ? `+${line % 1 === 0 ? line + '.0' : line}` : `${line % 1 === 0 ? line + '.0' : line}`; let info = ''; if (h.pPush > .001) info = `Push: ${fmtP(h.pPush)}`; if (h.pHalfWin > .001 || h.pHalfLose > .001) { const pts = []; if (h.pHalfWin > .001) pts.push(`½W: ${fmtP(h.pHalfWin)}`); if (h.pHalfLose > .001) pts.push(`½L: ${fmtP(h.pHalfLose)}`); info = pts.join(' ') } hcAH += `<tr><td><strong>${lb}</strong></td><td class="prob">${h.asian.toFixed(1)}%</td><td class="odds">${h.fairOdds.toFixed(2)}</td><td><input type="number" step="0.01" class="dyn-odds" data-prob="${hProb}"></td><td class="dyn-res"></td><td class="prob">${aw.toFixed(1)}%</td><td class="odds">${awO.toFixed(2)}</td><td><input type="number" step="0.01" class="dyn-odds" data-prob="${aProb}"></td><td class="dyn-res"></td><td style="font-size:.7rem;color:var(--text3)">${info}</td></tr>` });
+      html += mkCard('HC Asiático', hcAH + `</table>`, true);
 
-      // Tiros
-      accHTML += makeAcc('Tiros (Total)', `<div style="font-size:.75rem;color:var(--text3);margin-bottom:8px">Normal (μ=${fmt(pred.shots_total)}, σ=${fmt(models.shots_std)})</div>${makeOUTable(sOU, LINEAS_SHOTS, 'Tiros')}`);
-      accHTML += makeAcc(`Tiros 1 (${home})`, makeOUTable(sOUH, sH, 'Tiros'));
-      accHTML += makeAcc(`Tiros 2 (${away})`, makeOUTable(sOUA, sA, 'Tiros'));
+      // === STATS ===
+      html += '<div class="market-section-title">📈 Tiros</div>';
+      html += mkCard('Tiros Total', `<div style="font-size:.75rem;color:var(--text3);margin-bottom:8px">Normal (μ=${fmt(pred.shots_total)}, σ=${fmt(models.shots_std)})</div>${makeOUTable(sOU, LINEAS_SHOTS)}`, true);
+      html += mkCard(`Tiros ${home}`, makeOUTable(sOUH, sH), true);
+      html += mkCard(`Tiros ${away}`, makeOUTable(sOUA, sA), true);
 
-      // Tiros a Puerta
-      accHTML += makeAcc('Tiros entre los tres palos (Total)', `<div style="font-size:.75rem;color:var(--text3);margin-bottom:8px">Normal (μ=${fmt(pred.target_total)}, σ=${fmt(models.target_std)})</div>${makeOUTable(tOU, LINEAS_TARGET, 'A Puerta')}`);
-      accHTML += makeAcc(`Tiros entre los tres palos 1 (${home})`, makeOUTable(tOUH, tH, 'A Puerta'));
-      accHTML += makeAcc(`Tiros entre los tres palos 2 (${away})`, makeOUTable(tOUA, tA, 'A Puerta'));
+      html += '<div class="market-section-title">🎯 Tiros a Puerta</div>';
+      html += mkCard('A Puerta Total', `<div style="font-size:.75rem;color:var(--text3);margin-bottom:8px">Normal (μ=${fmt(pred.target_total)}, σ=${fmt(models.target_std)})</div>${makeOUTable(tOU, LINEAS_TARGET)}`, true);
+      html += mkCard(`A Puerta ${home}`, makeOUTable(tOUH, tH), true);
+      html += mkCard(`A Puerta ${away}`, makeOUTable(tOUA, tA), true);
 
-      // Corners
-      accHTML += makeAcc('Saques de esquina (Total)', `<div style="font-size:.75rem;color:var(--text3);margin-bottom:8px">Normal (μ=${fmt(pred.corners_total)}, σ=${fmt(models.corners_std)})</div>${makeOUTable(cOU, LINEAS_CORNERS, 'Corners')}`);
-      accHTML += makeAcc(`Saques de esquina 1 (${home})`, makeOUTable(cOUH, cH, 'Corners'));
-      accHTML += makeAcc(`Saques de esquina 2 (${away})`, makeOUTable(cOUA, cA, 'Corners'));
+      html += '<div class="market-section-title">🚩 Corners</div>';
+      html += mkCard('Corners Total', `<div style="font-size:.75rem;color:var(--text3);margin-bottom:8px">Normal (μ=${fmt(pred.corners_total)}, σ=${fmt(models.corners_std)})</div>${makeOUTable(cOU, LINEAS_CORNERS)}`, true);
+      html += mkCard(`Corners ${home}`, makeOUTable(cOUH, cH), true);
+      html += mkCard(`Corners ${away}`, makeOUTable(cOUA, cA), true);
 
-      // Faltas
-      accHTML += makeAcc('Faltas (Total)', makeOUTable(fOU, LINEAS_FOULS, 'Faltas'));
-      accHTML += makeAcc(`Faltas 1 (${home})`, makeOUTable(fOUH, fH, 'Faltas'));
-      accHTML += makeAcc(`Faltas 2 (${away})`, makeOUTable(fOUA, fA, 'Faltas'));
+      html += '<div class="market-section-title">🟨 Disciplina</div>';
+      html += mkCard('Faltas Total', makeOUTable(fOU, LINEAS_FOULS), true);
+      html += mkCard(`Faltas ${home}`, makeOUTable(fOUH, fH), true);
+      html += mkCard(`Faltas ${away}`, makeOUTable(fOUA, fA), true);
+      html += mkCard('Amarillas Total', makeOUTable(yOU, LINEAS_YELLOWS), true);
+      html += mkCard(`Amarillas ${home}`, makeOUTable(yOUH, yH), true);
+      html += mkCard(`Amarillas ${away}`, makeOUTable(yOUA, yA), true);
 
-      // Amarillas
-      accHTML += makeAcc('Tarjetas amarillas (Total)', makeOUTable(yOU, LINEAS_YELLOWS, 'Amarillas'));
-      accHTML += makeAcc(`Tarjetas amarillas 1 (${home})`, makeOUTable(yOUH, yH, 'Amarillas'));
-      accHTML += makeAcc(`Tarjetas amarillas 2 (${away})`, makeOUTable(yOUA, yA, 'Amarillas'));
-
-      // Rojas
+      // Red Cards
       const rY = pred.red_prob, rN = 1 - rY;
-      accHTML += makeAcc('Tarjetas Rojas', `<div style="font-size:.75rem;color:var(--text3);margin-bottom:10px">Binomial (tasa/falta: ${(models.red_per_foul * 100).toFixed(2)}%, base: ${(models.red_base_rate * 100).toFixed(1)}%)</div>
-  <table class="mkt-table"><tr><th>Mercado</th><th>Prob</th><th>Cuota</th></tr>
-  <tr><td>≥1 roja: Sí</td><td class="prob">${fmtP(rY)}</td><td class="odds">${fmtO(rY)}</td></tr>
-  <tr><td>≥1 roja: No</td><td class="prob">${fmtP(rN)}</td><td class="odds">${fmtO(rN)}</td></tr></table>`);
+      html += mkCard('Tarjetas Rojas', `<div style="font-size:.75rem;color:var(--text3);margin-bottom:10px">Binomial (tasa/falta: ${(models.red_per_foul * 100).toFixed(2)}%, base: ${(models.red_base_rate * 100).toFixed(1)}%)</div>
+        <table class="mkt-table"><tr><th>Mercado</th><th>Prob</th><th>C. Justa</th><th>Tu Cuota</th><th>Info</th></tr>
+        <tr><td>≥1 roja: Sí</td><td class="prob">${fmtP(rY)}</td><td class="odds">${fmtO(rY)}</td><td><input type="number" step="0.01" class="dyn-odds" data-prob="${rY}" placeholder="Cuota"></td><td class="dyn-res"></td></tr>
+        <tr><td>≥1 roja: No</td><td class="prob">${fmtP(rN)}</td><td class="odds">${fmtO(rN)}</td><td><input type="number" step="0.01" class="dyn-odds" data-prob="${rN}" placeholder="Cuota"></td><td class="dyn-res"></td></tr></table>`, true);
 
-      grid.innerHTML += `<div style="width: 100%; display: flex; flex-direction: column;">${accHTML}</div>`;
+      // Full Scorelines
+      html += renderFullScorelines(matrix, home, away);
 
-      // ====== SECCIÓN DE TODOS LOS MARCADORES EXACTOS ======
-      grid.innerHTML += renderFullScorelines(matrix, home, away);
+      // Match Overview (Stats Prediction)
+      const topScore = scores.length > 0 ? scores[0].s : '?-?';
+      const [tGolesH, tGolesA] = topScore.split('-');
+      let bottomInfo = [];
+      if (contexto.torneo) bottomInfo.push('🏆 ' + contexto.torneo.nombre);
+      if (contexto.etapa) bottomInfo.push('▶️ ' + contexto.etapa.nombre);
+      const bottomText = bottomInfo.length > 0 ? bottomInfo.join(' &nbsp;&nbsp; ') : 'Simulación Predictiva ML';
 
+      let statsHtml = `<div class="card full-width" style="margin-top: 20px;">
+        <div style="text-align: center; margin-bottom: 30px; padding-bottom: 25px; border-bottom: 1px solid rgba(255,255,255,0.05);">
+          <div style="display: flex; justify-content: center; align-items: center; gap: 20px; margin-bottom: 18px;">
+            <div style="font-size: 1.4rem; font-weight: 700; flex: 1; text-align: right;">${home}</div>
+            <div style="display: flex; align-items: center; justify-content: center; font-size: 2.2rem; font-weight: 800; color: var(--text);">
+              ${tGolesH} <span style="color: var(--text3); margin: 0 12px;">-</span> ${tGolesA}
+            </div>
+            <div style="font-size: 1.4rem; font-weight: 700; flex: 1; text-align: left;">${away}</div>
+          </div>
+          <div style="font-size: .85rem; color: var(--text2); font-weight: 500; display: inline-flex; align-items: center; gap: 15px; background: rgba(0,0,0,0.25); padding: 6px 18px; border-radius: 20px;">
+            <span>🔮 Marcador más probable</span>
+            ${bottomInfo.length > 0 ? '<span>•</span><span>' + bottomText + '</span>' : ''}
+          </div>
+        </div>
+        <div class="card-title" style="text-align: center; color: #fff; font-size: 1.15rem; text-transform: none; border-bottom: none; margin-bottom: 20px;">Match overview</div>`;
+
+      const renderStatBar = (name, valH, valA, colorH = 'var(--success)', colorA = 'var(--accent)') => {
+        const tot = valH + valA || 1;
+        const pctH = (valH / tot) * 100;
+        const pctA = (valA / tot) * 100;
+        return `
+          <div style="margin-bottom: 16px; padding: 0 10px;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+              <div style="font-size: 1rem; font-weight: 600;">${valH.toFixed(2)}</div>
+              <div style="font-size: .85rem; color: var(--text); font-weight: 600;">${name}</div>
+              <div style="font-size: 1rem; font-weight: 600;">${valA.toFixed(2)}</div>
+            </div>
+            <div style="display: flex; gap: 8px;">
+              <div style="flex: 1; height: 6px; background: rgba(255,255,255,0.05); border-radius: 4px; display: flex; justify-content: flex-end; overflow: hidden;">
+                <div style="width: ${pctH}%; background: ${colorH}; border-radius: 4px;"></div>
+              </div>
+              <div style="flex: 1; height: 6px; background: rgba(255,255,255,0.05); border-radius: 4px; overflow: hidden;">
+                <div style="width: ${pctA}%; background: ${colorA}; border-radius: 4px;"></div>
+              </div>
+            </div>
+          </div>
+        `;
+      };
+
+      statsHtml += renderStatBar('Expected goals (xG)', pred.xg_home, pred.xg_away);
+      statsHtml += renderStatBar('Total shots', pred.shots_home, pred.shots_away);
+      statsHtml += renderStatBar('Shots on target', pred.target_home, pred.target_away);
+      statsHtml += renderStatBar('Corner kicks', pred.corners_home, pred.corners_away);
+      statsHtml += renderStatBar('Fouls', pred.fouls_home, pred.fouls_away);
+      statsHtml += renderStatBar('Yellow cards', pred.yellows_home, pred.yellows_away);
+      statsHtml += renderStatBar('Red cards', pred.fouls_home * models.red_per_foul, pred.fouls_away * models.red_per_foul);
+      statsHtml += `<div style="text-align:center;font-size:.78rem;color:var(--text3);margin:-8px 0 12px;padding:0 10px;">Prob. ≥1 roja en partido: <strong style="color:var(--danger)">${(pred.red_prob * 100).toFixed(1)}%</strong></div>`;
+
+      statsHtml += '</div>';
+      html += statsHtml;
+
+      grid.innerHTML = html;
       document.getElementById('results-section').scrollIntoView({ behavior: 'smooth', block: 'start' });
     }
 
@@ -1687,7 +2349,7 @@
     function logMsg(m) { const el = document.getElementById('log'); el.style.display = 'block'; el.textContent += m + '\n'; el.scrollTop = el.scrollHeight }
     function logClear() { const el = document.getElementById('log'); el.textContent = ''; el.style.display = 'none' }
 
-    function handleFileUpload(file) { const r = new FileReader(); r.onload = e => { const raw = parseCSV(e.target.result); RAW_DATA = processData(raw); const st = document.getElementById('data-status'); if (!RAW_DATA.length) { st.textContent = '⚠️ No se encontraron partidos válidos.'; st.className = ''; document.getElementById('predict-btn').disabled = true; return } const d = RAW_DATA.filter(r => r.Date).map(r => r.Date).sort((a, b) => a - b); st.textContent = `✅ ${RAW_DATA.length} partidos(${d[0] ? d[0].toISOString().slice(0, 10) : '?'} → ${d[d.length - 1] ? d[d.length - 1].toISOString().slice(0, 10) : '?'})`; st.className = 'loaded'; document.getElementById('predict-btn').disabled = false }; r.readAsText(file) }
+    function handleFileUpload(file) { const r = new FileReader(); r.onload = e => { const raw = parseCSV(e.target.result); RAW_DATA = processData(raw); const st = document.getElementById('data-status'); if (!RAW_DATA.length) { st.textContent = '⚠️ No se encontraron partidos válidos.'; st.className = ''; document.getElementById('predict-btn').disabled = true; return } const d = RAW_DATA.filter(r => r.Date).map(r => r.Date).sort((a, b) => a - b); st.textContent = `✅ ${RAW_DATA.length} partidos (${d[0] ? d[0].toISOString().slice(0, 10) : '?'} → ${d[d.length - 1] ? d[d.length - 1].toISOString().slice(0, 10) : '?'})`; st.className = 'loaded'; document.getElementById('predict-btn').disabled = false }; r.readAsText(file) }
 
     function handlePredict() {
       logClear(); clearScoreSelection();
@@ -1696,30 +2358,69 @@
       const torneo = document.getElementById('tournament').value.trim(), etapa = document.getElementById('round').value.trim();
       const arbitro = document.getElementById('referee').value.trim(), limitDate = document.getElementById('start-date').value;
       const applyHome = document.getElementById('apply-home').checked;
+      const motH = parseFloat(document.getElementById('home-mot').value) || 10;
+      const motA = parseFloat(document.getElementById('away-mot').value) || 10;
+      const oddsW1 = null, oddsX = null, oddsW2 = null;
       if (!home || !away || isNaN(eloH) || isNaN(eloA)) { alert('Completa al menos: equipos y ELOs.'); return }
       readConfig();
       let data = filterByDate(RAW_DATA, limitDate);
-      logMsg(`[*] ${data.length} partidos${limitDate ? ' (antes de ' + limitDate + ')' : ''} `);
-      if (data.length < 2) { alert(`Solo ${data.length} partido(s). Se necesitan >=2.`); return }
+      logMsg(`[*] ${data.length} partidos${limitDate ? ' (antes de ' + limitDate + ')' : ''}`);
+      if (data.length < 5) { alert(`Solo ${data.length} partido(s). Se necesitan >=5 para GBT.`); return }
+
+      const t0 = performance.now();
       const models = trainModels(data);
-      logMsg(`[OK] Modelos entrenados — Corners σ = ${models.corners_std.toFixed(2)}, Tiros σ = ${models.shots_std.toFixed(2)} `);
-      logMsg(`  Rojas: base = ${(models.red_base_rate * 100).toFixed(1)}%, /falta=${(models.red_per_foul * 100).toFixed(2)}%`);
+      CURRENT_MODELS = models;
+      const t1 = performance.now();
+
+      const nTreesActual = models.xg_home ? models.xg_home.nTrees : CFG.GBT_N_ESTIMADORES;
+      const maxDepthActual = models.xg_home ? models.xg_home.maxDepth : CFG.GBT_MAX_DEPTH;
+      logMsg(`[OK] GBT entrenado en ${(t1 - t0).toFixed(0)}ms — ${nTreesActual} árboles, prof. ${maxDepthActual}${CFG.USAR_POISSON_LOSS ? ' (Poisson Loss)' : ''}`);
+      if (models.cvMetrics) {
+        logMsg(`  [CV] HomexG -> MAE: ${models.cvMetrics.mae.toFixed(3)}, R²: ${(models.cvMetrics.r2 * 100).toFixed(1)}%`);
+      }
+
+      const sortedData = models.sortedData;
+      const predFeatures = buildPredictionFeatures(eloH, eloA, applyHome, torneo, etapa, home, away, arbitro, oddsW1, oddsX, oddsW2, sortedData);
+
       const sesgo = analyzeReferee(data, arbitro);
-      if (sesgo) logMsg(`  Árbitro: ${arbitro} (${sesgo.partidos}p) F:x${sesgo.fouls_mult.toFixed(2)} Y:x${sesgo.yellows_mult.toFixed(2)} R:x${sesgo.reds_mult.toFixed(2)}`);
+      if (sesgo) logMsg(`  Árbitro: ${arbitro} (${sesgo.partidos}p) F:x${sesgo.fouls_mult.toFixed(2)} Y:x${sesgo.yellows_mult.toFixed(2)}`);
       else if (arbitro) logMsg(`  [!] Árbitro '${arbitro}' no encontrado.`);
+
       const contexto = analyzeContext(data, torneo, etapa);
       if (contexto.torneo) logMsg(`  Torneo: ${torneo} (${contexto.torneo.partidos}p) → Goles x${contexto.torneo.goles_mult.toFixed(2)}`);
       if (contexto.etapa) logMsg(`  Etapa: ${etapa} (${contexto.etapa.partidos}p) → Goles x${contexto.etapa.goles_mult.toFixed(2)}`);
 
-      const teamH = analyzeTeam(data, home, true);
-      const teamA = analyzeTeam(data, away, false);
-      if (teamH) logMsg(`  [Equipo] ${home} (${teamH.games}p): Goles x${teamH.mult_gf.toFixed(2)}, Corners x${teamH.mult_cf.toFixed(2)}, Tarjetas x${teamH.mult_yf.toFixed(2)}`);
-      if (teamA) logMsg(`  [Equipo] ${away} (${teamA.games}p): Goles x${teamA.mult_gf.toFixed(2)}, Corners x${teamA.mult_cf.toFixed(2)}, Tarjetas x${teamA.mult_yf.toFixed(2)}`);
+      const teamH = analyzeTeam(data, home);
+      const teamA = analyzeTeam(data, away);
+      if (teamH) logMsg(`  [Equipo] ${home} (${teamH.games}p): Goles x${teamH.mult_gf.toFixed(2)}, Corners x${teamH.mult_cf.toFixed(2)}`);
+      if (teamA) logMsg(`  [Equipo] ${away} (${teamA.games}p): Goles x${teamA.mult_gf.toFixed(2)}, Corners x${teamA.mult_cf.toFixed(2)}`);
 
-      const pred = predictStats(models, data, eloH - eloA, sesgo, contexto, applyHome, teamH, teamA);
-      logMsg(`  xG: ${home} ${pred.xg_home.toFixed(2)} — ${away} ${pred.xg_away.toFixed(2)}`);
+      // H2H (always compute for display)
+      const h2hData = computeH2H(sortedData, sortedData.length, home, away, CFG.H2H_MAX_PARTIDOS);
+      if (h2hData.games > 0) logMsg(`  [H2H] ${h2hData.games} partidos directos encontrados`);
+
+      // Recent form details
+      const formH = getRecentMatchDetails(sortedData, home, 10);
+      const formA = getRecentMatchDetails(sortedData, away, 10);
+
+      // Rival performance
+      const rivalH = analyzeRivalPerformance(data, home, eloA);
+      const rivalA = analyzeRivalPerformance(data, away, eloH);
+
+      // WLS baseline
+      const wlsPred = predictWLSBaseline(models, eloH, eloA, applyHome);
+
+      // Main prediction
+      const pred = predictStats(models, predFeatures, sesgo, contexto, applyHome, teamH, teamA, motH, motA);
+      pred.confidence = computeConfidence(teamH, teamA, h2hData, formH, formA, pred, wlsPred, models.cvMetrics);
+      CURRENT_PRED = pred;
+
+      logMsg(`  xG (GBT): ${home} ${pred.xg_home.toFixed(2)} — ${away} ${pred.xg_away.toFixed(2)}`);
+      if (wlsPred) logMsg(`  xG (WLS): ${home} ${wlsPred.xg_home.toFixed(2)} — ${away} ${wlsPred.xg_away.toFixed(2)}`);
+      logMsg(`  [Confidence] ${pred.confidence.label} (${pred.confidence.score}/100)`);
+
       CURRENT_MATRIX = buildPoissonMatrix(pred.xg_home, pred.xg_away);
-      renderResults(home, away, pred, CURRENT_MATRIX, sesgo, contexto, models);
+      renderResults(home, away, pred, CURRENT_MATRIX, sesgo, contexto, models, h2hData, formH, formA, rivalH, rivalA, predFeatures, wlsPred);
     }
 
     // ======================================================================
@@ -1745,9 +2446,7 @@
         if (!mt.length) { list.classList.remove('visible'); return; }
         list.innerHTML = mt.map(n => `<div class="ac-item" data-name="${n}"><span>${n}</span></div>`).join('');
         list.classList.add('visible');
-        list.querySelectorAll('.ac-item').forEach(item => {
-          item.addEventListener('click', () => { input.value = item.dataset.name; list.classList.remove('visible') });
-        });
+        list.querySelectorAll('.ac-item').forEach(item => { item.addEventListener('click', () => { input.value = item.dataset.name; list.classList.remove('visible') }); });
       });
       input.addEventListener('blur', () => { setTimeout(() => list.classList.remove('visible'), 150) });
       input.addEventListener('keydown', e => { if (e.key === 'Escape') list.classList.remove('visible') });
@@ -1768,6 +2467,43 @@
       document.getElementById('predict-btn').addEventListener('click', handlePredict);
       document.querySelectorAll('#match-form input').forEach(inp => { inp.addEventListener('keydown', e => { if (e.key === 'Enter') handlePredict() }) });
     }
+
+    // Dynamic Odds Global Listener
+    document.addEventListener('input', function (e) {
+      if (e.target.classList.contains('dyn-odds')) {
+        const inp = e.target;
+        const prob = parseFloat(inp.getAttribute('data-prob'));
+        const odds = parseFloat(inp.value);
+        const resTd = inp.parentElement.nextElementSibling;
+        if (isNaN(odds) || odds <= 1 || isNaN(prob)) {
+          resTd.innerHTML = '';
+          return;
+        }
+        const vDec = (prob * odds) - 1;
+        const vPct = vDec * 100;
+        const vMinTarget = getVMin(prob);
+        
+        if (vDec > 0) {
+          let stake = 0;
+          if (vPct >= vMinTarget) {
+            const p_safe = prob - getSigma();
+            const q = 1 - p_safe;
+            const b = odds - 1;
+            const kellyPercent = (((p_safe * b) - q) / b) * 100;
+            const targetStake = kellyPercent / 8;
+            stake = Math.round(targetStake / 0.25) * 0.25;
+            if (stake < 0.25) stake = KELLY_MIN_STAKE;
+            if (stake > 10) stake = 10;
+          }
+          const color = (vPctSafe > 0) ? 'var(--success)' : 'var(--warning)';
+          resTd.innerHTML = `<div style="color:${color};font-weight:700;">Val: ${(vPctSafe > 0 ? '+' : '') + vPctSafe.toFixed(1)}% <span style="font-size:0.75em;color:var(--text3);font-weight:600;" title="Valor Teórico Aparente">(T: ${(vPct > 0 ? '+' : '') + vPct.toFixed(1)}%)</span></div><div class="val-stake">S: ${stake > 0 ? stake.toFixed(2) : '0.00'}u</div>`;
+        } else {
+          const vPctSafe = ((prob - getSigma()) * odds - 1) * 100;
+          resTd.innerHTML = `<div class="val-neg">Val: ${vPctSafe.toFixed(1)}% <span style="font-size:0.75em;color:var(--text3);font-weight:600;" title="Valor Teórico Aparente">(T: ${(vPct > 0 ? '+' : '') + vPct.toFixed(1)}%)</span></div>`;
+        }
+      }
+    });
+
     document.addEventListener('DOMContentLoaded', init);
   </script>
 </body>
