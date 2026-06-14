@@ -21,4 +21,4 @@
 ##### 2023-2026: Completed
 
 ### Euro Qualifiers
-##### 2023: Group B & F
+##### 2023: Group B, D & F
