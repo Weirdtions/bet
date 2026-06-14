@@ -969,6 +969,15 @@
           <div class="form-group"><label>Motivación Visita (1-10)</label><input type="number" id="away-mot" value="10"
               min="1" max="10" placeholder="Ej: 10"></div>
 
+          <div class="form-group" style="grid-column: 1/-1;"><label style="color:var(--accent2)">Mercado 1X2 (Para
+              ajustar xG)</label></div>
+          <div class="form-group"
+            style="grid-column: 1/-1; display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 14px;">
+            <input type="number" step="0.01" id="odds-1" placeholder="Cuota 1 (Local)" title="Cuota Local">
+            <input type="number" step="0.01" id="odds-x" placeholder="Cuota X (Empate)" title="Cuota Empate">
+            <input type="number" step="0.01" id="odds-2" placeholder="Cuota 2 (Visita)" title="Cuota Visitante">
+          </div>
+
           <div class="form-group full" style="flex-direction: row; align-items: center; gap: 8px;">
             <input type="checkbox" id="apply-home" checked style="width: 18px; height: 18px; cursor: pointer;">
             <label for="apply-home" style="cursor: pointer; margin-bottom: 0;">Incluir Localía</label>
@@ -1007,21 +1016,29 @@
       'España': 2157,
       'Argentina': 2115,
       'Francia': 2063,
-      'Brasil': 1991,
-      'Turquía': 1911,
+      'Brasil': 1978,
+      'Países Bajos': 1948,
+      'Ecuador': 1938,
+      'Alemania': 1932,
+      'Japón': 1906,
       'Suiza': 1891,
       'México': 1881,
-      'Marruecos': 1827,
+      'Turquía': 1849,
+      'Marruecos': 1840,
+      'Australia': 1839,
       'Canadá': 1788,
       'Corea del Sur': 1786,
       'Escocia': 1782,
       'Estados Unidos': 1780,
       'Paraguay': 1780,
-      'Australia': 1777,
       'República Checa': 1712,
+      'Suecia': 1712,
+      'Costa de Marfil': 1695,
+      'Túnez': 1628,
       'Bosnia y Herzegovina': 1595,
       'Haití': 1548,
       'Sudáfrica': 1511,
+      'Curazao': 1434,
       'Catar': 1421,
     };
 
@@ -1078,7 +1095,7 @@
 
     // ====== LÍNEAS DE MERCADO ======
     const LINEAS_GOLES = [0.5, 1.5, 2.5, 3.5, 4.5];
-    const LINEAS_EQUIPO = [0.5, 1.5, 2.5];
+    const LINEAS_EQUIPO = [0.5, 1.5, 2.5, 3.5];
     const LINEAS_CORNERS = [6.5, 7.5, 8.5, 9.5, 10.5, 11.5];
     const LINEAS_FOULS = [22.5, 23.5, 24.5, 25.5, 26.5];
     const LINEAS_YELLOWS = [2.5, 3.5, 4.5, 5.5, 6.5];
@@ -1086,7 +1103,7 @@
     const LINEAS_SHOTS = [18.5, 19.5, 20.5, 21.5, 22.5, 23.5];
     const LINEAS_TARGET = [6.5, 7.5, 8.5, 9.5, 10.5, 11.5];
     const LINEAS_HC_EUR = [-3, -2, -1, 0, 1, 2, 3];
-    const LINEAS_HC_ASIA = [-2.5, -2.25, -2, -1.75, -1.5, -1.25, -1, -0.75, -0.5, -0.25, 0, 0.25, 0.5, 0.75, 1, 1.25, 1.5, 1.75, 2, 2.25, 2.5];
+    const LINEAS_HC_ASIA = [-4.5, -3.5, -2.5, -1.5, -0.75, -0.25, 0, 0.25, 0.75, 1.5, 2.5, 3.5, 4.5];
 
     // ====== COEFICIENTES DEL MODELO ======
     const CFG = {
@@ -1106,6 +1123,7 @@
       FORMA_RECIENTE_PARTIDOS: 5, FORMA_RECIENTE_PESO: 0.10,
       // Auto-Tune & Advanced
       AUTO_TUNE: true, USAR_POISSON_LOSS: true, CV_FOLDS: 5, POST_GBT_MAX_ADJ: 0.35,
+      SHRINKAGE_BOOKIE: 0.25,
     };
     const CFG_LABELS = {
       FACTOR_LOCAL: 'Factor Local (xG)', FACTOR_VISITA: 'Factor Visita (xG)',
@@ -1120,6 +1138,7 @@
       H2H_PESO: '🤝 H2H Peso (0=off)', H2H_MAX_PARTIDOS: '🤝 H2H Max Partidos',
       FORMA_RECIENTE_PARTIDOS: '📈 Forma Partidos', FORMA_RECIENTE_PESO: '📈 Forma Peso',
       AUTO_TUNE: '🔧 Auto-Tune', USAR_POISSON_LOSS: '🎯 Poisson Loss', CV_FOLDS: '📊 CV Folds', POST_GBT_MAX_ADJ: '🔒 Ajuste máx post-GBT',
+      SHRINKAGE_BOOKIE: '⚖️ Suavizado hacia Cuota',
     };
 
     // ######################################################################
@@ -1187,9 +1206,9 @@
     // ======================================================================
     function autoTuneGBT(n) {
       if (n < 100) return { nTrees: 30, maxDepth: 1, lr: 0.08, colSample: 1.0, rowSample: 0.8, minLeaf: 5, lambda: 2.0 };
-      if (n < 300) return { nTrees: 50, maxDepth: 2, lr: 0.06, colSample: 0.85, rowSample: 0.8, minLeaf: 4, lambda: 1.5 };
-      if (n < 700) return { nTrees: 80, maxDepth: 2, lr: 0.05, colSample: 0.80, rowSample: 0.8, minLeaf: 3, lambda: 1.0 };
-      if (n < 2000) return { nTrees: 120, maxDepth: 3, lr: 0.04, colSample: 0.75, rowSample: 0.8, minLeaf: 3, lambda: 1.0 };
+      if (n < 300) return { nTrees: 70, maxDepth: 2, lr: 0.05, colSample: 0.85, rowSample: 0.8, minLeaf: 4, lambda: 1.2 };
+      if (n < 700) return { nTrees: 120, maxDepth: 3, lr: 0.04, colSample: 0.80, rowSample: 0.8, minLeaf: 3, lambda: 0.8 };
+      if (n < 2000) return { nTrees: 150, maxDepth: 3, lr: 0.03, colSample: 0.75, rowSample: 0.8, minLeaf: 3, lambda: 1.0 };
       return { nTrees: 200, maxDepth: 4, lr: 0.03, colSample: 0.70, rowSample: 0.8, minLeaf: 2, lambda: 0.8 };
     }
 
@@ -1227,23 +1246,30 @@
       return { mae: totalMAE / validSamples, r2: Math.max(0, 1 - totalSS_res / totalSS_tot), samples: validSamples, folds: nFolds };
     }
 
-    function computeConfidence(teamH, teamA, h2hData, formH, formA, pred, wlsPred, cvMetrics) {
-      let score = 20;
-      const tHg = teamH ? Math.min(teamH.games, 30) : 0;
-      const tAg = teamA ? Math.min(teamA.games, 30) : 0;
-      score += Math.min(20, (tHg + tAg) / 3);
+    function computeConfidence(teamH, teamA, h2hData, formH, formA, pred, wlsPred, cvMetrics, totalMatches) {
+      let score = 10;
+      const tHg = teamH ? Math.min(teamH.games, 40) : 0;
+      const tAg = teamA ? Math.min(teamA.games, 40) : 0;
+      score += (tHg + tAg) * 0.3125;
       if (h2hData && h2hData.games > 0) score += Math.min(10, h2hData.games * 2.5);
       const fHn = formH ? formH.length : 0, fAn = formA ? formA.length : 0;
-      score += Math.min(10, (fHn + fAn));
+      score += Math.min(10, (fHn + fAn) * 0.6);
       if (wlsPred && pred) {
         const xgDivH = Math.abs(pred.xg_home - wlsPred.xg_home) / Math.max(0.5, pred.xg_home);
         const xgDivA = Math.abs(pred.xg_away - wlsPred.xg_away) / Math.max(0.5, pred.xg_away);
-        score += Math.max(0, 10 - (xgDivH + xgDivA) * 15);
+        score += Math.max(0, 15 - ((xgDivH + xgDivA) / 2) * 45);
       }
-      if (cvMetrics) score += Math.min(10, cvMetrics.r2 * 20);
-      score = Math.min(100, Math.max(0, score));
+      if (cvMetrics) {
+        score += Math.min(15, Math.max(0, cvMetrics.r2 * 100));
+      } else {
+        score += 5;
+      }
+      score += Math.min(15, (totalMatches || 0) / 100);
+      score = Math.min(100, Math.max(10, score));
+
       let label, color;
-      if (score >= 70) { label = 'ALTA'; color = 'var(--success)'; }
+      if (score >= 75) { label = 'MUY ALTA'; color = '#059669'; }
+      else if (score >= 60) { label = 'ALTA'; color = 'var(--success)'; }
       else if (score >= 40) { label = 'MEDIA'; color = 'var(--warning)'; }
       else { label = 'BAJA'; color = 'var(--danger)'; }
       return { score: Math.round(score), label, color };
@@ -1282,10 +1308,10 @@
     }
 
     function oddsToImpliedProb(oddsW1, oddsX, oddsW2) {
-      if (!oddsW1 || !oddsX || !oddsW2 || oddsW1 <= 1 || oddsX <= 1 || oddsW2 <= 1) return { home: 0.33, away: 0.33 };
+      if (!oddsW1 || !oddsX || !oddsW2 || oddsW1 <= 1 || oddsX <= 1 || oddsW2 <= 1) return { home: 0.33, away: 0.33, p1: 0.33, pX: 0.34, p2: 0.33 };
       const p1 = 1 / oddsW1, pX = 1 / oddsX, p2 = 1 / oddsW2;
       const total = p1 + pX + p2;
-      return { home: p1 / total, away: p2 / total };
+      return { home: p1 / total, away: p2 / total, p1: p1 / total, pX: pX / total, p2: p2 / total };
     }
 
     // ======================================================================
@@ -1472,19 +1498,22 @@
         if (!isH && !isA) continue;
         count++;
         const d = Math.pow(0.9, count - 1);
+        const oppElo = isH ? (r.AwayElo || 1500) : (r.HomeElo || 1500);
+        const oppStr = Math.max(0.5, Math.min(2.0, oppElo / 1500));
+        const oppStrDef = 1 / oppStr;
         dSum += d;
         if (isH) {
-          gf += r.HomeGoals * d; ga += r.AwayGoals * d;
-          xgf += (r.HomexG !== null ? r.HomexG : r.HomeGoals) * d;
-          xga += (r.AwayxG !== null ? r.AwayxG : r.AwayGoals) * d;
-          sf += (r.HomeShots || 0) * d; sa += (r.AwayShots || 0) * d;
-          pts += (r.HomeGoals > r.AwayGoals ? 3 : r.HomeGoals === r.AwayGoals ? 1 : 0) * d;
+          gf += r.HomeGoals * d * oppStr; ga += r.AwayGoals * d * oppStrDef;
+          xgf += (r.HomexG !== null ? r.HomexG : r.HomeGoals) * d * oppStr;
+          xga += (r.AwayxG !== null ? r.AwayxG : r.AwayGoals) * d * oppStrDef;
+          sf += (r.HomeShots || 0) * d * oppStr; sa += (r.AwayShots || 0) * d * oppStrDef;
+          pts += (r.HomeGoals > r.AwayGoals ? 3 : r.HomeGoals === r.AwayGoals ? 1 : 0) * d * oppStr;
         } else {
-          gf += r.AwayGoals * d; ga += r.HomeGoals * d;
-          xgf += (r.AwayxG !== null ? r.AwayxG : r.AwayGoals) * d;
-          xga += (r.HomexG !== null ? r.HomexG : r.HomeGoals) * d;
-          sf += (r.AwayShots || 0) * d; sa += (r.HomeShots || 0) * d;
-          pts += (r.AwayGoals > r.HomeGoals ? 3 : r.AwayGoals === r.HomeGoals ? 1 : 0) * d;
+          gf += r.AwayGoals * d * oppStr; ga += r.HomeGoals * d * oppStrDef;
+          xgf += (r.AwayxG !== null ? r.AwayxG : r.AwayGoals) * d * oppStr;
+          xga += (r.HomexG !== null ? r.HomexG : r.HomeGoals) * d * oppStrDef;
+          sf += (r.AwayShots || 0) * d * oppStr; sa += (r.HomeShots || 0) * d * oppStrDef;
+          pts += (r.AwayGoals > r.HomeGoals ? 3 : r.AwayGoals === r.HomeGoals ? 1 : 0) * d * oppStr;
         }
       }
       return {
@@ -1619,14 +1648,17 @@
         const isH = norm(r.HomeTeam) === tn; const isA = norm(r.AwayTeam) === tn;
         if (!isH && !isA) return;
         m.games++;
+        const oppElo = isH ? (r.AwayElo || 1500) : (r.HomeElo || 1500);
+        const oppStr = Math.max(0.5, Math.min(2.0, oppElo / 1500));
+        const oppStrDef = 1 / oppStr;
         if (isH) {
-          m.gf += r.HomeGoals; m.ga += r.AwayGoals; m.sf += r.HomeShots; m.sa += r.AwayShots;
-          m.stf += r.HomeTarget; m.sta += r.AwayTarget; m.cf += r.HomeCorners; m.ca += r.AwayCorners;
-          m.ff += r.HomeFouls; m.fa += r.AwayFouls; m.yf += r.HomeYellows; m.ya += r.AwayYellows;
+          m.gf += r.HomeGoals * oppStr; m.ga += r.AwayGoals * oppStrDef; m.sf += (r.HomeShots || 0) * oppStr; m.sa += (r.AwayShots || 0) * oppStrDef;
+          m.stf += (r.HomeTarget || 0) * oppStr; m.sta += (r.AwayTarget || 0) * oppStrDef; m.cf += (r.HomeCorners || 0) * oppStr; m.ca += (r.AwayCorners || 0) * oppStrDef;
+          m.ff += (r.HomeFouls || 0) * oppStrDef; m.fa += (r.AwayFouls || 0) * oppStr; m.yf += (r.HomeYellows || 0) * oppStrDef; m.ya += (r.AwayYellows || 0) * oppStr;
         } else {
-          m.gf += r.AwayGoals; m.ga += r.HomeGoals; m.sf += r.AwayShots; m.sa += r.HomeShots;
-          m.stf += r.AwayTarget; m.sta += r.HomeTarget; m.cf += r.AwayCorners; m.ca += r.HomeCorners;
-          m.ff += r.AwayFouls; m.fa += r.HomeFouls; m.yf += r.AwayYellows; m.ya += r.HomeYellows;
+          m.gf += r.AwayGoals * oppStr; m.ga += r.HomeGoals * oppStrDef; m.sf += (r.AwayShots || 0) * oppStr; m.sa += (r.HomeShots || 0) * oppStrDef;
+          m.stf += (r.AwayTarget || 0) * oppStr; m.sta += (r.HomeTarget || 0) * oppStrDef; m.cf += (r.AwayCorners || 0) * oppStr; m.ca += (r.HomeCorners || 0) * oppStrDef;
+          m.ff += (r.AwayFouls || 0) * oppStrDef; m.fa += (r.HomeFouls || 0) * oppStr; m.yf += (r.AwayYellows || 0) * oppStrDef; m.ya += (r.HomeYellows || 0) * oppStr;
         }
       });
       if (m.games === 0) return null;
@@ -1783,7 +1815,7 @@
     // ======================================================================
     //                       PREDICTION (GBT-based)
     // ======================================================================
-    function predictStats(models, features, sesgo, contexto, applyHome, teamH, teamA, motH, motA) {
+    function predictStats(models, features, sesgo, contexto, applyHome, teamH, teamA, motH, motA, impliedProbs) {
       const p = {};
       function pm(model, fbModel, mk) { if (model) return Math.max(.1, model.predict(features)); if (fbModel) return Math.max(.1, fbModel.predict(features)); return Math.max(.1, models.means[mk] || 1); }
 
@@ -1844,6 +1876,19 @@
       p.xg_home = Math.max(rawGbtH * (1 - maxAdj), Math.min(rawGbtH * (1 + maxAdj), p.xg_home));
       p.xg_away = Math.max(rawGbtA * (1 - maxAdj), Math.min(rawGbtA * (1 + maxAdj), p.xg_away));
       p.xg_home = Math.max(CFG.XG_MINIMO, p.xg_home); p.xg_away = Math.max(CFG.XG_MINIMO, p.xg_away);
+
+      if (impliedProbs && impliedProbs.p1 && impliedProbs.pX && impliedProbs.p2) {
+        let adjH = p.xg_home, adjA = p.xg_away;
+        for (let i = 0; i < 5; i++) {
+          const curMx = buildPoissonMatrix(adjH, adjA);
+          const cP = calc1X2(curMx);
+          adjH *= (impliedProbs.p1 / Math.max(0.001, cP.p1));
+          adjA *= (impliedProbs.p2 / Math.max(0.001, cP.p2));
+        }
+        p.xg_home = (p.xg_home + adjH) / 2;
+        p.xg_away = (p.xg_away + adjA) / 2;
+      }
+
       p.shots_total = p.shots_home + p.shots_away; p.target_total = p.target_home + p.target_away;
       p.corners_total = p.corners_home + p.corners_away; p.fouls_total = p.fouls_home + p.fouls_away; p.yellows_total = p.yellows_home + p.yellows_away;
       p.red_prob = Math.max(1 - Math.pow(1 - models.red_per_foul, p.fouls_total), models.red_base_rate);
@@ -2056,6 +2101,7 @@
           else { label = text || 'Personalizado'; customProbInp.style.display = 'block'; const cp = parseFloat(customProbInp.value); prob = isNaN(cp) ? 0 : cp / 100; }
           const odds = parseFloat(oddsInp.value);
           if (isNaN(prob) || isNaN(odds) || prob <= 0 || odds <= 1 || prob >= 1) { pEl.innerHTML = '—'; vEl.innerHTML = '—'; sEl.innerHTML = '—'; return; }
+          const impliedP = 1 / odds; prob = prob * (1 - CFG.SHRINKAGE_BOOKIE) + impliedP * CFG.SHRINKAGE_BOOKIE;
           const vDec = (prob * odds) - 1, vPct = vDec * 100;
           let stake = 0;
           if (vDec > 0 && vPct >= getVMin(prob)) { const p_safe = prob - getSigma(); const q = 1 - p_safe; const b = odds - 1; const kellyPercent = (((p_safe * b) - q) / b) * 100; const targetStake = kellyPercent / 8; stake = Math.round(targetStake / 0.25) * 0.25; if (stake < KELLY_MIN_STAKE) stake = KELLY_MIN_STAKE; if (stake > 10) stake = 10; }
@@ -2095,7 +2141,7 @@
           const mInp = row.querySelector('.parlay-market'), oi = row.querySelector('.parlay-odds'), cp = row.querySelector('.parlay-custom-prob');
           let prob = 0; const dl = document.getElementById('markets-dl'); const opt = dl ? Array.from(dl.options).find(o => o.value === mInp.value) : null;
           if (opt) { prob = parseFloat(opt.getAttribute('data-prob')); cp.style.display = 'none'; } else { cp.style.display = 'block'; const v = parseFloat(cp.value); prob = isNaN(v) ? 0 : v / 100; }
-          const odds = parseFloat(oi.value); if (!isNaN(prob) && !isNaN(odds) && prob > 0 && prob < 1 && odds >= 1) { tProb *= prob; tOdds *= odds; vRows++; }
+          const odds = parseFloat(oi.value); if (!isNaN(prob) && !isNaN(odds) && prob > 0 && prob < 1 && odds >= 1) { const impliedP = 1 / odds; prob = prob * (1 - CFG.SHRINKAGE_BOOKIE) + impliedP * CFG.SHRINKAGE_BOOKIE; tProb *= prob; tOdds *= odds; vRows++; }
         });
         if (vRows === 0) { pProb.innerHTML = '—'; pFair.innerHTML = '—'; pOdds.innerHTML = '—'; pValue.innerHTML = '—'; pStake.innerHTML = '—'; return; }
         const fairO = 1 / tProb, vDec = (tProb * tOdds) - 1, vPct = vDec * 100;
@@ -2130,6 +2176,20 @@
       document.getElementById('results-section').style.display = 'block';
       SELECTED_SCORES.clear();
       updateScoreSum();
+
+      function calcStat1X2(lamH, lamA) {
+        let p1 = 0, pX = 0, p2 = 0; const mg = 35;
+        for (let i = 0; i < mg; i++) {
+          for (let j = 0; j < mg; j++) {
+            const p = poissonPMF(i, lamH) * poissonPMF(j, lamA);
+            if (i > j) p1 += p; else if (i === j) pX += p; else p2 += p;
+          }
+        }
+        return { p1, pX, p2 };
+      }
+      const s1X2 = calcStat1X2(pred.shots_home, pred.shots_away);
+      const t1X2 = calcStat1X2(pred.target_home, pred.target_away);
+      const c1X2 = calcStat1X2(pred.corners_home, pred.corners_away);
 
       const m1x2 = calc1X2(matrix), btts = calcBTTS(matrix);
       const ouG = calcOU(matrix, LINEAS_GOLES), ouH = calcTeamOU(pred.xg_home, LINEAS_EQUIPO), ouA = calcTeamOU(pred.xg_away, LINEAS_EQUIPO);
@@ -2178,6 +2238,9 @@
       yH.forEach(l => { addE(`Amarillas ${home}`, `Over ${l}`, yOUH[l].over); addE(`Amarillas ${home}`, `Under ${l}`, yOUH[l].under); });
       yA.forEach(l => { addE(`Amarillas ${away}`, `Over ${l}`, yOUA[l].over); addE(`Amarillas ${away}`, `Under ${l}`, yOUA[l].under); });
       addE('Tarjetas Rojas', `≥1 Roja`, pred.red_prob); addE('Tarjetas Rojas', `0 Rojas`, 1 - pred.red_prob);
+      addE('Tiros 1X2', `1(${home})`, s1X2.p1); addE('Tiros 1X2', `X`, s1X2.pX); addE('Tiros 1X2', `2(${away})`, s1X2.p2);
+      addE('A Puerta 1X2', `1(${home})`, t1X2.p1); addE('A Puerta 1X2', `X`, t1X2.pX); addE('A Puerta 1X2', `2(${away})`, t1X2.p2);
+      addE('Corners 1X2', `1(${home})`, c1X2.p1); addE('Corners 1X2', `X`, c1X2.pX); addE('Corners 1X2', `2(${away})`, c1X2.p2);
 
       renderEvaluator(evalOpts);
       renderParlayBuilder(evalOpts);
@@ -2246,18 +2309,28 @@
       LINEAS_HC_ASIA.forEach(line => { const h = hcA[line]; const aw = 100 - h.asian; const awO = aw > 0 ? 100 / aw : 99; const hProb = h.asian / 100; const aProb = aw / 100; const lb = line >= 0 ? `+${line % 1 === 0 ? line + '.0' : line}` : `${line % 1 === 0 ? line + '.0' : line}`; let info = ''; if (h.pPush > .001) info = `Push: ${fmtP(h.pPush)}`; if (h.pHalfWin > .001 || h.pHalfLose > .001) { const pts = []; if (h.pHalfWin > .001) pts.push(`½W: ${fmtP(h.pHalfWin)}`); if (h.pHalfLose > .001) pts.push(`½L: ${fmtP(h.pHalfLose)}`); info = pts.join(' ') } hcAH += `<tr><td><strong>${lb}</strong></td><td class="prob">${h.asian.toFixed(1)}%</td><td class="odds">${h.fairOdds.toFixed(2)}</td><td><input type="number" step="0.01" class="dyn-odds" data-prob="${hProb}"></td><td class="dyn-res"></td><td class="prob">${aw.toFixed(1)}%</td><td class="odds">${awO.toFixed(2)}</td><td><input type="number" step="0.01" class="dyn-odds" data-prob="${aProb}"></td><td class="dyn-res"></td><td style="font-size:.7rem;color:var(--text3)">${info}</td></tr>` });
       html += mkCard('HC Asiático', hcAH + `</table>`, true);
 
+      function render1X2Table(title, m, homeName, awayName) {
+        return mkCard(title, `<table class="mkt-table"><tr><th>Mercado</th><th>Prob</th><th>C. Justa</th><th>Tu Cuota</th><th>Info</th></tr>
+        <tr><td>1 — ${homeName}</td><td class="prob">${fmtP(m.p1)}</td><td class="odds">${fmtO(m.p1)}</td><td><input type="number" step="0.01" class="dyn-odds" data-prob="${m.p1}" placeholder="Cuota"></td><td class="dyn-res"></td></tr>
+        <tr><td>X — Empate</td><td class="prob">${fmtP(m.pX)}</td><td class="odds">${fmtO(m.pX)}</td><td><input type="number" step="0.01" class="dyn-odds" data-prob="${m.pX}" placeholder="Cuota"></td><td class="dyn-res"></td></tr>
+        <tr><td>2 — ${awayName}</td><td class="prob">${fmtP(m.p2)}</td><td class="odds">${fmtO(m.p2)}</td><td><input type="number" step="0.01" class="dyn-odds" data-prob="${m.p2}" placeholder="Cuota"></td><td class="dyn-res"></td></tr></table>`, true);
+      }
+
       // === STATS ===
       html += '<div class="market-section-title">📈 Tiros</div>';
+      html += render1X2Table('Ganador Tiros (1X2)', s1X2, home, away);
       html += mkCard('Tiros Total', `<div style="font-size:.75rem;color:var(--text3);margin-bottom:8px">Normal (μ=${fmt(pred.shots_total)}, σ=${fmt(models.shots_std)})</div>${makeOUTable(sOU, LINEAS_SHOTS)}`, true);
       html += mkCard(`Tiros ${home}`, makeOUTable(sOUH, sH), true);
       html += mkCard(`Tiros ${away}`, makeOUTable(sOUA, sA), true);
 
       html += '<div class="market-section-title">🎯 Tiros a Puerta</div>';
+      html += render1X2Table('Ganador A Puerta (1X2)', t1X2, home, away);
       html += mkCard('A Puerta Total', `<div style="font-size:.75rem;color:var(--text3);margin-bottom:8px">Normal (μ=${fmt(pred.target_total)}, σ=${fmt(models.target_std)})</div>${makeOUTable(tOU, LINEAS_TARGET)}`, true);
       html += mkCard(`A Puerta ${home}`, makeOUTable(tOUH, tH), true);
       html += mkCard(`A Puerta ${away}`, makeOUTable(tOUA, tA), true);
 
       html += '<div class="market-section-title">🚩 Corners</div>';
+      html += render1X2Table('Ganador Corners (1X2)', c1X2, home, away);
       html += mkCard('Corners Total', `<div style="font-size:.75rem;color:var(--text3);margin-bottom:8px">Normal (μ=${fmt(pred.corners_total)}, σ=${fmt(models.corners_std)})</div>${makeOUTable(cOU, LINEAS_CORNERS)}`, true);
       html += mkCard(`Corners ${home}`, makeOUTable(cOUH, cH), true);
       html += mkCard(`Corners ${away}`, makeOUTable(cOUA, cA), true);
@@ -2360,7 +2433,9 @@
       const applyHome = document.getElementById('apply-home').checked;
       const motH = parseFloat(document.getElementById('home-mot').value) || 10;
       const motA = parseFloat(document.getElementById('away-mot').value) || 10;
-      const oddsW1 = null, oddsX = null, oddsW2 = null;
+      const oddsW1 = parseFloat(document.getElementById('odds-1').value) || null;
+      const oddsX = parseFloat(document.getElementById('odds-x').value) || null;
+      const oddsW2 = parseFloat(document.getElementById('odds-2').value) || null;
       if (!home || !away || isNaN(eloH) || isNaN(eloA)) { alert('Completa al menos: equipos y ELOs.'); return }
       readConfig();
       let data = filterByDate(RAW_DATA, limitDate);
@@ -2411,8 +2486,9 @@
       const wlsPred = predictWLSBaseline(models, eloH, eloA, applyHome);
 
       // Main prediction
-      const pred = predictStats(models, predFeatures, sesgo, contexto, applyHome, teamH, teamA, motH, motA);
-      pred.confidence = computeConfidence(teamH, teamA, h2hData, formH, formA, pred, wlsPred, models.cvMetrics);
+      const impliedProbs = oddsW1 && oddsX && oddsW2 ? oddsToImpliedProb(oddsW1, oddsX, oddsW2) : null;
+      const pred = predictStats(models, predFeatures, sesgo, contexto, applyHome, teamH, teamA, motH, motA, impliedProbs);
+      pred.confidence = computeConfidence(teamH, teamA, h2hData, formH, formA, pred, wlsPred, models.cvMetrics, sortedData.length);
       CURRENT_PRED = pred;
 
       logMsg(`  xG (GBT): ${home} ${pred.xg_home.toFixed(2)} — ${away} ${pred.xg_away.toFixed(2)}`);
@@ -2479,18 +2555,21 @@
           resTd.innerHTML = '';
           return;
         }
-        const vDec = (prob * odds) - 1;
+        const impliedProb = 1 / odds;
+        const blendedProb = prob * (1 - CFG.SHRINKAGE_BOOKIE) + impliedProb * CFG.SHRINKAGE_BOOKIE;
+        const vDec = (blendedProb * odds) - 1;
         const vPct = vDec * 100;
-        const vMinTarget = getVMin(prob);
-        
+        const vPctSafe = ((blendedProb - getSigma()) * odds - 1) * 100;
+        const vMinTarget = getVMin(blendedProb);
+
         if (vDec > 0) {
           let stake = 0;
           if (vPct >= vMinTarget) {
-            const p_safe = prob - getSigma();
+            const p_safe = blendedProb - getSigma();
             const q = 1 - p_safe;
             const b = odds - 1;
             const kellyPercent = (((p_safe * b) - q) / b) * 100;
-            const targetStake = kellyPercent / 8;
+            const targetStake = kellyPercent / 16;
             stake = Math.round(targetStake / 0.25) * 0.25;
             if (stake < 0.25) stake = KELLY_MIN_STAKE;
             if (stake > 10) stake = 10;
@@ -2498,7 +2577,6 @@
           const color = (vPctSafe > 0) ? 'var(--success)' : 'var(--warning)';
           resTd.innerHTML = `<div style="color:${color};font-weight:700;">Val: ${(vPctSafe > 0 ? '+' : '') + vPctSafe.toFixed(1)}% <span style="font-size:0.75em;color:var(--text3);font-weight:600;" title="Valor Teórico Aparente">(T: ${(vPct > 0 ? '+' : '') + vPct.toFixed(1)}%)</span></div><div class="val-stake">S: ${stake > 0 ? stake.toFixed(2) : '0.00'}u</div>`;
         } else {
-          const vPctSafe = ((prob - getSigma()) * odds - 1) * 100;
           resTd.innerHTML = `<div class="val-neg">Val: ${vPctSafe.toFixed(1)}% <span style="font-size:0.75em;color:var(--text3);font-weight:600;" title="Valor Teórico Aparente">(T: ${(vPct > 0 ? '+' : '') + vPct.toFixed(1)}%)</span></div>`;
         }
       }
