@@ -16,3 +16,6 @@
 
 ### WC Qualifiers CONMEBOL
 ##### 2023-2026: Completed
+
+### Euro Qualifiers
+###### 2023: Group B
