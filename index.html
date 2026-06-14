@@ -1124,6 +1124,8 @@
       // Auto-Tune & Advanced
       AUTO_TUNE: true, USAR_POISSON_LOSS: true, CV_FOLDS: 5, POST_GBT_MAX_ADJ: 0.35,
       SHRINKAGE_BOOKIE: 0.25,
+      // Auto-Calibration
+      AUTO_CALIBRATE: true,
     };
     const CFG_LABELS = {
       FACTOR_LOCAL: 'Factor Local (xG)', FACTOR_VISITA: 'Factor Visita (xG)',
@@ -1139,11 +1141,360 @@
       FORMA_RECIENTE_PARTIDOS: '📈 Forma Partidos', FORMA_RECIENTE_PESO: '📈 Forma Peso',
       AUTO_TUNE: '🔧 Auto-Tune', USAR_POISSON_LOSS: '🎯 Poisson Loss', CV_FOLDS: '📊 CV Folds', POST_GBT_MAX_ADJ: '🔒 Ajuste máx post-GBT',
       SHRINKAGE_BOOKIE: '⚖️ Suavizado hacia Cuota',
+      AUTO_CALIBRATE: '🧬 Auto-Calibrar Coef.',
     };
 
     // ######################################################################
     // #              FIN DE VARIABLES EDITABLES                            #
     // ######################################################################
+
+    // ====== TUNABLE PARAMETERS METADATA ======
+    const TUNABLE_PARAMS = {
+      SHRINKAGE_BOOKIE:     { prior: 0.25, min: 0.02, max: 0.80, neutral: 0.50, group: 'blend', inverted: true },
+      AJUSTE_EQUIPO:        { prior: 0.15, min: 0.0,  max: 0.60, neutral: 0.0,  group: 'blend' },
+      H2H_PESO:             { prior: 0.10, min: 0.0,  max: 0.40, neutral: 0.0,  group: 'blend' },
+      FORMA_RECIENTE_PESO:  { prior: 0.10, min: 0.0,  max: 0.50, neutral: 0.0,  group: 'blend' },
+      POST_GBT_MAX_ADJ:     { prior: 0.35, min: 0.05, max: 0.70, neutral: 0.10, group: 'blend' },
+      FACTOR_LOCAL:         { prior: 1.00, min: 0.80, max: 1.25, neutral: 1.0, group: 'xg' },
+      FACTOR_VISITA:        { prior: 1.00, min: 0.75, max: 1.20, neutral: 1.0, group: 'xg' },
+      XG_MINIMO:            { prior: 0.10, min: 0.01, max: 0.40, neutral: 0.10, group: 'xg' },
+      AJUSTE_ARBITRO_FALTAS:    { prior: 0.15, min: 0.0, max: 0.60, neutral: 0.0, group: 'ctx' },
+      AJUSTE_ARBITRO_TARJETAS:  { prior: 0.20, min: 0.0, max: 0.60, neutral: 0.0, group: 'ctx' },
+      AJUSTE_ARBITRO_ROJAS:     { prior: 0.40, min: 0.0, max: 0.80, neutral: 0.0, group: 'ctx' },
+      AJUSTE_TORNEO_GOLES:      { prior: 0.30, min: 0.0, max: 0.70, neutral: 0.0, group: 'ctx' },
+      AJUSTE_TORNEO_FALTAS:     { prior: 0.40, min: 0.0, max: 0.70, neutral: 0.0, group: 'ctx' },
+      AJUSTE_TORNEO_TARJETAS:   { prior: 0.40, min: 0.0, max: 0.70, neutral: 0.0, group: 'ctx' },
+      AJUSTE_TORNEO_CORNERS:    { prior: 0.30, min: 0.0, max: 0.70, neutral: 0.0, group: 'ctx' },
+      AJUSTE_ETAPA_GOLES:       { prior: 0.20, min: 0.0, max: 0.60, neutral: 0.0, group: 'ctx' },
+      AJUSTE_ETAPA_FALTAS:      { prior: 0.30, min: 0.0, max: 0.60, neutral: 0.0, group: 'ctx' },
+      AJUSTE_ETAPA_TARJETAS:    { prior: 0.30, min: 0.0, max: 0.60, neutral: 0.0, group: 'ctx' },
+      AJUSTE_ETAPA_CORNERS:     { prior: 0.20, min: 0.0, max: 0.60, neutral: 0.0, group: 'ctx' },
+      FACTOR_CORNERS:   { prior: 1.0, min: 0.60, max: 1.50, neutral: 1.0, group: 'stat' },
+      FACTOR_FOULS:     { prior: 1.0, min: 0.60, max: 1.50, neutral: 1.0, group: 'stat' },
+      FACTOR_YELLOWS:   { prior: 1.0, min: 0.60, max: 1.50, neutral: 1.0, group: 'stat' },
+      DECAIMIENTO_HALFLIFE_DIAS: { prior: 1200, min: 300, max: 3000, neutral: 1200, group: 'temporal' },
+      GBT_N_ESTIMADORES:  { prior: 50,   min: 20,   max: 300,  neutral: 50,  group: 'gbt', integer: true },
+      GBT_LEARNING_RATE:  { prior: 0.05, min: 0.01, max: 0.20, neutral: 0.05, group: 'gbt' },
+      GBT_MAX_DEPTH:      { prior: 2,    min: 1,    max: 5,    neutral: 2,   group: 'gbt', integer: true },
+      GBT_COL_SAMPLE:     { prior: 0.75, min: 0.40, max: 1.00, neutral: 0.75, group: 'gbt' },
+      FORMA_RECIENTE_PARTIDOS: { prior: 5, min: 3, max: 15, neutral: 5, group: 'forma', integer: true },
+      H2H_MAX_PARTIDOS:        { prior: 7, min: 3, max: 20, neutral: 7, group: 'forma', integer: true },
+      CV_FOLDS:                { prior: 5, min: 3, max: 10, neutral: 5, group: 'gbt', integer: true },
+    };
+
+    const TUNABLE_GROUP_ORDER = ['gbt', 'temporal', 'blend', 'xg', 'ctx', 'stat', 'forma'];
+    const TUNABLE_GROUP_LABELS = {
+      gbt: '🌲 GBT Hiperparámetros', temporal: '⏳ Decaimiento Temporal',
+      blend: '⚖️ Pesos de Mezcla', xg: '⚽ Factores xG',
+      ctx: '🏆 Ajustes Contextuales', stat: '📊 Factores Estadísticos',
+      forma: '📈 Forma Reciente'
+    };
+
+    let LAST_CALIBRATION_RESULT = null;
+
+    // ======================================================================
+    //        AUTO-CALIBRATION ENGINE (Bayesian-like)
+    // ======================================================================
+
+    /**
+     * Evaluate a set of CFG values on a validation set.
+     * Returns { mae, logLoss, combined } where combined = 0.6*MAE_norm + 0.4*logLoss
+     */
+    function evaluateCFGOnValidation(trainData, valData) {
+      if (valData.length < 3) return { mae: 999, logLoss: 999, combined: 999 };
+
+      // Train GBT on trainData using current CFG
+      PRNG_SEED = 12345;
+      const sorted = [...trainData].sort((a, b) => (a.Date || 0) - (b.Date || 0));
+      const allFeatures = sorted.map((r, idx) => buildFeatures(sorted, idx, r));
+      const now = new Date();
+      const rawW = sorted.map(r => {
+        const days = r.Date ? Math.max(0, (now - r.Date) / 86400000) : 365;
+        return Math.pow(2, -days / CFG.DECAIMIENTO_HALFLIFE_DIAS) * getTournamentWeight(r.Tournament) * getStageWeight(r.Round);
+      });
+      const wSum = rawW.reduce((a, b) => a + b, 0) || 1;
+      const weights = rawW.map(w => w * sorted.length / wSum);
+
+      const gbtOpts = CFG.AUTO_TUNE ? autoTuneGBT(sorted.length) : {
+        nTrees: CFG.GBT_N_ESTIMADORES, lr: CFG.GBT_LEARNING_RATE,
+        maxDepth: CFG.GBT_MAX_DEPTH, colSample: CFG.GBT_COL_SAMPLE,
+        lambda: 1.0, minLeaf: 3
+      };
+
+      // Train xG models
+      function trainQuick(col, isPoisson) {
+        const idx = [];
+        for (let i = 0; i < sorted.length; i++) { if (sorted[i][col] !== null) idx.push(i); }
+        if (idx.length < 5) return null;
+        const X = idx.map(i => allFeatures[i]);
+        const Y = idx.map(i => sorted[i][col]);
+        const W = idx.map(i => weights[i]);
+        const model = new GBTRegressor({ ...gbtOpts, poissonLoss: isPoisson });
+        model.fit(X, Y, W);
+        return model;
+      }
+
+      const xgH = trainQuick('HomexG', CFG.USAR_POISSON_LOSS) || trainQuick('HomeGoals', CFG.USAR_POISSON_LOSS);
+      const xgA = trainQuick('AwayxG', CFG.USAR_POISSON_LOSS) || trainQuick('AwayGoals', CFG.USAR_POISSON_LOSS);
+      if (!xgH || !xgA) return { mae: 999, logLoss: 999, combined: 999 };
+
+      // Compute means for fallback
+      function meanOf(col) {
+        const v = sorted.map(r => r[col]).filter(v => v !== null);
+        return v.length > 0 ? v.reduce((a, b) => a + b, 0) / v.length : 1;
+      }
+      const means = {
+        HomeGoals: meanOf('HomeGoals'), AwayGoals: meanOf('AwayGoals')
+      };
+
+      // Evaluate on validation data
+      let totalMAE = 0, totalLogLoss = 0, validCount = 0;
+
+      // Build a combined sorted array for feature building on validation
+      const combinedSorted = [...sorted, ...valData.sort((a, b) => (a.Date || 0) - (b.Date || 0))];
+      const trainLen = sorted.length;
+
+      for (let vi = 0; vi < valData.length; vi++) {
+        const row = valData[vi];
+        if (row.HomeGoals === null || row.AwayGoals === null) continue;
+
+        const idx = trainLen + vi;
+        const features = buildFeatures(combinedSorted, idx, row);
+
+        // Predict xG
+        let predH = Math.max(CFG.XG_MINIMO, xgH.predict(features)) * CFG.FACTOR_LOCAL;
+        let predA = Math.max(CFG.XG_MINIMO, xgA.predict(features)) * CFG.FACTOR_VISITA;
+
+        // Apply POST_GBT_MAX_ADJ clamp conceptually (raw = predicted before adj)
+        const rawH = predH, rawA = predA;
+        predH = Math.max(rawH * (1 - CFG.POST_GBT_MAX_ADJ), Math.min(rawH * (1 + CFG.POST_GBT_MAX_ADJ), predH));
+        predA = Math.max(rawA * (1 - CFG.POST_GBT_MAX_ADJ), Math.min(rawA * (1 + CFG.POST_GBT_MAX_ADJ), predA));
+        predH = Math.max(CFG.XG_MINIMO, predH);
+        predA = Math.max(CFG.XG_MINIMO, predA);
+
+        // MAE
+        totalMAE += Math.abs(row.HomeGoals - predH) + Math.abs(row.AwayGoals - predA);
+
+        // Log-loss: build Poisson matrix → 1X2 probs
+        const mx = buildPoissonMatrix(predH, predA);
+        const probs1x2 = calc1X2(mx);
+        const eps = 0.001;
+        const p1 = Math.max(eps, Math.min(1 - eps, probs1x2.p1));
+        const pX = Math.max(eps, Math.min(1 - eps, probs1x2.pX));
+        const p2 = Math.max(eps, Math.min(1 - eps, probs1x2.p2));
+
+        // Actual result
+        const actual = row.HomeGoals > row.AwayGoals ? 'H' : (row.HomeGoals === row.AwayGoals ? 'D' : 'A');
+        if (actual === 'H') totalLogLoss -= Math.log(p1);
+        else if (actual === 'D') totalLogLoss -= Math.log(pX);
+        else totalLogLoss -= Math.log(p2);
+
+        validCount++;
+      }
+
+      if (validCount < 3) return { mae: 999, logLoss: 999, combined: 999 };
+
+      const mae = totalMAE / (validCount * 2);
+      const logLoss = totalLogLoss / validCount;
+      const combined = 0.6 * mae + 0.4 * logLoss;
+      return { mae, logLoss, combined };
+    }
+
+    /**
+     * Generate candidate values for a parameter.
+     */
+    function generateCandidates(paramName, meta) {
+      const { min, max, prior, integer } = meta;
+      const candidates = new Set();
+      candidates.add(prior);
+
+      // 5 equidistant points in [min, max]
+      for (let i = 0; i <= 4; i++) {
+        let v = min + (max - min) * (i / 4);
+        if (integer) v = Math.round(v);
+        candidates.add(v);
+      }
+
+      // 3 points around prior (±20%, ±40%)
+      const range = max - min;
+      [0.2, 0.4].forEach(frac => {
+        let vLo = prior - range * frac;
+        let vHi = prior + range * frac;
+        vLo = Math.max(min, Math.min(max, vLo));
+        vHi = Math.max(min, Math.min(max, vHi));
+        if (integer) { vLo = Math.round(vLo); vHi = Math.round(vHi); }
+        candidates.add(vLo);
+        candidates.add(vHi);
+      });
+
+      // Midpoints between prior and extremes
+      let mLo = (prior + min) / 2, mHi = (prior + max) / 2;
+      if (integer) { mLo = Math.round(mLo); mHi = Math.round(mHi); }
+      candidates.add(Math.max(min, Math.min(max, mLo)));
+      candidates.add(Math.max(min, Math.min(max, mHi)));
+
+      return [...candidates].sort((a, b) => a - b);
+    }
+
+    /**
+     * Apply data-confidence shrinkage towards neutral values.
+     * For inverted params (SHRINKAGE_BOOKIE): less data → higher value (trust bookie more)
+     */
+    function applyDataConfidenceShrinkage(optimalValues, nData) {
+      const dataConfidence = Math.min(1, nData / 500);
+      const result = {};
+
+      for (const [param, optimal] of Object.entries(optimalValues)) {
+        const meta = TUNABLE_PARAMS[param];
+        if (!meta) { result[param] = optimal; continue; }
+
+        if (meta.inverted) {
+          // SHRINKAGE_BOOKIE: low data → high shrinkage (trust cuotas), high data → low (trust model)
+          result[param] = meta.max * (1 - dataConfidence) + optimal * dataConfidence;
+        } else {
+          // Normal: low data → towards neutral, high data → optimal
+          result[param] = meta.neutral + (optimal - meta.neutral) * dataConfidence;
+        }
+
+        // Enforce bounds
+        result[param] = Math.max(meta.min, Math.min(meta.max, result[param]));
+        if (meta.integer) result[param] = Math.round(result[param]);
+      }
+
+      return result;
+    }
+
+    /**
+     * Main auto-calibration orchestrator.
+     * Splits data chronologically 70/30, then optimizes each group of params sequentially.
+     */
+    function autoCalibrate(data) {
+      const t0 = performance.now();
+      const sorted = [...data].sort((a, b) => (a.Date || 0) - (b.Date || 0));
+      const n = sorted.length;
+
+      if (n < 30) {
+        logMsg('[AutoCal] Insuficientes datos para auto-calibración (' + n + '<30). Usando valores por defecto con shrinkage máximo.');
+        // Apply maximum shrinkage towards neutral
+        const defaults = {};
+        for (const [param, meta] of Object.entries(TUNABLE_PARAMS)) {
+          defaults[param] = meta.neutral;
+          if (meta.inverted) defaults[param] = meta.max;
+        }
+        const shrunk = applyDataConfidenceShrinkage(defaults, n);
+        for (const [k, v] of Object.entries(shrunk)) CFG[k] = v;
+        LAST_CALIBRATION_RESULT = {
+          changes: Object.entries(shrunk).map(([k, v]) => ({
+            param: k, oldVal: TUNABLE_PARAMS[k].prior, newVal: v,
+            reason: 'Pocos datos → valor neutro', improvement: 0
+          })),
+          baselineScore: null, finalScore: null, dataConfidence: n / 500,
+          nData: n, elapsed: performance.now() - t0
+        };
+        return LAST_CALIBRATION_RESULT;
+      }
+
+      // Split 70/30 chronologically
+      const splitIdx = Math.floor(n * 0.7);
+      const trainData = sorted.slice(0, splitIdx);
+      const valData = sorted.slice(splitIdx);
+      logMsg(`[AutoCal] Split: ${trainData.length} train / ${valData.length} validación`);
+
+      // Save original CFG values
+      const originalCFG = {};
+      for (const k of Object.keys(TUNABLE_PARAMS)) originalCFG[k] = CFG[k];
+
+      // Evaluate baseline
+      const baselineScore = evaluateCFGOnValidation(trainData, valData);
+      logMsg(`[AutoCal] Baseline — MAE: ${baselineScore.mae.toFixed(4)}, LogLoss: ${baselineScore.logLoss.toFixed(4)}, Combined: ${baselineScore.combined.toFixed(4)}`);
+
+      const changes = [];
+      const optimalRaw = { ...originalCFG };
+
+      // Optimize group by group in dependency order
+      for (const group of TUNABLE_GROUP_ORDER) {
+        const paramsInGroup = Object.entries(TUNABLE_PARAMS).filter(([_, m]) => m.group === group).map(([k]) => k);
+        if (paramsInGroup.length === 0) continue;
+
+        logMsg(`[AutoCal] Optimizando grupo: ${TUNABLE_GROUP_LABELS[group]} (${paramsInGroup.length} params)`);
+
+        // For each param in the group, find best candidate
+        for (const param of paramsInGroup) {
+          const meta = TUNABLE_PARAMS[param];
+          const candidates = generateCandidates(param, meta);
+          const currentVal = CFG[param];
+
+          let bestVal = currentVal;
+          let bestScore = Infinity;
+
+          for (const candidateVal of candidates) {
+            CFG[param] = candidateVal;
+            const score = evaluateCFGOnValidation(trainData, valData);
+            if (score.combined < bestScore) {
+              bestScore = score.combined;
+              bestVal = candidateVal;
+            }
+          }
+
+          // Keep the best value for this param
+          CFG[param] = bestVal;
+          optimalRaw[param] = bestVal;
+
+          if (bestVal !== currentVal) {
+            const improvement = baselineScore.combined > 0 ? ((baselineScore.combined - bestScore) / baselineScore.combined * 100) : 0;
+            changes.push({
+              param, oldVal: originalCFG[param], newVal: bestVal,
+              reason: `Mejor score en validación (${bestScore.toFixed(4)} vs ${baselineScore.combined.toFixed(4)})`,
+              improvement: improvement,
+              group
+            });
+          }
+        }
+      }
+
+      // Apply data-confidence shrinkage
+      const shrunkValues = applyDataConfidenceShrinkage(optimalRaw, n);
+      for (const [k, v] of Object.entries(shrunkValues)) {
+        // Update the change entries with shrunk values
+        const changeEntry = changes.find(c => c.param === k);
+        if (changeEntry && changeEntry.newVal !== v) {
+          changeEntry.newValPreShrink = changeEntry.newVal;
+          changeEntry.newVal = v;
+          changeEntry.reason += ` → shrink hacia neutro (confianza: ${(n / 500 * 100).toFixed(0)}%)`;
+        } else if (!changeEntry && v !== originalCFG[k]) {
+          // Shrinkage alone caused a change
+          changes.push({
+            param: k, oldVal: originalCFG[k], newVal: v,
+            reason: `Shrinkage por cantidad de datos (confianza: ${(Math.min(1, n / 500) * 100).toFixed(0)}%)`,
+            improvement: 0, group: TUNABLE_PARAMS[k].group
+          });
+        }
+        CFG[k] = v;
+      }
+
+      // Evaluate final score
+      const finalScore = evaluateCFGOnValidation(trainData, valData);
+      const elapsed = performance.now() - t0;
+
+      logMsg(`[AutoCal] Final — MAE: ${finalScore.mae.toFixed(4)}, LogLoss: ${finalScore.logLoss.toFixed(4)}, Combined: ${finalScore.combined.toFixed(4)}`);
+      logMsg(`[AutoCal] ${changes.length} coeficientes ajustados en ${(elapsed / 1000).toFixed(1)}s`);
+
+      const totalImprovement = baselineScore.combined > 0
+        ? ((baselineScore.combined - finalScore.combined) / baselineScore.combined * 100) : 0;
+      logMsg(`[AutoCal] Mejora total: ${totalImprovement > 0 ? '+' : ''}${totalImprovement.toFixed(2)}%`);
+
+      LAST_CALIBRATION_RESULT = {
+        changes,
+        baselineScore,
+        finalScore,
+        dataConfidence: Math.min(1, n / 500),
+        nData: n,
+        elapsed,
+        totalImprovement
+      };
+
+      return LAST_CALIBRATION_RESULT;
+    }
 
     const FEATURE_NAMES = [
       'Win Expect. (ELO)', 'Dif. ELO', 'Localía', 'Peso Torneo', 'Peso Etapa',
