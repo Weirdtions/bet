@@ -15,7 +15,7 @@
 ##### 2023: Group A & from quarterfinals
 
 ### UEFA Nations League
-##### 2022-2023: League A: Group 3 & 4
+##### 2022-2023: League A: Group 1, 3, 4
 
 ### WC Qualifiers CONMEBOL
 ##### 2023-2026: Completed
